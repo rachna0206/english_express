@@ -7,7 +7,7 @@ else{
 	header("location:home.php");
 }
 
-$stmt_slist = $obj->con1->prepare("select * from state");
+$stmt_slist = $obj->con1->prepare("select * from state where status='active'");
 $stmt_slist->execute();
 $res = $stmt_slist->get_result();
 $stmt_slist->close();
@@ -56,6 +56,7 @@ if(isset($_REQUEST['btnsubmit']))
   $userid = $_REQUEST['userid'];
   $guard_name = $_REQUEST['guard_name'];
   $contact = $_REQUEST['contact'];
+  $birthdate = $_REQUEST['dob'];
   $inquiry_dt = $_REQUEST['inquiry_dt'];
   $enrollment_dt = $_REQUEST['enrollment_dt'];
   $btime = $_REQUEST['btime'];
@@ -107,8 +108,8 @@ if(isset($_REQUEST['btnsubmit']))
 
   try
   {
-  	$stmt = $obj->con1->prepare("INSERT INTO `student`(`name`, `email`,`gender`, `house_no`, `society_name`, `village`, `landmark`, `city`, `state`, `pin`, `education`, `stu_type`, `guard_name`, `user_id`, `password`, `phone`, `inquiry_dt`, `enrollment_dt`, `skillid`, `courseid`, `pic`, `aadhar`,`status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-  	$stmt->bind_param("sssssssiisssssssssiisss", $sname,$email,$gender,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$education,$stu_type,$guard_name,$userid,$password,$contact,$inquiry_dt,$enrollment_dt,$skills,$course,$PicFileName,$AadFileName,$status);
+  	$stmt = $obj->con1->prepare("INSERT INTO `student`(`name`, `email`,`gender`, `house_no`, `society_name`, `village`, `landmark`, `city`, `state`, `pin`, `education`, `stu_type`, `guard_name`, `user_id`, `password`, `phone`, `dob`, `inquiry_dt`, `enrollment_dt`, `skillid`, `courseid`, `pic`, `aadhar`,`status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+  	$stmt->bind_param("sssssssiissssssssssiisss", $sname,$email,$gender,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$education,$stu_type,$guard_name,$userid,$password,$contact,$birthdate,$inquiry_dt,$enrollment_dt,$skills,$course,$PicFileName,$AadFileName,$status);
   	$Resp=$stmt->execute();
     $lastId = mysqli_insert_id($obj->con1);
 
@@ -164,6 +165,7 @@ if(isset($_REQUEST['btnupdate']))
   $userid = $_REQUEST['userid'];
   $guard_name = $_REQUEST['guard_name'];
   $contact = $_REQUEST['contact'];
+  $birthdate = $_REQUEST['dob'];
   $inquiry_dt = $_REQUEST['inquiry_dt'];
   $enrollment_dt = $_REQUEST['enrollment_dt'];
   $btime = $_REQUEST['btime'];
@@ -236,8 +238,8 @@ if(isset($_REQUEST['btnupdate']))
 
   try
   {
-  	$stmt = $obj->con1->prepare("update student set name=?, email=?, gender=?, house_no=?, society_name=?, village=?, landmark=?, city=?, state=?, pin=?, education=?, stu_type=?, guard_name=?, user_id=?,password=?, phone=?, inquiry_dt=?, enrollment_dt=?, skillid=?, courseid=?, pic=?, aadhar=?,`status`=? where sid=?");
-  	$stmt->bind_param("sssssssiisssssssssiisssi", $sname,$email,$gender,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$education,$stu_type,$guard_name,$userid,$password,$contact,$inquiry_dt,$enrollment_dt,$skills,$course,$PicFileName,$AadFileName,$status,$id);
+  	$stmt = $obj->con1->prepare("update student set name=?, email=?, gender=?, house_no=?, society_name=?, village=?, landmark=?, city=?, state=?, pin=?, education=?, stu_type=?, guard_name=?, user_id=?,password=?, phone=?, dob=?, inquiry_dt=?, enrollment_dt=?, skillid=?, courseid=?, pic=?, aadhar=?,`status`=? where sid=?");
+  	$stmt->bind_param("sssssssiissssssssssiisssi", $sname,$email,$gender,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$education,$stu_type,$guard_name,$userid,$password,$contact,$birthdate,$inquiry_dt,$enrollment_dt,$skills,$course,$PicFileName,$AadFileName,$status,$id);
   	$Resp=$stmt->execute();
 
 
@@ -477,11 +479,11 @@ if(isset($_COOKIE["msg"]) )
                         </div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Village</label>
-                          <input type="text" class="form-control" name="village" id="village" required />
+                          <input type="text" class="form-control" name="village" id="village" />
                         </div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Landmark</label>
-                          <input type="text" class="form-control" name="landmark" id="landmark" required />
+                          <input type="text" class="form-control" name="landmark" id="landmark" />
                         </div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">State</label>
@@ -522,27 +524,32 @@ if(isset($_COOKIE["msg"]) )
                           </select>
                         </div>
 						
-						            <div class="mb-3">
+						<div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">User ID (Roll No.)</label>
                           <input type="text" class="form-control" name="userid" id="userid" required />
                         </div>
                         
-						            <div class="mb-3">
+						<div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Password</label>
                           <input type="text" min="6" class="form-control" name="password" id="password" required value="<?php echo password_generate(6)?>" />
                         </div>
 						
-						            <div class="mb-3">
+						<div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Guardian Name</label>
                           <input type="text" class="form-control" name="guard_name" id="guard_name" required />
                         </div>
 						
-						            <div class="mb-3">
+						<div class="mb-3">
                           <label class="form-label" for="basic-default-company">Contact No.</label>
                           <input type="tel" pattern="[0-9]{10}" class="form-control phone-mask" id="contact" name="contact"  required/>
                         </div>
 						
-						            <div class="mb-3">
+                        <div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Date of Birth</label>
+                          <input type="date" class="form-control" name="dob" id="dob" required/>
+                        </div>
+                        
+						<div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Inquiry Date</label>
                           <input type="date" class="form-control" name="inquiry_dt" id="inquiry_dt" required value="<?php echo date('Y-m-d')?>" />
                         </div>
@@ -695,11 +702,11 @@ select st.*,sk.skills,c.coursename,'-' as batch_time,'-' as batch_name,1 as bid 
                     <?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>
                         <?php if($row["upd_func"]=="y"){ ?>
-                        	<a  href="javascript:editdata('<?php echo $s["sid"]?>','<?php echo base64_encode($s["name"])?>','<?php echo base64_encode($s["email"])?>','<?php echo $s["gender"]?>','<?php echo base64_encode($s["password"])?>','<?php echo base64_encode($s["house_no"])?>','<?php echo base64_encode($s["society_name"])?>','<?php echo base64_encode($s["village"])?>','<?php echo base64_encode($s["landmark"])?>','<?php echo $s["city"]?>','<?php echo $s["state"]?>','<?php echo base64_encode($s["pin"])?>','<?php echo base64_encode($s["education"])?>','<?php echo base64_encode($s["stu_type"])?>','<?php echo base64_encode($s["user_id"])?>','<?php echo base64_encode($s["guard_name"])?>','<?php echo $s["phone"]?>','<?php echo base64_encode($s["inquiry_dt"])?>','<?php echo base64_encode($s["enrollment_dt"])?>','<?php echo base64_encode($s["bid"])?>','<?php echo $s["skillid"]?>','<?php echo $s["courseid"]?>','<?php echo base64_encode($s["pic"])?>','<?php echo base64_encode($s["aadhar"])?>','<?php echo $s["status"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
+                        	<a  href="javascript:editdata('<?php echo $s["sid"]?>','<?php echo base64_encode($s["name"])?>','<?php echo base64_encode($s["email"])?>','<?php echo $s["gender"]?>','<?php echo base64_encode($s["password"])?>','<?php echo base64_encode($s["house_no"])?>','<?php echo base64_encode($s["society_name"])?>','<?php echo base64_encode($s["village"])?>','<?php echo base64_encode($s["landmark"])?>','<?php echo $s["city"]?>','<?php echo $s["state"]?>','<?php echo base64_encode($s["pin"])?>','<?php echo base64_encode($s["education"])?>','<?php echo base64_encode($s["stu_type"])?>','<?php echo base64_encode($s["user_id"])?>','<?php echo base64_encode($s["guard_name"])?>','<?php echo $s["phone"]?>','<?php echo base64_encode($s["dob"])?>','<?php echo base64_encode($s["inquiry_dt"])?>','<?php echo base64_encode($s["enrollment_dt"])?>','<?php echo base64_encode($s["bid"])?>','<?php echo $s["skillid"]?>','<?php echo $s["courseid"]?>','<?php echo base64_encode($s["pic"])?>','<?php echo base64_encode($s["aadhar"])?>','<?php echo $s["status"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
                         <?php } if($row["del_func"]=="y"){ ?>
 							<a  href="javascript:deletedata('<?php echo $s["sid"]?>','<?php echo base64_encode($s["pic"])?>','<?php echo base64_encode($s["aadhar"])?>');"><i class="bx bx-trash me-1"></i> </a>
                         <?php } if($row["read_func"]=="y"){ ?>
-                        	<a  href="javascript:viewdata('<?php echo $s["sid"]?>','<?php echo base64_encode($s["name"])?>','<?php echo base64_encode($s["email"])?>','<?php echo $s["gender"]?>','<?php echo base64_encode($s["password"])?>','<?php echo base64_encode($s["house_no"])?>','<?php echo base64_encode($s["society_name"])?>','<?php echo base64_encode($s["village"])?>','<?php echo base64_encode($s["landmark"])?>','<?php echo $s["city"]?>','<?php echo $s["state"]?>','<?php echo base64_encode($s["pin"])?>','<?php echo base64_encode($s["education"])?>','<?php echo base64_encode($s["stu_type"])?>','<?php echo base64_encode($s["user_id"])?>','<?php echo base64_encode($s["guard_name"])?>','<?php echo $s["phone"]?>','<?php echo base64_encode($s["inquiry_dt"])?>','<?php echo base64_encode($s["enrollment_dt"])?>','<?php echo base64_encode($s["bid"])?>','<?php echo $s["skillid"]?>','<?php echo $s["courseid"]?>','<?php echo base64_encode($s["pic"])?>','<?php echo base64_encode($s["aadhar"])?>','<?php echo $s["status"]?>');">View</a>
+                        	<a  href="javascript:viewdata('<?php echo $s["sid"]?>','<?php echo base64_encode($s["name"])?>','<?php echo base64_encode($s["email"])?>','<?php echo $s["gender"]?>','<?php echo base64_encode($s["password"])?>','<?php echo base64_encode($s["house_no"])?>','<?php echo base64_encode($s["society_name"])?>','<?php echo base64_encode($s["village"])?>','<?php echo base64_encode($s["landmark"])?>','<?php echo $s["city"]?>','<?php echo $s["state"]?>','<?php echo base64_encode($s["pin"])?>','<?php echo base64_encode($s["education"])?>','<?php echo base64_encode($s["stu_type"])?>','<?php echo base64_encode($s["user_id"])?>','<?php echo base64_encode($s["guard_name"])?>','<?php echo $s["phone"]?>','<?php echo base64_encode($s["dob"])?>','<?php echo base64_encode($s["inquiry_dt"])?>','<?php echo base64_encode($s["enrollment_dt"])?>','<?php echo base64_encode($s["bid"])?>','<?php echo $s["skillid"]?>','<?php echo $s["courseid"]?>','<?php echo base64_encode($s["pic"])?>','<?php echo base64_encode($s["aadhar"])?>','<?php echo $s["status"]?>');">View</a>
                         <?php } ?>
                         </td>
                     <?php } ?>
@@ -778,7 +785,7 @@ select st.*,sk.skills,c.coursename,'-' as batch_time,'-' as batch_name,1 as bid 
       }
   }
   
-  function editdata(id,name,email,gender,password,house_no,society,village,landmark,city,state,pin,education,stu_type,userid,gname,phone,inquiry,enrollment,btime,skill,course,pic,aadhar,status) {         
+  function editdata(id,name,email,gender,password,house_no,society,village,landmark,city,state,pin,education,stu_type,userid,gname,phone,dob,inquiry,enrollment,btime,skill,course,pic,aadhar,status) {         
 		$('#ttId').val(id);
 		$('#sname').val(atob(name));
 		$('#email').val(atob(email));
@@ -799,6 +806,7 @@ select st.*,sk.skills,c.coursename,'-' as batch_time,'-' as batch_name,1 as bid 
 		$('#password').val(atob(password));
 		$('#guard_name').val(atob(gname));
 		$('#contact').val(phone);
+		$('#dob').val(atob(dob));
 		$('#inquiry_dt').val(atob(inquiry));
 		$('#enrollment_dt').val(atob(enrollment));
 		$('#btime').val(atob(btime));
@@ -829,7 +837,7 @@ select st.*,sk.skills,c.coursename,'-' as batch_time,'-' as batch_name,1 as bid 
 		$('#btnupdate').removeAttr('hidden');
 	}
 	
-	function viewdata(id,name,email,gender,password,house_no,society,village,landmark,city,state,pin,education,stu_type,userid,gname,phone,inquiry,enrollment,btime,skill,course,pic,aadhar,status) {         
+	function viewdata(id,name,email,gender,password,house_no,society,village,landmark,city,state,pin,education,stu_type,userid,gname,phone,dob,inquiry,enrollment,btime,skill,course,pic,aadhar,status) {         
 		$('#ttId').val(id);
 		$('#sname').val(atob(name));
 		$('#email').val(atob(email));
@@ -859,6 +867,7 @@ select st.*,sk.skills,c.coursename,'-' as batch_time,'-' as batch_name,1 as bid 
 		$('#password').val(atob(password));
 		$('#guard_name').val(atob(gname));
 		$('#contact').val(phone);
+		$('#dob').val(atob(dob));
 		$('#inquiry_dt').val(atob(inquiry));
 		$('#enrollment_dt').val(atob(enrollment));
 		$('#btime').val(atob(btime));

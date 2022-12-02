@@ -2,10 +2,10 @@
 include("header.php");
 
 // for permission
-/*if($row=checkPermission($_SESSION["utype"],"state")){ }
+if($row=checkPermission($_SESSION["utype"],"state")){ }
 else{
 	header("location:home.php");
-}*/
+}
 
 					
 // insert data
@@ -177,7 +177,7 @@ if(isset($_COOKIE["msg"]) )
   }
 ?>
 
-<?php //if($row["write_func"]=="y" || $row["upd_func"]=="y" || $row["read_func"]=="y"){ ?>
+<?php if($row["write_func"]=="y" || $row["upd_func"]=="y" || $row["read_func"]=="y"){ ?>
               <!-- Basic Layout -->
               <div class="row">
                 <div class="col-xl">
@@ -209,11 +209,11 @@ if(isset($_COOKIE["msg"]) )
                         </div>
                         
                         
-                    <?php //if($row["write_func"]=="y"){ ?>
+                    <?php if($row["write_func"]=="y"){ ?>
                         <button type="submit" name="btnsubmit"id="btnsubmit" class="btn btn-primary">Submit</button>
-					<?php //} if($row["upd_func"]=="y"){ ?>
+					<?php } if($row["upd_func"]=="y"){ ?>
                         <button type="submit" name="btnupdate"id="btnupdate" class="btn btn-primary " hidden>Update</button>
-                    <?php //} ?>
+                    <?php } ?>
                         <button type="reset" name="btncancel" id="btncancel" class="btn btn-secondary" onclick="window.location.reload()">Cancel</button>
 
                       </form>
@@ -223,9 +223,9 @@ if(isset($_COOKIE["msg"]) )
                 
               </div>
            
-<?php //} ?>
+<?php } ?>
 
-<?php //if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
+<?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
            <!-- grid -->
 
            <!-- Basic Bootstrap Table -->
@@ -258,17 +258,17 @@ if(isset($_COOKIE["msg"]) )
                         <td><?php echo $state["state_name"]?></td>
                         <td><?php echo $state["status"]?></td>
                           
-                    <?php //if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
+                    <?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>
-                        <?php //if($row["upd_func"]=="y"){ ?>
+                        <?php if($row["upd_func"]=="y"){ ?>
                         	<a  href="javascript:editdata('<?php echo $state["state_id"]?>','<?php echo base64_encode($state["state_name"])?>','<?php echo $state["status"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
-                        <?php //} if($row["del_func"]=="y"){ ?>
+                        <?php } if($row["del_func"]=="y"){ ?>
 							<a  href="javascript:deletedata('<?php echo $state["state_id"]?>');"><i class="bx bx-trash me-1"></i> </a>
-                        <?php //} if($row["read_func"]=="y"){ ?>
+                        <?php } if($row["read_func"]=="y"){ ?>
                         	<a  href="javascript:viewdata('<?php echo $state["state_id"]?>','<?php echo base64_encode($state["state_name"])?>','<?php echo $state["status"]?>');">View</a>
-                        <?php //} ?>
+                        <?php } ?>
                         </td>
-                    <?php //} ?>
+                    <?php } ?>
                         
                       </tr>
                       <?php
@@ -284,7 +284,7 @@ if(isset($_COOKIE["msg"]) )
 
 
            <!-- / grid -->
-<?php //} ?>
+<?php } ?>
             <!-- / Content -->
 <script type="text/javascript">
   function deletedata(sid) {

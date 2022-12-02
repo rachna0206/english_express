@@ -2,11 +2,11 @@
 include("header.php");
 
 // for permission
-/*if($row=checkPermission($_SESSION["utype"],"city")){ }
+if($row=checkPermission($_SESSION["utype"],"city")){ }
 else{
 	header("location:home.php");
 }
-*/
+
 
 $stmt_slist = $obj->con1->prepare("select * from state");
 $stmt_slist->execute();
@@ -185,7 +185,7 @@ if(isset($_COOKIE["msg"]) )
   }
 ?>
 
-<?php //if($row["write_func"]=="y" || $row["upd_func"]=="y" || $row["read_func"]=="y"){ ?>
+<?php if($row["write_func"]=="y" || $row["upd_func"]=="y" || $row["read_func"]=="y"){ ?>
               <!-- Basic Layout -->
               <div class="row">
                 <div class="col-xl">
@@ -244,9 +244,9 @@ if(isset($_COOKIE["msg"]) )
                 
               </div>
            
-<?php //} ?>
+<?php } ?>
 
-<?php //if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
+<?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
            <!-- grid -->
 
            <!-- Basic Bootstrap Table -->
@@ -282,17 +282,17 @@ if(isset($_COOKIE["msg"]) )
                         <td><?php echo $city["state_name"]?></td>
                         <td><?php echo $city["status"]?></td>
                         
-                    <?php //if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
+                    <?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>
-                        <?php //if($row["upd_func"]=="y"){ ?>
+                        <?php if($row["upd_func"]=="y"){ ?>
                         	<a href="javascript:editdata('<?php echo $city["city_id"]?>','<?php echo $city["state_id"]?>','<?php echo base64_encode($city["city_name"])?>','<?php echo $city["status"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
-                        <?php //} if($row["del_func"]=="y"){ ?>
+                        <?php } if($row["del_func"]=="y"){ ?>
 							<a  href="javascript:deletedata('<?php echo $city["city_id"]?>');"><i class="bx bx-trash me-1"></i> </a>
-                        <?php //} if($row["read_func"]=="y"){ ?>
+                        <?php } if($row["read_func"]=="y"){ ?>
                         	<a href="javascript:viewdata('<?php echo $city["city_id"]?>','<?php echo $city["state_id"]?>','<?php echo base64_encode($city["city_name"])?>','<?php echo $city["status"]?>');">View</a>
-                        <?php //} ?>
+                        <?php } ?>
                         </td>
-                    <?php //} ?>
+                    <?php } ?>
                         
                       </tr>
                       <?php
@@ -308,7 +308,7 @@ if(isset($_COOKIE["msg"]) )
 
 
            <!-- / grid -->
-<?php //} ?>
+<?php } ?>
             <!-- / Content -->
 <script type="text/javascript">
   function deletedata(id) {

@@ -301,7 +301,7 @@ if(isset($_COOKIE["msg"]) )
                           <label class="form-label" for="basic-default-fullname">Chapter Name</label>
                           <select name="chap" id="chap" onchange="exerList(this.value)" class="form-control" required>
                           	<option value="">Select Chapter</option>
-                            <div id="chap_list_div">
+                            <div id="chap_list_div" >
                     <?php    
                         while($chap=mysqli_fetch_array($res1)){
 							if($cid==$chap["cid"]){	
@@ -321,7 +321,7 @@ if(isset($_COOKIE["msg"]) )
                         
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Exercise Name</label><br/>
-                          <div id="exer_list_div">
+                          <div id="exer_list_div" class="row">
   		    		<?php    
                         while($exer=mysqli_fetch_array($r3)){	
                     ?>

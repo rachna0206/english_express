@@ -198,6 +198,38 @@ public function stu_reg($name,$address,$education,$stu_type,$enrollment_dt,$skil
 }
 
 
+// get book list from course
+ public function book_list($course_id)
+{
+    $stmt = $this->con->prepare("SELECT * from books where courseid=? ");
+    $stmt->bind_param("i", $course_id);
+    $stmt->execute();
+    $book = $stmt->get_result();
+    $stmt->close();
+    return $book;
+}
+
+// get chapter list from book
+ public function chapter_list($book_id)
+{
+    $stmt = $this->con->prepare("SELECT * from chapter where book_id=? ");
+    $stmt->bind_param("i", $book_id);
+    $stmt->execute();
+    $chapter = $stmt->get_result();
+    $stmt->close();
+    return $chapter;
+}
+
+// get exercise list from book & chapter
+ public function exercise_list($book_id,$chapter_id)
+{
+    $stmt = $this->con->prepare("SELECT * from exercise where book_id=? and chap_id=? ");
+    $stmt->bind_param("ii", $book_id,$chapter_id);
+    $stmt->execute();
+    $exercise = $stmt->get_result();
+    $stmt->close();
+    return $exercise;
+}
 
   //---------- english express--------------//  
 

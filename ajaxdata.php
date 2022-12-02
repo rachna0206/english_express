@@ -260,14 +260,14 @@ if(isset($_REQUEST['action']))
 			
 		  	while($exercise=mysqli_fetch_array($exer_res))
 		  	{
-					$html.=' <input type="checkbox" name="e[]" id="exercise_'.$exercise["eid"].'" value="'.$exercise["eid"].'"/> '.$exercise["exer_name"];
+					$html.='<div class="col-md-3"><input type="checkbox" name="e[]" id="exercise_'.$exercise["eid"].'" value="'.$exercise["eid"].'"/> '.$exercise["exer_name"].'</div>';
 					$i++;
 
 		  	}
 		  }
 		  else
 		  {
-		  	$html.=' <input type="text" name="e" id="e" value="" readonly required class="form-control"/><span class="text-danger">No exercise found</span>';
+		  	$html.='<div class="col-md-3"><input type="text" name="e" id="e" value="" readonly required class="form-control"/><span class="text-danger">No exercise found</span></div>';
 
 		  }
 
@@ -295,7 +295,7 @@ if(isset($_REQUEST['action']))
 	{
 		$html="";
 		$state_id=$_REQUEST["state_id"];
-		$stmt_clist = $obj->con1->prepare("select * from city where state_id=?");
+		$stmt_clist = $obj->con1->prepare("select * from city where state_id=? and status='active'");
 		$stmt_clist->bind_param("i",$state_id);
 	  	$stmt_clist->execute();
 	  	$city_res = $stmt_clist->get_result();

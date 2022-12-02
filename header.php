@@ -20,8 +20,6 @@ if($res=checkMainMenu($_SESSION["utype"])){
 	}
 }
 else{ }
-
- 
 ?>
 
 <!DOCTYPE html>
@@ -306,25 +304,38 @@ else{ }
                     <div data-i18n="course">Permission</div>
                   </a>
                 </li>
+				<?php } if(isset($menu["notification"])=="notification"){ ?>
+				<li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="send_notification.php"?"active":"" ?>">
+				  <a href="send_notification.php" class="menu-link">
+					<div data-i18n="course">Send Notification</div>
+				  </a>
+				</li>
+				<?php } if(isset($menu["lead_generation"])=="lead_generation"){ ?>
+				<li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="lead_generation.php"?"active":"" ?>">
+				  <a href="lead_generation.php" class="menu-link">
+					<div data-i18n="course">Lead Generation</div>
+				  </a>
+				</li>
+				<?php } if(isset($menu["associate_reg"])=="associate_reg"){ ?>
+				<li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="associate_reg.php"?"active":"" ?>">
+				  <a href="associate_reg.php" class="menu-link">
+					<div data-i18n="course">Associates</div>
+				  </a>
+				</li>
+				<?php } if(isset($menu["state"])=="state"){ ?>
+				<li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="state.php"?"active":"" ?>">
+				  <a href="state.php" class="menu-link">
+					<div data-i18n="course">State</div>
+				  </a>
+				</li>
+				<?php } if(isset($menu["city"])=="city"){ ?>
+				<li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="city.php"?"active":"" ?>">
+				  <a href="city.php" class="menu-link">
+					<div data-i18n="course">City</div>
+				  </a>
+				</li>
 				<?php } ?>
-
-        <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="send_notification.php"?"active":"" ?>">
-          <a href="send_notification.php" class="menu-link">
-            <div data-i18n="course">Send Notification</div>
-          </a>
-        </li>
-        <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="associate_reg.php"?"active":"" ?>">
-          <a href="associate_reg.php" class="menu-link">
-            <div data-i18n="course">Associate</div>
-          </a>
-        </li>
-
-        <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="lead_generation.php"?"active":"" ?>">
-          <a href="lead_generation.php" class="menu-link">
-            <div data-i18n="course">Lead Generation</div>
-          </a>
-        </li>
-        
+				
                 <!-- <li class="menu-item">
                   <a href="forms-input-groups.html" class="menu-link">
                     <div data-i18n="Input groups">Input groups</div>
@@ -377,15 +388,7 @@ else{ }
             </div>
 
             <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-              <!-- <div class="navbar-nav align-items-center">
-                <div class="nav-item d-flex align-items-center">
-                  <i class="bx bx-calendar fs-4 lh-0"></i>
-                  <form method="post" id="dashboard_frm">
-                  <input type="date" class="form-control border-0 shadow-none" name="dash_date" id="dash_date" onchange="get_dashboard_data(this.value)" value="<?php echo isset($_COOKIE['dash_date'])?$_COOKIE['dash_date']:date('Y-m-d')?>">
-                  <input type="submit" name="dash_submit" class="d-none">
-                </form>
-                </div>
-              </div> -->
+              
 
               <ul class="navbar-nav flex-row align-items-center ms-auto">
                 <!-- Place this tag where you want the button to render. -->

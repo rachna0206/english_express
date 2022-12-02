@@ -9,6 +9,11 @@ else{
 }
 
 
+$stmt_slist = $obj->con1->prepare("select * from state where status='active'");
+$stmt_slist->execute();
+$res = $stmt_slist->get_result();
+$stmt_slist->close();
+
 // insert data
 if(isset($_REQUEST['btnsubmit']))
 {
@@ -130,6 +135,27 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
 
 ?>
 
+<script type="text/javascript">
+
+  function cityList(state){
+    $.ajax({
+          async: true,
+          type: "POST",
+          url: "ajaxdata.php?action=cityList",
+          data: "state_id="+state,
+          cache: false,
+          success: function(result){
+           
+            $('#city').html('');
+            $('#city').append(result);
+       
+            }
+        });
+  }
+
+</script>
+
+
 <h4 class="fw-bold py-3 mb-4">Associate Master</h4>
 
 <?php 
@@ -239,11 +265,11 @@ if(isset($_COOKIE["msg"]))
                         </div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Village</label>
-                          <input type="text" class="form-control" name="village" id="village" required />
+                          <input type="text" class="form-control" name="village" id="village" />
                         </div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Landmark</label>
-                          <input type="text" class="form-control" name="landmark" id="landmark" required />
+                          <input type="text" class="form-control" name="landmark" id="landmark" />
                         </div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">State</label>

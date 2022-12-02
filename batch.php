@@ -361,14 +361,13 @@ if(isset($_COOKIE["msg"]) )
                          
                          <select name="stime" id="stime" class="form-control" required>
                             <option value="">Select</option>
-                            <option value="7:30 am to 9:00 am">7:30 am to 9:00 am</option>
-                            <option value="9:00 am to 10:30 am">9:00 am to 10:30 am</option>
-                            <option value="10:30 pm to 12:00 pm">10:30 am to 12:00 pm</option>
+                            <option value="8:00 am to 9:30 am">8:00 am to 9:30 am</option>
+                            <option value="10:00 am to 11:30 pm">10:00 am to 11:30 pm</option>
                             <option value="12:00 pm to 1:30 pm">12:00 pm to 1:30 pm</option>
-                            <option value="1:30 pm to 3:00 pm">1:30 pm to 3:00 pm</option>
+                            <option value="1:00 pm to 2:30 pm">1:00 pm to 2:30 pm</option>
                             <option value="3:00 pm to 4:30 pm">3:00 pm to 4:30 pm</option>
-                            <option value="4:30 pm to 6:00 pm">4:30 pm to 6:00 pm</option>
-                            <option value="6:00 pm to 7:30 pm">6:00 pm to 7:30 pm</option>
+                            <option value="5:00 pm to 6:30 pm">5:00 pm to 6:30 pm</option>
+                            <option value="9:00 am to 12:00 pm Sunday">9:00 am to 12:00 pm Sunday</option>
                             
 
                           </select>
