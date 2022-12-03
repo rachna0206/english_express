@@ -123,9 +123,9 @@ class DbOperation
     }
 
 // get student list
- public function student_list($batch_id)
+public function student_list($batch_id)
 {
-    $stmt = $this->con->prepare("SELECT s1.sid,s1.name,s1.gender,s1.address,s1.education,s1.stu_type,s1.phone FROM batch b1,batch_assign b2,student s1 where b2.batch_id=b1.id and b2.student_id=s1.sid and  b2.batch_id=? ");
+    $stmt = $this->con->prepare("SELECT s1.sid,s1.name,s1.gender,s1.education,s1.stu_type,s1.phone FROM batch b1,batch_assign b2,student s1 where b2.batch_id=b1.id and b2.student_id=s1.sid and  b2.batch_id=? ");
     $stmt->bind_param("i", $batch_id);
     $stmt->execute();
     $faculty = $stmt->get_result();

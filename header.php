@@ -388,7 +388,37 @@ else{ }
             </div>
 
             <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-              
+              <div class="navbar-nav align-items-center">
+                <div class="nav-item d-flex align-items-center">
+                  <ul class="dropdown-menu ">
+                    
+                    <li>
+                      <a class="dropdown-item" href="#">
+                        <i class="bx bx-user me-2"></i>
+                        <span class="align-middle"><?php echo ucfirst($_SESSION["username"])?></span>
+                      </a>
+                    </li>
+                   
+                    
+                    <li>
+                      <div class="dropdown-divider"></div>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="logout.php">
+                        <i class="bx bx-power-off me-2"></i>
+                        <span class="align-middle">Log Out</span>
+                      </a>
+                    </li>
+                  </ul>
+                  <!-- <a class="dropdown-item" href="#">
+                        <span class="d-flex align-items-center align-middle">
+                          <i class="flex-shrink-0 bx bx-credit-card me-2"></i>
+                          
+                          <span class="flex-shrink-0 badge badge-center rounded-pill bg-success w-px-20 h-px-20">4</span>
+                        </span>
+                      </a> -->
+                </div>
+              </div>
 
               <ul class="navbar-nav flex-row align-items-center ms-auto">
                 <!-- Place this tag where you want the button to render. -->
