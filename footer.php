@@ -36,6 +36,7 @@
     <script type="text/javascript">
       $(document).ready( function () {
         $('#table_id').DataTable();
+        get_notification();
     } );
 
     eraseCookie("dash_date"); //erase dashboard date cookie

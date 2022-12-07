@@ -15,11 +15,12 @@ if(isset($_REQUEST['btnsubmit']))
   $contact=$_REQUEST['contact'];
   $address=$_REQUEST['address'];
   $location=$_REQUEST['location'];
+  $capacity=$_REQUEST['capacity'];
 
   try
   {
-	$stmt = $obj->con1->prepare("INSERT INTO `branch`(`name`, `address`, `phone`,`location`) VALUES (?,?,?,?)");
-	$stmt->bind_param("ssss", $bname,$address,$contact,$location);
+	$stmt = $obj->con1->prepare("INSERT INTO `branch`(`name`, `address`, `phone`,`location`,`capacity`) VALUES (?,?,?,?,?)");
+	$stmt->bind_param("ssssi", $bname,$address,$contact,$location,$capacity);
 	$Resp=$stmt->execute();
     if(!$Resp)
     {
@@ -51,11 +52,12 @@ if(isset($_REQUEST['btnupdate']))
   $address=$_REQUEST['address'];
   $location=$_REQUEST['location'];
   $id=$_REQUEST['ttId'];
+  $capacity=$_REQUEST['capacity'];
  
   try
   {
-	$stmt = $obj->con1->prepare("update branch set  name=?,address=?,phone=?,location=? where id=?");
-	$stmt->bind_param("ssssi", $bname,$address,$contact,$location,$id);
+	$stmt = $obj->con1->prepare("update branch set  name=?,address=?,phone=?,location=?,capacity=? where id=?");
+	$stmt->bind_param("ssssii", $bname,$address,$contact,$location,$capacity,$id);
 	$Resp=$stmt->execute();
     if(!$Resp)
     {
@@ -235,6 +237,11 @@ if(isset($_COOKIE["msg"]) )
                           <label class="form-label" for="basic-default-message">Address</label>
                           <textarea id="address" name="address" class="form-control" required></textarea>
                         </div>
+
+                        <div class="mb-3">
+                          <label class="form-label" for="basic-default-company">Capacity</label>
+                          <input type="number" class="form-control" id="capacity" name="capacity"  required/>
+                        </div>
                         
                     <?php if($row["write_func"]=="y"){ ?>
                         <button type="submit" name="btnsubmit" id="btnsubmit" class="btn btn-primary">Submit</button>
@@ -266,6 +273,7 @@ if(isset($_COOKIE["msg"]) )
                         <th>Name</th>
                         <th>Contact No.</th>
                         <th>Address</th>
+                        <th>Capacity</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -286,15 +294,16 @@ if(isset($_COOKIE["msg"]) )
                         <td><?php echo $branch["name"]?></td>
                         <td><?php echo $branch["phone"]?></td>
                         <td><?php echo $branch["address"]?></td>
+                        <td><?php echo ($branch["capacity"]!="")?$branch["capacity"]:"-"?></td>
                         
                     <?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>
                         <?php if($row["upd_func"]=="y"){ ?>
-                        	<a  href="javascript:editdata('<?php echo $branch["id"]?>','<?php echo base64_encode($branch["name"])?>','<?php echo $branch["phone"]?>','<?php echo base64_encode($branch["address"])?>','<?php echo $branch["location"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
+                        	<a  href="javascript:editdata('<?php echo $branch["id"]?>','<?php echo base64_encode($branch["name"])?>','<?php echo $branch["phone"]?>','<?php echo base64_encode($branch["address"])?>','<?php echo $branch["location"]?>','<?php echo $branch["capacity"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
                         <?php } if($row["del_func"]=="y"){ ?>
 							<a  href="javascript:deletedata('<?php echo $branch["id"]?>');"><i class="bx bx-trash me-1"></i> </a>
                         <?php } if($row["read_func"]=="y"){ ?>
-                        	<a  href="javascript:viewdata('<?php echo $branch["id"]?>','<?php echo base64_encode($branch["name"])?>','<?php echo $branch["phone"]?>','<?php echo base64_encode($branch["address"])?>','<?php echo $branch["location"]?>');">View</a>
+                        	<a  href="javascript:viewdata('<?php echo $branch["id"]?>','<?php echo base64_encode($branch["name"])?>','<?php echo $branch["phone"]?>','<?php echo base64_encode($branch["address"])?>','<?php echo $branch["location"]?>','<?php echo $branch["capacity"]?>');">View</a>
                         <?php } ?>
                         </td>
                     <?php } ?>
@@ -450,20 +459,21 @@ if(isset($_COOKIE["msg"]) )
           window.location = loc;
       }
   }
-  function editdata(id,name,phone,address,location) {
+  function editdata(id,name,phone,address,location,capacity) {
       
-	       //document.getElementById('bname').value=atob(name);
-            $('#bname').val(atob(name));
-            $('#ttId').val(id);
-            $('#contact').val(phone);
-            $('#address').val(atob(address));
-            $('#location').val(location);
-            $('#btnsubmit').attr('hidden',true);
-            $('#btnupdate').removeAttr('hidden');
-			$('#btnsubmit').attr('disabled',true);
+   //document.getElementById('bname').value=atob(name);
+      $('#bname').val(atob(name));
+      $('#ttId').val(id);
+      $('#contact').val(phone);
+      $('#address').val(atob(address));
+      $('#location').val(location);
+      $('#btnsubmit').attr('hidden',true);
+      $('#btnupdate').removeAttr('hidden');
+     $('#btnsubmit').attr('disabled',true);
+     $('#capacity').val(capacity);
   }
   
-  function viewdata(id,name,phone,address,location) {
+  function viewdata(id,name,phone,address,location,capacity) {
       
 	        $('#bname').val(atob(name));
             $('#ttId').val(id);
@@ -473,6 +483,7 @@ if(isset($_COOKIE["msg"]) )
             $('#btnsubmit').attr('hidden',true);
             $('#btnupdate').attr('hidden',true);
 			$('#btnsubmit').attr('disabled',true);
+      $('#capacity').val(capacity);
   }
 </script>
 <?php 

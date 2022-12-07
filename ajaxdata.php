@@ -307,11 +307,36 @@ if(isset($_REQUEST['action']))
 	  	}
 	  	echo $html;
 	}
+	// get notification
+	if($_REQUEST['action']=="get_notification")
+	{
+		$html="";
+		
+		$stmt_clist = $obj->con1->prepare("select * from lead_notification l1,student s1 where l1.stu_id=s1.sid and  l1.status=1");
+	 	$stmt_clist->execute();
+  	$lead_notification = $stmt_clist->get_result();
+  	$count=mysqli_num_rows($lead_notification);
+  	$stmt_clist->close();
+		$html='';
+	  	while($noti=mysqli_fetch_array($lead_notification))
+	  	{
+				$html.= '<li><div class="d-flex flex-column"><a class="dropdown-item" href="javascript:removeNotification('.$noti["id"].')"><span class="align-middle">You have student follow up today <br/><small class="text-success fw-semibold">'.$noti["name"].' - '.$noti["phone"].'</small></span></a></div>	</li>';
+	  	}
+	  	echo $html."@@@@".$count."@@@@";
+	}
+	// remove notification
+	if($_REQUEST['action']=="removenotification")
+	{
+		$html="";
+		$id=$_REQUEST["id"];
+		$stmt_list = $obj->con1->prepare("update lead_notification set `status`=0,`play_status`=0 where id=?");
+		$stmt_list->bind_param("i",$id);
+	 	$stmt_list->execute();
+  	
+  	$stmt_list->close();
+	}
 	
 }
 
 
 ?>
-
-<!-- <script src="Sortable.js"></script>
-<script src="st/app.js"></script> -->

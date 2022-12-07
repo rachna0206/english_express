@@ -10,15 +10,16 @@ $faculty = $stmt_list->get_result()->num_rows;
 $stmt_list->close();
 
 // total stu reg
-$stmt_list2 = $obj->con1->prepare("select * from student  ");
+$stmt_list2 = $obj->con1->prepare("select * from student  where `status`='registered'");
 $stmt_list2->execute();
 $students = $stmt_list2->get_result()->num_rows;	
 $stmt_list2->close();
 
-// today's batch
-$stmt_list3 = $obj->con1->prepare("select * from batch where CURDATE() between stdate and endate");
+// total capacity
+$stmt_list3 = $obj->con1->prepare("select * from branch ");
 $stmt_list3->execute();
-$batch = $stmt_list3->get_result()->num_rows;	
+$res_capacity = $stmt_list3->get_result();	
+$capacity=$res_capacity->fetch_assoc();
 $stmt_list3->close();
 
 
@@ -55,6 +56,12 @@ $stmt_list8->execute();
 $absent = $stmt_list8->get_result()->num_rows;  
 $stmt_list8->close();
 
+
+//total unassigned stu
+$stmt_list9 = $obj->con1->prepare("select * from student where sid not in (select student_id from batch_assign) ");
+$stmt_list9->execute();
+$unassigned = $stmt_list9->get_result()->num_rows;  
+$stmt_list9->close();
 ?>
 <!-- <div class="row">
 	<div class="col-lg-12 mb-4 order-0">
@@ -86,6 +93,10 @@ $stmt_list8->close();
 		</div>
 	</div>
 </div> -->
+
+ 
+
+
 <div class="row">
   <div class="navbar-nav-right d-flex align-items-center mb-3" id="navbar-collapse">
     <div class="navbar-nav align-items-center">
@@ -128,8 +139,8 @@ $stmt_list8->close();
                   </div>
                 </div>
               </div>
-              <span class="fw-semibold d-block mb-1">Total Faculty</span>
-              <h3 class="card-title mb-2"><?php echo $faculty?></h3>
+              <span class="fw-semibold d-block mb-1">Updation Left</span>
+              <h3 class="card-title mb-2"><?php echo $unassigned?></h3>
               
             </div>
           </div>
@@ -153,13 +164,13 @@ $stmt_list8->close();
                     <i class="bx bx-dots-vertical-rounded"></i>
                   </button>
                   <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
-                    <a class="dropdown-item" href="batch.php">View More</a>
+                    <a class="dropdown-item" href="branch.php">View More</a>
                     
                   </div>
                 </div>
               </div>
-              <span class="fw-semibold d-block mb-1">Today's Batch</span>
-              <h3 class="card-title mb-2"><?php echo $batch?></h3>
+              <span class="fw-semibold d-block mb-1">Total Capacity</span>
+              <h3 class="card-title mb-2"><?php echo $capacity["capacity"]."/".$students?></h3>
               
             </div>
           </div>
@@ -343,7 +354,19 @@ $stmt_list8->close();
       </div>
     </div>
 </div>       
-    
+
+<script type="text/javascript">
+  // Use datepicker on the date inputs
+/*$("#dash_date").datepicker({
+  dateFormat: 'dd-mm-yyyy',
+  onSelect: function(dateText, inst) {
+    $(inst).val(dateText); // Write the value in the input
+  }
+});*/
+
+
+
+</script>
 
 
 

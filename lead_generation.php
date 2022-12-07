@@ -437,8 +437,8 @@ if(isset($_COOKIE["msg"]) )
                         <th>Name</th>
                         
                         <th>Contact No.</th>
-                        <th>Enrollment Date</th>
-                        <th>Batch Time</th>
+                        <th>Inquiry Date</th>
+                        <th>Follow up Date</th>
                         
                         <th>Course</th>
                         

@@ -116,6 +116,65 @@ else{ }
      
       document.getElementById("dashboard_frm").submit(); 
     }
+
+    $(function() {
+   setInterval("get_notification()", 10000);
+
+});
+
+
+function get_notification() {
+
+    $.ajax({
+        async: true,
+        url: 'ajaxdata.php?action=get_notification',
+        type: 'POST',
+        data: "",
+
+        success: function (data) {
+           // console.log(data);
+
+            var resp=data.split("@@@@");
+            $('#notification_list').html('');
+            $('#notification_list').append(resp[0]);
+            $('#notification_count').html('');
+            $('#noti_count').html('');
+            console.log(resp[1]);
+            if(resp[1]>0) {
+                $('#notification_count').append(resp[1]);
+
+                $('#noti_count').append(resp[1]);
+                
+               // playSound();
+            }
+            else
+            {
+                 $('#noti_count').append('');
+                 $('#notification_list').hide();
+            }
+        }
+
+    });
+}
+function removeNotification(id){
+
+    $.ajax({
+        async: true,
+        type: "GET",
+        url: "ajaxdata.php?action=removenotification",
+        data:"id="+id,
+        async: true,
+        cache: false,
+        timeout:50000,
+
+        success: function(data){
+            
+            window.location = "lead_generation.php";
+          
+
+        }
+    });
+}
     </script>
   </head>
 
@@ -202,8 +261,6 @@ else{ }
               </a>
             </li>
 
-
-            
 
             <!-- Forms & Tables -->
             <!-- <li class="menu-header small text-uppercase"><span class="menu-header-text">Masters</span></li> -->
@@ -424,6 +481,19 @@ else{ }
                 <!-- Place this tag where you want the button to render. -->
                 
 
+              
+                <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                  <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                    <div class="avatar">
+                     <i class="bx bx-bell"></i>
+                     <span class="flex-shrink-0 badge badge-center rounded-pill bg-danger w-px-20 h-px-20" id="noti_count"></span>
+                    </div>
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-end" id="notification_list">
+                  </ul>
+                </li>
+
+
                 <!-- User -->
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
                   <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
@@ -452,7 +522,7 @@ else{ }
                     </li>
                   </ul>
                 </li>
-                <!--/ User -->
+              <!-- / User -->
               </ul>
             </div>
           </nav>
