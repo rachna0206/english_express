@@ -244,6 +244,7 @@ if(isset($_REQUEST['action']))
 	  	}
 	  	echo $html;
 	}
+	
 	if($_REQUEST['action']=="exerList")
 	{
 		$html="";
@@ -253,14 +254,14 @@ if(isset($_REQUEST['action']))
 	  	$stmt_elist->execute();
 	  	$exer_res = $stmt_elist->get_result();
 	  	$stmt_elist->close();
-			$i=0;
+			
 			if(mysqli_num_rows($exer_res)>0)
 			{
 
-			
+			$i=0;
 		  	while($exercise=mysqli_fetch_array($exer_res))
 		  	{
-					$html.='<div class="col-md-3"><input type="checkbox" name="e[]" id="exercise_'.$exercise["eid"].'" value="'.$exercise["eid"].'"/> '.$exercise["exer_name"].'</div>';
+					$html.='<div class="col-md-3"><input type="checkbox" name="e[]" id="exercise_'.$exercise["eid"].'" value="'.$exercise["eid"].'" onclick="getSkill(this.value,'.$i.')"/> '.$exercise["exer_name"].'</div>';
 					$i++;
 
 		  	}
@@ -291,6 +292,23 @@ if(isset($_REQUEST['action']))
 	  	}
 	  	echo $html;
 	}
+	if($_REQUEST['action']=="otherFacultyList")
+	{
+		$html="";
+		$batch_id=$_REQUEST["batch_id"];
+		
+		$stmt_flist = $obj->con1->prepare("select id,name from `faculty` where id not in (SELECT f1.id FROM `batch` b1 , faculty f1 where b1.faculty_id = f1.id and b1.id=? union SELECT f2.id FROM `batch` b1 , faculty f2 where b1.assist_faculty_1 = f2.id and b1.id=? union SELECT f3.id FROM `batch` b1 , faculty f3 where b1.assist_faculty_2 = f3.id and b1.id=?)");
+		$stmt_flist->bind_param("iii",$batch_id,$batch_id,$batch_id);
+		$stmt_flist->execute();
+		$faculty_res = $stmt_flist->get_result();
+		$stmt_flist->close();
+		$html='<option value="">Select Other Faculty Name</option>';
+	  	while($other_faculty=mysqli_fetch_array($faculty_res))
+	  	{
+			$html.= '<option value="'.$other_faculty["id"].'">'.$other_faculty["name"].'</option>';
+	  	}
+	  	echo $html;
+	}
 	if($_REQUEST['action']=="cityList")
 	{
 		$html="";
@@ -306,6 +324,53 @@ if(isset($_REQUEST['action']))
 			$html.= '<option value="'.$city["city_id"].'">'.$city["city_name"].'</option>';
 	  	}
 	  	echo $html;
+	}
+
+	if($_REQUEST['action']=="getSkill")
+	{
+		$html="";
+		$exercise_id=$_REQUEST["exercise_id"];
+		$cnt=$_REQUEST["count"];
+		$stmt_slist = $obj->con1->prepare("select * from exercise where eid=?");
+		$stmt_slist->bind_param("i",$exercise_id);
+  	$stmt_slist->execute();
+  	$skill_res = $stmt_slist->get_result();
+  	$stmt_slist->close();
+		
+		while($skill=mysqli_fetch_array($skill_res)){
+		//	$html.=$skill["eid"];
+  		if($skill["grammer"]=='y'){
+  				$html.='<input type="checkbox" name="es'.$exercise_id.'[]" id="" value="grammer" checked/> Grammer ';
+  		} if($skill["vocabulary"]=='y'){
+  				$html.='<input type="checkbox" name="es'.$exercise_id.'[]" id="" value="vocabulary" checked/> Vocabulary ';
+  		} if($skill["pronunciation"]=='y'){
+  				$html.='<input type="checkbox" name="es'.$exercise_id.'[]" id="" value="pronunciation" checked/> Pronunciation ';
+  		} if($skill["spelling"]=='y'){
+  				$html.='<input type="checkbox" name="es'.$exercise_id.'[]" id="" value="spelling" checked/> Spelling ';
+  		} if($skill["presentation"]=='y'){
+  				$html.='<input type="checkbox" name="es'.$exercise_id.'[]" id="" value="presentation" checked/> Presentation ';
+  		} if($skill["speaking"]=='y'){
+  				$html.='<input type="checkbox" name="es'.$exercise_id.'[]" id="" value="speaking" checked/> Speaking ';
+  		} if($skill["listening"]=='y'){
+  				$html.='<input type="checkbox" name="es'.$exercise_id.'[]" id="" value="listening" checked/> Listening ';
+  		} if($skill["writing"]=='y'){
+  				$html.='<input type="checkbox" name="es'.$exercise_id.'[]" id="" value="writing" checked/> Writing ';
+  		} if($skill["reading"]=='y'){
+  				$html.='<input type="checkbox" name="es'.$exercise_id.'[]" id="" value="reading" checked/> Reading ';
+  		}
+  		
+  	}
+  	echo $html;
+	}
+	if($_REQUEST['action']=="get_expected_date")
+	{
+		$html="";
+		$date=$_REQUEST["dt"];
+		$days=$_REQUEST["days"];
+    $date = strtotime($date);
+    $date = strtotime("+".$days,$date);
+    $html = date("Y-m-d",$date);
+    echo $html;
 	}
 	// get notification
 	if($_REQUEST['action']=="get_notification")
@@ -334,6 +399,45 @@ if(isset($_REQUEST['action']))
 	 	$stmt_list->execute();
   	
   	$stmt_list->close();
+	}
+
+	if($_REQUEST['action']=="getTaskFacultyList")
+	{
+		$html="";
+		$task_id=$_REQUEST["task_id"];
+		$stmt_tlist = $obj->con1->prepare("select staff_id from task_assign where task_id=?");
+		$stmt_tlist->bind_param("i",$task_id);
+  	$stmt_tlist->execute();
+  	$res = $stmt_tlist->get_result();
+  	$stmt_tlist->close();
+
+  	$stmt_list = $obj->con1->prepare("select * from faculty order by id");
+		$stmt_list->execute();
+		$faculty_list = $stmt_list->get_result();  
+		$stmt_list->close();
+		
+		$i=0;
+		$fac = array();
+		while($task_fac=mysqli_fetch_array($res))
+  	{
+  		$fac[$i++] = $task_fac["staff_id"];
+  	}
+  	
+		while($faculty=mysqli_fetch_array($faculty_list)){
+			//for($j=0;$j<sizeof($fac);$j++){
+			
+				if(in_array($faculty[0], $fac,TRUE)){
+	  			$html.='<option value="'.$faculty[0].'" selected>'.$faculty[1].'</option>';
+	  			//break;
+	  		}
+				else{
+					$html.='<option value="'.$faculty[0].'">'.$faculty[1].'</option>';
+					//break;
+				}
+		//	}
+  	}
+  	
+  	echo $html;
 	}
 	
 }

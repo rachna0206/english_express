@@ -449,7 +449,7 @@ if(isset($_COOKIE["msg"]) )
                     </thead>
                     <tbody class="table-border-bottom-0">
                       <?php 
-                        $stmt_list = $obj->con1->prepare("SELECT b1.*,f1.name as faculty_name,b2.name as branch_name,c1.coursename,count(b3.student_id) as strength FROM batch b1, faculty f1,course c1, branch b2,batch_assign b3 where b1.faculty_id=f1.id and b1.branch_id=b2.id and c1.courseid=b1.course_id and b3.batch_id=b1.id GROUP by b1.id order by id desc");
+                        $stmt_list = $obj->con1->prepare("SELECT b1.*,f1.name as faculty_name,b2.name as branch_name,c1.coursename,count(b3.student_id) as strength FROM batch b1, faculty f1,course c1, branch b2,batch_assign b3 where b1.faculty_id=f1.id and b1.branch_id=b2.id and c1.courseid=b1.course_id and b3.batch_id=b1.id and b1.id!=37 GROUP by b1.id order by id desc");
                         $stmt_list->execute();
                         $batch_list = $stmt_list->get_result();
                         

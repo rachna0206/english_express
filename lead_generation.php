@@ -412,7 +412,7 @@ if(isset($_COOKIE["msg"]) )
                     <?php } if($row["upd_func"]=="y"){ ?>
                         <button type="submit" name="btnupdate" id="btnupdate" class="btn btn-primary " hidden>Update</button>
                     <?php } ?>
-                       <button type="reset" name="btncancel" id="btncancel" class="btn btn-secondary" onclick="window.location='student_reg.php'">Cancel</button>
+                       <button type="reset" name="btncancel" id="btncancel" class="btn btn-secondary" onclick="window.location='lead_generation.php'">Cancel</button>
 
                       </form>
                     </div>
@@ -472,7 +472,7 @@ if(isset($_COOKIE["msg"]) )
                     <?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>
                         <?php if($row["upd_func"]=="y"){ ?>
-                        	<a  href="javascript:editdata('<?php echo $s["sid"]?>','<?php echo base64_encode($s["name"])?>','<?php echo base64_encode($s["house_no"])?>','<?php echo base64_encode($s["society_name"])?>','<?php echo base64_encode($s["village"])?>','<?php echo $s["landmark"]?>','<?php echo $s["city"]?>','<?php echo base64_encode($s["state"])?>','<?php echo base64_encode($s["pin"])?>','<?php echo base64_encode($s["education"])?>','<?php echo base64_encode($s["stu_type"])?>','<?php echo $s["phone"]?>','<?php echo base64_encode($s["inquiry_dt"])?>','<?php echo base64_encode($s["followup_dt"])?>','<?php echo $s["skillid"]?>','<?php echo $s["courseid"]?>','<?php echo $s["status"]?>','<?php echo base64_encode($s["remark"])?>','<?php echo $s["associate"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
+                        	<a  href="javascript:editdata('<?php echo $s["sid"]?>','<?php echo base64_encode($s["name"])?>','<?php echo base64_encode($s["house_no"])?>','<?php echo base64_encode($s["society_name"])?>','<?php echo base64_encode($s["village"])?>','<?php echo base64_encode($s["landmark"])?>','<?php echo $s["city"]?>','<?php echo $s["state"]?>','<?php echo base64_encode($s["pin"])?>','<?php echo base64_encode($s["education"])?>','<?php echo base64_encode($s["stu_type"])?>','<?php echo $s["phone"]?>','<?php echo base64_encode($s["inquiry_dt"])?>','<?php echo base64_encode($s["followup_dt"])?>','<?php echo $s["skillid"]?>','<?php echo $s["courseid"]?>','<?php echo $s["status"]?>','<?php echo base64_encode($s["remark"])?>','<?php echo $s["associate"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
                         <?php } if($row["del_func"]=="y"){ ?>
 							           <a  href="javascript:deletedata('<?php echo $s["sid"]?>');"><i class="bx bx-trash me-1"></i> </a>
                         <?php } if($row["read_func"]=="y"){ ?>
@@ -565,10 +565,10 @@ if(isset($_COOKIE["msg"]) )
 		$('#landmark').val(atob(landmark));
 		$('#state').val(state);
 		cityList(state);
-      	cityList(state);
+    
 		setTimeout(function() {
       		$('#city').val(city);
-		}, 1000);
+		}, 2000);
 		$('#pin').val(atob(pin));
 		$('#education').val(atob(education));
 		$('#stu_type').val(atob(stu_type));
@@ -598,7 +598,7 @@ if(isset($_COOKIE["msg"]) )
 		$('#landmark').val(atob(landmark));
 		$('#state').val(state);
 		cityList(state);
-      	cityList(state);
+    
 		setTimeout(function() {
       		$('#city').val(city);
 		}, 1000);
@@ -620,6 +620,7 @@ if(isset($_COOKIE["msg"]) )
 		$('#btnsubmit').attr('hidden',true);
 		$('#btnupdate').attr('hidden',true);
 		$('#btnsubmit').attr('disabled',true);
+    $('#btnupdate').attr('disabled',true);
 	}
   function get_faculty(batch)
   {

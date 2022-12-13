@@ -210,6 +210,7 @@ if(isset($_COOKIE["msg"]))
                     <tbody class="table-border-bottom-0">
                       <?php
           					
+                     
           							
           						$stmt_list = $obj->con1->prepare("select a.*,s.name from attendance a, student s where a.student_id=s.sid and batch_id = '".$batch_id."' and dt ='".$dt."'");
           						$stmt_list->execute();

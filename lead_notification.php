@@ -6,7 +6,7 @@ date_default_timezone_set("Asia/Kolkata");
 error_reporting(E_ALL);
 session_start();
 
-
+echo "select * from student where `status`='inquiry' and followup_dt='".date("Y-m-d")."'";
 $stmt_list = $obj->con1->prepare("select * from student where `status`='inquiry' and followup_dt='".date("Y-m-d")."'");
 $stmt_list->execute();
 $lead_res = $stmt_list->get_result();	

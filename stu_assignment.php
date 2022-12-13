@@ -26,19 +26,32 @@ if(isset($_REQUEST['btnsubmit']))
   $chap_id = $_REQUEST['chap'];
   $alloted_dt = $_REQUEST['dt'];
   $expected_dt = $_REQUEST['expec_dt'];
-  $faculty_id = $_REQUEST['faculty'];
+  if($_REQUEST['oof']=="oof"){
+    $faculty_id = $_REQUEST['other_faculty'];
+  } else{
+    $faculty_id = $_REQUEST['faculty'];
+  }
   $status = "pending";
-  
+  $work_type = $_REQUEST['type'];
+  $explain_type = $_REQUEST['explain_type'];
   foreach($_REQUEST['s'] as $stu_id){
     
-  	foreach($_REQUEST['e'] as $exer_id){
-      
+   
+    foreach($_REQUEST['e'] as $exer_id){
+       $i=0;
+       
+
+        for($i=0;$i<sizeof($_REQUEST['es'.$exer_id]);$i++)
+        {
+          
+         $exer_skill=$_REQUEST['es'.$exer_id][$i];
+        
   try
   {
-   
-	$stmt = $obj->con1->prepare("INSERT INTO `stu_assignment`(`batch_id`,`stu_id`,`book_id`,`chap_id`,`exercise_id`,`alloted_dt`,`expected_dt`,`faculty_id`,`status`) VALUES (?,?,?,?,?,?,?,?,?)");
-	$stmt->bind_param("iiiisssis",$batch_id,$stu_id,$book_id,$chap_id,$exer_id,$alloted_dt,$expected_dt,$faculty_id,$status);
-	$Resp=$stmt->execute();
+    
+  	$stmt = $obj->con1->prepare("INSERT INTO `stu_assignment`(`batch_id`,`stu_id`,`book_id`,`chap_id`,`exercise_id`,`alloted_dt`,`expected_dt`,`faculty_id`,`status`,`work_type`,`explain_by_teacher`,`skill`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+  	$stmt->bind_param("iiiiississss",$batch_id,$stu_id,$book_id,$chap_id,$exer_id,$alloted_dt,$expected_dt,$faculty_id,$status,$work_type,$explain_type,$exer_skill);
+  	$Resp=$stmt->execute();
     if(!$Resp)
     {
       throw new Exception("Problem in inserting! ". strtok($obj->con1-> error,  '('));
@@ -46,10 +59,12 @@ if(isset($_REQUEST['btnsubmit']))
     $stmt->close();
   } 
   catch(Exception  $e) {
-    setcookie("sql_error", urlencode($e->getMessage()),time()+3600,"/");
+    setcookie("sql_error",urlencode($e->getMessage()),time()+3600,"/");
   }
-  
-	}
+  //"Assignment not alloted to already assigned students!!"
+	  }
+
+    }
   }
 
     setcookie("msg", "data",time()+3600,"/");
@@ -124,6 +139,20 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
             }
         });
 
+    $.ajax({
+          async: true,
+          type: "POST",
+          url: "ajaxdata.php?action=otherFacultyList",
+          data: "batch_id="+batch_id,
+          cache: false,
+          success: function(result){
+            //alert(result);
+            $('#other_faculty').html('');
+            $('#other_faculty').append(result);
+       
+            }
+        });
+
 	}
 	function chapList(book_id){
 
@@ -158,6 +187,57 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
             }
         });
 	}
+  function getSkill(exer_id,count){
+    if($('#exercise_'+exer_id).is(':checked')){
+      $.ajax({
+          async: true,
+          type: "POST",
+          url: "ajaxdata.php?action=getSkill",
+          data: "exercise_id="+exer_id+"&count="+count,
+          cache: false,
+          success: function(result){
+            //alert(result);
+            $('#skill_list_div').append(result);
+            }
+        });
+    }
+    else{
+     // alert("not");
+    }
+  }
+
+  function getOtherFaculty(){
+    if($('#oof').is(':checked')){
+      $('#other_faculty_list_div').removeAttr("hidden");
+      $('#faculty_list_div').attr("hidden",true);
+      $('#other_faculty').attr("required",true);
+      $('#faculty').removeAttr("required");
+    }
+    else{
+      $('#other_faculty_list_div').attr("hidden",true);
+      $('#faculty_list_div').removeAttr("hidden"); 
+      $('#faculty').attr("required",true);
+      $('#other_faculty').removeAttr("required");
+    }
+  } 
+
+  function get_expected_date(day,dt)
+  {
+    $.ajax({
+          async: true,
+          type: "POST",
+          url: "ajaxdata.php?action=get_expected_date",
+          data: "dt="+dt+"&days="+day,
+          cache: false,
+          success: function(result){
+           
+//            $('#expec_dt').html('');
+//            $('#expec_dt').append(result);
+            $('#expec_dt').val(result);
+       
+            }
+        });
+  }
 
 </script>
 
@@ -245,22 +325,21 @@ if(isset($_COOKIE["msg"]) )
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Batch Name</label>
                           <select name="batch" id="batch" onChange="studList(this.value)" class="form-control" required>
-                          	<option value="-1">Select Batch</option>
+                          	<option value="">Select Batch</option>
                     <?php    
-                        while($batch=mysqli_fetch_array($r1)){
-
-							if($baid==$batch["id"]){
+                      while($batch=mysqli_fetch_array($r1)){
+                        if($baid==$batch["id"]){
                     ?>
-                    		<option value="<?php echo $batch["id"] ?>" selected="selected"><?php echo $batch["name"] ?></option>
+                    		      <option value="<?php echo $batch["id"] ?>" selected="selected"><?php echo $batch["name"] ?></option>
                     <?php
-							}else{
-					?>
-                            <option value="<?php echo $batch["id"] ?>"><?php echo $batch["name"] ?></option>
+							       }else{
+					         ?>
+                              <option value="<?php echo $batch["id"] ?>"><?php echo $batch["name"] ?></option>
                     <?php
-							}
-						}
-					?>
-					      </select>
+							          }
+						          }
+					          ?>
+					                </select>
                           <input type="hidden" name="ttId" id="ttId">
                         </div>
                         
@@ -268,32 +347,32 @@ if(isset($_COOKIE["msg"]) )
                           <label class="form-label" for="basic-default-fullname">Students</label>
                           <div id="stu_list_div" class="row">
                     <?php    
-                        while($stu=mysqli_fetch_array($r2)){
-					?>      
-                          <input type="checkbox" id="stu_list" name="s[]" value="<?php echo $stu["student_id"] ?>" checked="checked"/> <?php echo $stu["name"] ?>
+                      while($stu=mysqli_fetch_array($r2)){
+					          ?>      
+                            <input type="checkbox" id="stu_list" name="s[]" value="<?php echo $stu["student_id"] ?>" checked="checked"/> <?php echo $stu["name"] ?>
                     <?php
-						}
-					?>
-                    	</div>
-                    </div>
+						          }
+					          ?>
+                    	    </div>
+                        </div>
                         
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Book Name</label>
                           <select name="book" id="book" onChange="chapList(this.value)" class="form-control" required>
                           	<option value="-1">Select Book</option>
                     <?php    
-                        while($book=mysqli_fetch_array($res)){
-							if($id==$book["bid"]){
+                      while($book=mysqli_fetch_array($res)){
+							          if($id==$book["bid"]){
                     ?>
-                    		<option value="<?php echo $book["bid"] ?>" selected="selected"><?php echo $book["bookname"] ?></option>
+                    		    <option value="<?php echo $book["bid"] ?>" selected="selected"><?php echo $book["bookname"] ?></option>
                     <?php
-							}else{
-					?>
+							          }else{
+					          ?>
                             <option value="<?php echo $book["bid"] ?>"><?php echo $book["bookname"] ?></option>
                     <?php
-							}
-						}
-					?>
+							          }
+						          }
+					          ?>
 					      </select>
                         </div>
                         
@@ -303,33 +382,75 @@ if(isset($_COOKIE["msg"]) )
                           	<option value="">Select Chapter</option>
                             <div id="chap_list_div" >
                     <?php    
-                        while($chap=mysqli_fetch_array($res1)){
-							if($cid==$chap["cid"]){	
+                      while($chap=mysqli_fetch_array($res1)){
+							          if($cid==$chap["cid"]){	
                     ?>
                     		<option value="<?php echo $chap["cid"] ?>" selected="selected"><?php echo $chap["chapter_name"] ?></option>
                     <?php
-							} else{
-					?>
+							          } else{
+					          ?>
                     		<option value="<?php echo $chap["cid"] ?>"><?php echo $chap["chapter_name"] ?></option>
                     <?php
-							}
-						}
-					?>
-                    		</div>
-					      </select>
+							          }
+						          }
+					          ?>
+                    		    </div>
+					                </select>
                         </div>
                         
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Exercise Name</label><br/>
-                          <div id="exer_list_div" class="row">
-  		    		<?php    
-                        while($exer=mysqli_fetch_array($r3)){	
+                          <div id="exer_list_div" class="row"> 
+                            <div class="col-md-5" >
+  		    		      <?php    
+                    $i=0;
+                      while($exer=mysqli_fetch_array($r3)){	
                     ?>
-                    		<input type="checkbox" name="e[]" id="" value="<?php echo $exer["eid"] ?>"/> <?php echo $exer['exer_name'] ?>
+                    		<input type="checkbox" name="e[]" id="" onclick="getSkill(this.value,<?php echo $i?>)" value="<?php echo $exer["eid"] ?>"/> <?php echo $exer['exer_name'] ?>
                     <?php
+                    $i++;
                     	}
-					?>
+					          ?>
+                  </div>
+                  <div class="col-md-7" >
+                    
+                  </div>
                     	</div>
+                      </div>
+
+                      <div class="mb-3">
+                        <div id="skill_list_div">
+                        </div>  
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label d-block" for="basic-default-fullname">Type</label>
+                        
+                        <div class="form-check form-check-inline mt-3">
+                          <input class="form-check-input" type="radio" name="type" id="hw" value="hw" checked required >
+                          <label class="form-check-label" for="inlineRadio1">Home Work</label>
+                        </div>
+                        <div class="form-check form-check-inline mt-3">
+                          <input class="form-check-input" type="radio" name="type" id="cw" value="cw" required>
+                          <label class="form-check-label" for="inlineRadio1">Class Work</label>
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label d-block" for="basic-default-fullname">For Teachers</label>
+                        
+                        <div class="form-check form-check-inline mt-3">
+                          <input class="form-check-input" type="radio" name="explain_type" id="not_explain" value="not_explain" checked required >
+                          <label class="form-check-label" for="inlineRadio1">Not Explained</label>
+                        </div>
+                        <div class="form-check form-check-inline mt-3">
+                          <input class="form-check-input" type="radio" name="explain_type" id="half_explain" value="half_explain" required>
+                          <label class="form-check-label" for="inlineRadio1">Half Explained</label>
+                        </div>
+                        <div class="form-check form-check-inline mt-3">
+                          <input class="form-check-input" type="radio" name="explain_type" id="explained" value="explained" required>
+                          <label class="form-check-label" for="inlineRadio1">Explained</label>
+                        </div>
                       </div>
                         
                         <div class="mb-3">
@@ -338,24 +459,78 @@ if(isset($_COOKIE["msg"]) )
                         </div>
                         
                         <div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Number of Days</label>
+                          <select name="days" id="days" onchange="get_expected_date(this.value,dt.value)" class="form-control" required>
+                            <option value="">Select Number of Days</option>
+                    <?php    
+                      for($i=1;$i<=30;$i++){ 
+                        if($i==1){
+                    ?>
+                        <option value="<?php echo $i ?> days"><?php echo $i ?> day</option>
+                    <?php
+                        } else{
+                    ?>
+                        <option value="<?php echo $i ?> days"><?php echo $i ?> days</option>
+                    <?php
+                        }
+                      }
+                    ?>
+                          </select>
+                        </div>
+
+                        <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Expected Date</label>
                           <input type="date" class="form-control" name="expec_dt" id="expec_dt" required />
                         </div>
-                        
+
+                        <div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Completion Date</label>
+                          <input type="date" class="form-control" name="com_dt" id="com_dt" />
+                        </div>
+                      
+                        <div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Status</label>
+                          <select name="status" id="status" class="form-control">
+                            <option value="">Select Status</option>
+                            <option value="Completed with Good Understanding">Completed with Good Understanding</option>
+                            <option value="Completed with Average Understanding">Completed with Average Understanding</option>
+                            <option value="Completed with No Understanding">Completed with No Understanding</option>
+                          </select>
+                        </div>
+
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Faculty Name</label>
                           <div id="faculty_list_div">
                           <select name="faculty" id="faculty" class="form-control" required>
                           	<option value="">Select Faculty Name</option>   
-		    		<?php    
-                        while($f=mysqli_fetch_array($r4)){	
+		    		        <?php    
+                      while($f=mysqli_fetch_array($r4)){	
                     ?>
                     		<option value="<?php echo $f["id"] ?>"><?php echo $f["name"] ?></option>
                     <?php
                     	}
-					?>
-     					</select>
+					          ?>
+     					            </select>
                         	</div>
+                        </div>
+
+                        <div>
+                          <input type="checkbox" name="oof" id="oof" value="oof" onclick="getOtherFaculty()" /> Other Faculty
+                        </div>
+
+                        <div class="mb-3">
+                          <div id="other_faculty_list_div" hidden>
+                          <select name="other_faculty" id="other_faculty" class="form-control" >
+                            <option value="">Select Other Faculty Name</option>   
+                    <?php    
+                      while($f1=mysqli_fetch_array($r5)){  
+                    ?>
+                        <option value="<?php echo $f1["id"] ?>"><?php echo $f1["name"] ?></option>
+                    <?php
+                      }
+                    ?>
+                          </select>
+                          </div>
                         </div>
                         
                     <?php if($row["write_func"]=="y"){ ?>
@@ -391,6 +566,7 @@ if(isset($_COOKIE["msg"]) )
                         <th>Book Name</th>
                         <th>Chapter Name</th>
                         <th>Exercise Name</th>
+                        <th>Skill</th>
                         <th>Alloted Date</th>
                         <th>Expected Date</th>
                         <th>Faculty Name</th>
@@ -416,6 +592,7 @@ if(isset($_COOKIE["msg"]) )
                         <td><?php echo $a["bookname"] ?></td>
                         <td><?php echo $a["chapter_name"] ?></td>
                         <td><?php echo $a["exer_name"] ?></td>
+                        <td><?php echo $a["skill"] ?></td>
                         <td><?php echo $a["alloted_dt"] ?></td>
                         <td><?php echo $a["expected_dt"] ?></td>
                         <td><?php echo $a["fname"] ?></td>

@@ -37,6 +37,7 @@ $stmt_list5->close();
 
 //today's registered
 
+
 $stmt_list6 = $obj->con1->prepare("select * from student where enrollment_dt='".$date."' and status='registered' ");
 $stmt_list6->execute();
 $registered = $stmt_list6->get_result()->num_rows;  
@@ -58,7 +59,7 @@ $stmt_list8->close();
 
 
 //total unassigned stu
-$stmt_list9 = $obj->con1->prepare("select * from student where sid not in (select student_id from batch_assign) ");
+$stmt_list9 = $obj->con1->prepare("SELECT * FROM  student s1,batch_assign b1,batch b2 WHERE b1.student_id=s1.sid and b1.batch_id=b2.id  and b2.id=37 ");
 $stmt_list9->execute();
 $unassigned = $stmt_list9->get_result()->num_rows;  
 $stmt_list9->close();

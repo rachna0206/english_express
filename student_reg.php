@@ -659,6 +659,7 @@ if(isset($_COOKIE["msg"]) )
                     <thead>
                       <tr>
                         <th>Srno</th>
+                        <th>Roll No.</th>
                         <th>Name</th>
                         
                         <th>Contact No.</th>
@@ -672,7 +673,7 @@ if(isset($_COOKIE["msg"]) )
                     </thead>
                     <tbody class="table-border-bottom-0">
                       <?php 
-                        $stmt_list = $obj->con1->prepare("select st.*,sk.skills,GROUP_CONCAT(c.coursename)as coursename,GROUP_CONCAT(b2.stime) as batch_time,b2.name as batch_name,b2.id as bid from student as st, skill as sk, course as c,batch_assign b1,batch b2 where st.skillid=sk.skid and b2.course_id=c.courseid and b1.batch_id=b2.id and b1.student_id=st.sid  GROUP by st.sid 
+                        $stmt_list = $obj->con1->prepare("select st.*,sk.skills,GROUP_CONCAT(c.coursename)as coursename,GROUP_CONCAT(b2.stime) as batch_time,b2.name as batch_name,b2.id as bid from student as st, skill as sk, course as c,batch_assign b1,batch b2 where st.skillid=sk.skid and b2.course_id=c.courseid and b1.batch_id=b2.id and b1.student_id=st.sid and st.status='registered'  GROUP by st.sid 
 UNION
 select st.*,sk.skills,c.coursename,'-' as batch_time,'-' as batch_name,1 as bid from student as st, skill as sk, course as c  where  st.skillid=sk.skid and st.courseid=c.courseid and st.status='inquiry' order by sid desc");
                         $stmt_list->execute();
@@ -686,10 +687,11 @@ select st.*,sk.skills,c.coursename,'-' as batch_time,'-' as batch_name,1 as bid 
 
                       <tr>
                         <td><?php echo $i?></td>
+                        <td><?php echo $s["user_id"]?></td>
                         <td><?php echo $s["name"]?></td>
                         
                         <td><?php echo $s["phone"]?></td>
-                        <td><?php echo $s["enrollment_dt"]?></td>
+                        <td><?php echo ($s["enrollment_dt"]!="0000-00-00")?date("d-m-Y", strtotime($s["enrollment_dt"])):"-"?></td>
                         <td><?php echo $s["batch_time"].'-'.$s["batch_name"]?></td>
                         
                         <td><?php echo $s["coursename"]?></td>
