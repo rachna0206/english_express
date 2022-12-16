@@ -221,10 +221,45 @@ public function stu_reg($name,$address,$education,$stu_type,$enrollment_dt,$skil
 }
 
 // get exercise list from book & chapter
- public function exercise_list($book_id,$chapter_id)
+public function exercise_list($book_id,$chapter_id)
 {
     $stmt = $this->con->prepare("SELECT * from exercise where book_id=? and chap_id=? ");
     $stmt->bind_param("ii", $book_id,$chapter_id);
+    $stmt->execute();
+    $exercise = $stmt->get_result();
+    $stmt->close();
+    return $exercise;
+}
+
+
+// get skills progress
+ public function skill_status($stu_id)
+{
+    $stmt = $this->con->prepare("SELECT count( if(s1.skill='grammer',1,null)) as grammer_total,count( if(s1.skill='grammer' and `status`!='pending',1,null)) as grammer_completed,count(case s1.skill when 'vocabulary'  then 1 else null end) as vocabulary_total,count( if(s1.skill='vocabulary' and `status`!='pending',1,null)) as vocabulary_completed,count(case s1.skill when 'pronunciation' then 1 else null end) as pronunciation_total,count( if(s1.skill='pronunciation' and `status`!='pending',1,null)) as pronunciation_completed,count(case s1.skill when 'writing' then 1 else null end) as writing_total,count( if(s1.skill='writing' and `status`!='pending',1,null)) as writing_completed,count(case s1.skill when 'spelling' then 1 else null end) as spelling_total,count( if(s1.skill='spelling' and `status`!='pending',1,null)) as spelling_completed,count(case s1.skill when 'reading' then 1 else null end) as reading_total,count( if(s1.skill='reading' and `status`!='pending',1,null)) as reading_completed,count(case s1.skill when 'speaking' then 1 else null end) as speaking_total,count( if(s1.skill='speaking' and `status`!='pending',1,null)) as speaking_completed,count(case s1.skill when 'listening' then 1 else null end) as listening_total,count( if(s1.skill='listening' and `status`!='pending',1,null)) as listening_completed,count(case s1.skill when 'presentation' then 1 else null end) as presentation_total,count( if(s1.skill='presentation' and `status`!='pending',1,null)) as presentation_completed FROM `stu_assignment` s1,exercise e1 where s1.exercise_id=e1.eid  and s1.stu_id=? ");
+    $stmt->bind_param("i", $stu_id);
+    $stmt->execute();
+    $exercise = $stmt->get_result();
+    $stmt->close();
+    return $exercise;
+}
+
+
+// roadmap
+ public function roadmap($stu_id)
+{
+    $stmt = $this->con->prepare("SELECT b1.*,count( s1.skill) as total_skill,count( if( s1.status!='pending',1,null)) as completed_skill FROM `stu_assignment` s1,exercise e1,books b1 where s1.exercise_id=e1.eid and s1.book_id=b1.bid and s1.stu_id=? order by s1.book_id ");
+    $stmt->bind_param("i", $stu_id);
+    $stmt->execute();
+    $exercise = $stmt->get_result();
+    $stmt->close();
+    return $exercise;
+}
+
+// student wise chapter_list
+ public function stu_chapter_list($stu_id,$book_id)
+{
+    $stmt = $this->con->prepare("SELECT s1.*,c1.chapter_name FROM stu_assignment s1, chapter c1 where s1.chap_id=c1.cid and s1.stu_id=? and s1.book_id=?");
+    $stmt->bind_param("ii", $stu_id,$book_id);
     $stmt->execute();
     $exercise = $stmt->get_result();
     $stmt->close();

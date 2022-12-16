@@ -491,6 +491,118 @@ $app->post('/exercise_list', function () use ($app) {
 });
 
 
+/* *
+ * skills progress
+ * Parameters: stu_id
+ * Method: POST
+ * 
+ */
+
+$app->post('/skill_status', function () use ($app) {
+
+    verifyRequiredParams(array('data'));
+    $data = json_decode($app->request->post('data'));
+    $stu_id = $data->stu_id;
+    
+        
+    $db = new DbOperation();
+    $data = array();
+    $data["data"] = array();  
+    $result=$db->skill_status($stu_id);
+    
+     
+    $response = array();
+    while ($row = $result->fetch_assoc()) {
+        $temp = array();
+        foreach ($row as $key => $value) {
+            $temp[$key] = $value;
+        }
+        $temp = array_map('utf8_encode', $temp);
+        array_push($data['data'], $temp);
+    }
+
+    $data['message'] = "";
+    $data['success'] = true;
+    
+    echoResponse(200, $data);
+});
+
+
+/* *
+ * roadmap
+ * Parameters: stu_id
+ * Method: POST
+ * 
+ */
+
+$app->post('/roadmap', function () use ($app) {
+
+    verifyRequiredParams(array('data'));
+    $data = json_decode($app->request->post('data'));
+    $stu_id = $data->stu_id;
+    
+        
+    $db = new DbOperation();
+    $data = array();
+    $data["data"] = array();  
+    $result=$db->roadmap($stu_id);
+    
+     
+    $response = array();
+    while ($row = $result->fetch_assoc()) {
+        $temp = array();
+        foreach ($row as $key => $value) {
+            $temp[$key] = $value;
+        }
+        $temp = array_map('utf8_encode', $temp);
+        array_push($data['data'], $temp);
+    }
+
+    $data['message'] = "";
+    $data['success'] = true;
+    
+    echoResponse(200, $data);
+});
+
+
+/* *
+ * chapter_list
+ * Parameters: stu_id,book_id
+ * Method: POST
+ * 
+ */
+
+$app->post('/stu_chapter_list', function () use ($app) {
+
+    verifyRequiredParams(array('data'));
+    $data = json_decode($app->request->post('data'));
+    $stu_id = $data->stu_id;
+    $book_id = $data->book_id;
+    
+        
+    $db = new DbOperation();
+    $data = array();
+    $data["data"] = array();  
+    $result=$db->stu_chapter_list($stu_id,$book_id);
+    
+     
+    $response = array();
+    while ($row = $result->fetch_assoc()) {
+        $temp = array();
+        foreach ($row as $key => $value) {
+            $temp[$key] = $value;
+        }
+        $temp = array_map('utf8_encode', $temp);
+        array_push($data['data'], $temp);
+    }
+
+    $data['message'] = "";
+    $data['success'] = true;
+    
+    echoResponse(200, $data);
+});
+
+
 //---------------------------------------//
 
 
