@@ -273,10 +273,6 @@ if(isset($_REQUEST['btnupdate']))
 
     }
     
-
-    
-
-
 	if(!$Resp)
 	{
       throw new Exception("Problem in update! ". strtok($obj->con1-> error,  '('));
@@ -291,7 +287,7 @@ if(isset($_REQUEST['btnupdate']))
   if($Resp)
   {
 	  setcookie("msg", "update",time()+3600,"/");
-      header("location:student_reg.php");
+    header("location:student_reg.php");
   }
   else
   {
@@ -443,6 +439,7 @@ if(isset($_COOKIE["msg"]) )
                   <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                       <h5 class="mb-0">Add Student</h5>
+                      
                       
                     </div>
                     <div class="card-body">
@@ -654,6 +651,21 @@ if(isset($_COOKIE["msg"]) )
            <!-- Basic Bootstrap Table -->
               <div class="card">
                 <h5 class="card-header">Student Records</h5>
+                <div class="card-header">
+               
+<div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" name="stu_option" id="opt_reg" value="reg" onchange="get_stu_grid(this.value)" <?php echo ($_COOKIE["stu_reg_opt"]=="" || $_COOKIE['stu_reg_opt']=="reg")?"checked":""?>>
+    <label class="form-check-label" for="inlineRadio1">Registered</label>
+</div>
+<div class="form-check form-check-inline ">
+    <input class="form-check-input" type="radio" name="stu_option" id="opt_inquiry" value="inquiry" onchange="get_stu_grid(this.value)" <?php echo ($_COOKIE["stu_reg_opt"]!="" && $_COOKIE['stu_reg_opt']=="inquiry")?"checked":""?>>
+    <label class="form-check-label" for="inlineRadio1">Inquiry</label>
+</div>
+ <div class="form-check form-check-inline ">
+    <input class="form-check-input" type="radio" name="stu_option" id="opt_all" value="all" <?php echo ($_COOKIE["stu_reg_opt"]!="" && $_COOKIE['stu_reg_opt']=="all")?"checked":""?> onchange="get_stu_grid(this.value)">
+    <label class="form-check-label" for="inlineRadio1">All</label>
+</div>
+</div>
                 <div class="table-responsive text-nowrap">
                   <table class="table" id="table_id">
                     <thead>
@@ -673,9 +685,21 @@ if(isset($_COOKIE["msg"]) )
                     </thead>
                     <tbody class="table-border-bottom-0">
                       <?php 
-                        $stmt_list = $obj->con1->prepare("select st.*,sk.skills,GROUP_CONCAT(c.coursename)as coursename,GROUP_CONCAT(b2.stime) as batch_time,b2.name as batch_name,b2.id as bid from student as st, skill as sk, course as c,batch_assign b1,batch b2 where st.skillid=sk.skid and b2.course_id=c.courseid and b1.batch_id=b2.id and b1.student_id=st.sid and st.status='registered'  GROUP by st.sid 
-UNION
-select st.*,sk.skills,c.coursename,'-' as batch_time,'-' as batch_name,1 as bid from student as st, skill as sk, course as c  where  st.skillid=sk.skid and st.courseid=c.courseid and st.status='inquiry' order by sid desc");
+                      if(isset($_COOKIE["stu_reg_opt"]) && $_COOKIE['stu_reg_opt']=="all")
+                      {
+                        $stmt_list = $obj->con1->prepare("select st.*,sk.skills,GROUP_CONCAT(c.coursename)as coursename,GROUP_CONCAT(b2.stime) as batch_time,b2.name as batch_name,b2.id as bid from student as st, skill as sk, course as c,batch_assign b1,batch b2 where st.skillid=sk.skid and b2.course_id=c.courseid and b1.batch_id=b2.id and b1.student_id=st.sid and st.status='registered'  GROUP by st.sid       UNION
+                          select st.*,sk.skills,c.coursename,'-' as batch_time,'-' as batch_name,1 as bid from student as st, skill as sk, course as c  where  st.skillid=sk.skid and st.courseid=c.courseid and st.status='inquiry' order by sid desc");
+                      }
+                      else if(isset($_COOKIE["stu_reg_opt"]) && $_COOKIE['stu_reg_opt']=="inquiry")
+                      {
+                        $stmt_list = $obj->con1->prepare(" select st.*,sk.skills,c.coursename,'-' as batch_time,'-' as batch_name,1 as bid from student as st, skill as sk, course as c  where  st.skillid=sk.skid and st.courseid=c.courseid and st.status='inquiry' order by sid desc");
+                      }
+                      else
+                      {
+                        
+                        $stmt_list = $obj->con1->prepare("select st.*,sk.skills,GROUP_CONCAT(c.coursename)as coursename,GROUP_CONCAT(b2.stime) as batch_time,b2.name as batch_name,b2.id as bid from student as st, skill as sk, course as c,batch_assign b1,batch b2 where st.skillid=sk.skid and b2.course_id=c.courseid and b1.batch_id=b2.id and b1.student_id=st.sid and st.status='registered'  GROUP by st.sid ");
+                      }
+                        
                         $stmt_list->execute();
                         $result = $stmt_list->get_result();
                         
@@ -736,6 +760,11 @@ select st.*,sk.skills,c.coursename,'-' as batch_time,'-' as batch_name,1 as bid 
 <?php } ?>
             <!-- / Content -->
 <script type="text/javascript">
+  function get_stu_grid(opt) {
+    
+    createCookie("stu_reg_opt",opt,1);
+    window.location=window.location.href;
+  }
 
 	function readURL_p(input) {
 	    if (input.files && input.files[0]) {

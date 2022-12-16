@@ -145,7 +145,7 @@ function get_notification() {
 
                 $('#noti_count').append(resp[1]);
                 
-               // playSound();
+                playSound();
             }
             else
             {
@@ -174,6 +174,44 @@ function removeNotification(id){
 
         }
     });
+}
+function playSound(){
+
+    $.ajax({
+        async: true,
+        url: 'ajaxdata.php?action=get_Playnotification',
+        type: 'POST',
+        data: "",
+
+        success: function (data) {
+            // console.log(data);
+
+            var resp=data.split("@@@@");
+
+            if(resp[0]>0) {
+
+                var mp3Source = '<source src="notif_sound.wav" type="audio/mpeg">';
+                document.getElementById("sound").innerHTML='<audio autoplay="autoplay">' + mp3Source +  '</audio>';
+                removeplaysound(resp[1]);
+            }
+        }
+
+    });
+
+}
+function removeplaysound(ids) {
+
+    $.ajax({
+        async: true,
+        type: "GET",
+        url: "ajaxdata.php?action=removeplaysound",
+        data:"id="+ids,
+        async: true,
+        cache: false,
+        timeout:50000,
+
+    });
+
 }
     </script>
   </head>
@@ -526,7 +564,7 @@ function removeNotification(id){
               </ul>
             </div>
           </nav>
-
+          <div id="sound"></div>
           <!-- / Navbar -->
 
           <!-- Content wrapper -->

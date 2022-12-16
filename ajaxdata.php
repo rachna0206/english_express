@@ -401,6 +401,43 @@ if(isset($_REQUEST['action']))
   	$stmt_list->close();
 	}
 
+
+	// get play notification
+	if($_REQUEST['action']=="get_Playnotification")
+	{
+		$html="";
+		
+		$stmt_clist = $obj->con1->prepare("select * from lead_notification l1,student s1 where l1.stu_id=s1.sid and  l1.play_status=1");
+	 	$stmt_clist->execute();
+  	$lead_notification = $stmt_clist->get_result();
+  	$count=mysqli_num_rows($lead_notification);
+
+  	$stmt_clist->close();
+		$html='';
+	  	while($noti=mysqli_fetch_array($lead_notification))
+	  	{
+				$ids.=$noti["id"].",";
+	  	}
+	  	echo $count."@@@@".rtrim($ids,",");
+	}
+	// remove play sound
+	if ($_REQUEST["action"] == "removeplaysound") {
+
+    $ids=explode(',',$_REQUEST["id"]);
+  
+   
+    for($i=0;$i<sizeof($ids);$i++)
+    {
+      
+
+      $stmt_clist = $obj->con1->prepare("UPDATE `lead_notification` SET `play_status`=0 WHERE id=?");
+      $stmt_clist->bind_param("i",$ids[$i]);
+		 	$stmt_clist->execute();
+	  	$stmt_clist->close();
+    }
+    
+}
+
 	if($_REQUEST['action']=="getTaskFacultyList")
 	{
 		$html="";
