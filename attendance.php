@@ -8,7 +8,7 @@ else{
 }
 
 
-$stmt_blist = $obj->con1->prepare("select * from batch");
+$stmt_blist = $obj->con1->prepare("SELECT b1.* FROM batch b1, faculty f1,course c1, branch b2,batch_assign b3 where b1.faculty_id=f1.id and b1.branch_id=b2.id and c1.courseid=b1.course_id and b3.batch_id=b1.id and b1.id!=37 GROUP by b1.id order by id desc");
 $stmt_blist->execute();
 $res = $stmt_blist->get_result();
 $stmt_blist->close();	
@@ -18,15 +18,26 @@ $dt=date("Y-m-d");
 
 if(isset($_REQUEST['submit1']))
 {
-	$atten = "p";
-	foreach($_REQUEST['faculty_atten'] as $aid)
+  $total = $_REQUEST["total"];
+	//$atten = "p";
+	/*foreach($_REQUEST['faculty_atten'] as $aid)
 	{
-		echo $aid."<br/>";	
+		echo $aid."<br/>";	*/
 	  try
 	  {
-		$stmt = $obj->con1->prepare("update attendance set faculty_attendance=? where aid=?");
-		$stmt->bind_param("si", $atten,$aid);
-		$Resp=$stmt->execute();
+      for($i=1;$i<$total;$i++){
+        if(isset($_REQUEST["faculty_atten".$i])){
+          $faculty_atten = "p";
+        }
+        else{
+          $faculty_atten = "a";
+        }
+        $remark = $_REQUEST["remark".$i];
+        $aid = $_REQUEST["atten_id".$i];
+    		$stmt = $obj->con1->prepare("update attendance set faculty_attendance=?, remark=? where aid=?");
+    		$stmt->bind_param("ssi", $faculty_atten,$remark,$aid);
+    		$Resp=$stmt->execute();
+      }
 		if(!$Resp)
 		{
 		  throw new Exception("Problem in inserting! ". strtok($obj->con1-> error,  '('));
@@ -37,12 +48,11 @@ if(isset($_REQUEST['submit1']))
 		setcookie("sql_error", urlencode($e->getMessage()),time()+3600,"/");
 	  }
 	
-	}
 
   if($Resp)
   {
 	  setcookie("msg", "data",time()+3600,"/");
-      header("location:attendance.php");
+    header("location:attendance.php");
   }
   else
   {
@@ -177,7 +187,7 @@ if(isset($_COOKIE["msg"]))
                         <!--  <input type="date" class="form-control" name="dt" id="dt" value="<?php echo date("Y-m-d") ?>"/> -->
                     </div>
 					
-					<button type="submit" name="btnsubmit" id="btnsubmit" class="btn btn-primary">Submit</button>
+					<button type="submit" name="btnsubmit" id="btnsubmit" class="btn btn-primary">Show</button>
 
           </form>
       </div>
@@ -218,8 +228,16 @@ if(isset($_COOKIE["msg"]))
           						$stmt_list->close();
           					  
           						$i=1;
+
+                          if(mysqli_num_rows($result)==0){
+                        ?>
+                          <td valign="top" align="center" colspan="4" class="dataTables_empty">No data available in table</td>
+                        <?php
+                                      
+                            }
                                   while($a=mysqli_fetch_array($result))
                                   {
+                                    
                                 ?>
 
                                 <tr>
@@ -227,10 +245,11 @@ if(isset($_COOKIE["msg"]))
                                   <td><?php echo $a["name"]?></td>
                       						<td style="color:<?php echo ($a["stu_attendance"]=="p")?'green':'red' ?>"><?php echo ucfirst($a["stu_attendance"])?></td>
                       						<td>
-                                		<input type="checkbox" name="faculty_atten[]" value="<?php echo $a["aid"] ?>"  <?php echo ($a["faculty_attendance"]=="p")?"checked='checked'":""?>/>
+                                		<input type="checkbox" name="faculty_atten<?php echo $i ?>" value="<?php echo $a["aid"] ?>"  <?php echo ($a["faculty_attendance"]=="p")?"checked='checked'":""?>/>
+                                    <input type="hidden" name="atten_id<?php echo $i ?>" value="<?php echo $a["aid"] ?>">
                                     
                                   </td>
-          						              <td><input type="text" class="form-control" name="r[]" id="" value="<?php echo $a["remark"] ?>"/></td>
+          						              <td><input type="text" class="form-control" name="remark<?php echo $i ?>" id="" value="<?php echo $a["remark"] ?>"/></td>
                                 </tr>
                                 <?php
                                     $i++;
@@ -241,7 +260,15 @@ if(isset($_COOKIE["msg"]))
                       
                     </tbody>
                   </table>
-                  <button type="submit" name="submit1" id="submit1" class="btn btn-primary">Submit</button>
+                  <?php
+                    if(mysqli_num_rows($result)!=0){
+                  ?>
+                  <input type="hidden" name="total" value="<?php echo $i ?>"> 
+                    <button type="submit" name="submit1" id="submit1" class="btn btn-primary">Submit</button>
+
+                  <?php
+                    }
+                  ?>
                   </form>
                 </div>
                 

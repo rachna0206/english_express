@@ -13,7 +13,7 @@ $res = $stmt_blist->get_result();
 $stmt_blist->close();
 
 //  student list
-$stmt_stu = $obj->con1->prepare("select * from student where sid not in (select student_id from batch_assign )");
+$stmt_stu = $obj->con1->prepare("select * from student where status='registered' and sid not in (select student_id from batch_assign)");
 $stmt_stu->execute();
 $res_Stu = $stmt_stu->get_result();
 $stmt_stu->close();
@@ -35,7 +35,6 @@ if(isset($_REQUEST['btnsubmit']))
   try
   {
     //remove from selected
-
     for($i=0;$i<count($stu1);$i++)
     {
       // check if already exist in batch
@@ -46,11 +45,9 @@ if(isset($_REQUEST['btnsubmit']))
       
 
     // add new students  
-
     for($i=0;$i<count($stu2);$i++)
     {
       // check if already exist in batch
-
       $stmt_check = $obj->con1->prepare("select * from batch_assign where batch_id=? and student_id=?");
       $stmt_check->bind_param("ii", $batch,$stu2[$i]);
       $stmt_check->execute();
@@ -59,20 +56,66 @@ if(isset($_REQUEST['btnsubmit']))
       $stmt_check->close();
       if($num_rows==0)
       {
-        // insert if not exists
+    /*    // insert if not exists
         $stmt = $obj->con1->prepare("INSERT INTO `batch_assign`(`batch_id`,`student_id`) VALUES (?,?)");
         $stmt->bind_param("ii", $batch,$stu2[$i]);
-        $Resp=$stmt->execute();
+        $Resp=$stmt->execute(); */
+
+
+
+        // check if student is assigned in any batch
+        $stmt_batch_select = $obj->con1->prepare("select id,count(*) from batch_assign where student_id=? and batch_id=37");
+        $stmt_batch_select->bind_param("i", $stu2[$i]);
+        $stmt_batch_select->execute();
+        $res = $stmt_batch_select->get_result();
+        $stmt_batch_select->close();
+        $row1 = mysqli_fetch_array($res);
+        if($row1[1]==0)
+        {
+          // insert into batch assign
+          $stmt_batch_assign = $obj->con1->prepare("INSERT INTO `batch_assign`( `batch_id`, `student_id`) VALUES (?,?)");
+          $stmt_batch_assign->bind_param("ii", $batch,$stu2[$i]);
+          $Resp=$stmt_batch_assign->execute();
+          $stmt_batch_assign->close();
+          echo "insert";
+        }
+        else
+        {
+          // update batch assign
+          $stmt_batch = $obj->con1->prepare("update batch_assign set batch_id=? where student_id=?");
+          $stmt_batch->bind_param("ii",$batch, $stu2[$i]);
+          //$Resp_batch=$stmt_batch->execute();
+          $Resp = $stmt_batch->execute();
+          $stmt_batch->close();
+          echo "update";
+        }
+
+
+
       }
 
-      
     }
+    
+      $stmt_list = $obj->con1->prepare("select sid from student where status='registered' and sid not in (select distinct(student_id) from batch_assign)");
+      $stmt_list->execute();
+      $result = $stmt_list->get_result();
+      $stmt_list->close();
+      $bid = 37;
+      $stu_id = array();
+      while($stu=mysqli_fetch_array($result)){
+        $stmt = $obj->con1->prepare("INSERT INTO `batch_assign`(`batch_id`,`student_id`) VALUES (?,?)");
+        $stmt->bind_param("ii", $bid,$stu[0]);
+        $Resp1=$stmt->execute();
+
+      }
+
+  
     
     if(!$Resp)
     {
       throw new Exception("Problem in adding! ". strtok($obj->con1-> error,  '('));
     }
-    $stmt->close();
+    //$stmt->close();
   } 
   catch(\Exception  $e) {
     setcookie("sql_error", urlencode($e->getMessage()),time()+3600,"/");
@@ -317,11 +360,11 @@ if(isset($_COOKIE["msg"]) )
                           <select name="stu_list2[]" id="stu_list2"  class="mb-3 col-md-12" multiple required >
                                   <option value=""></option>
                                   <?php    
-                                        /*while($stu=mysqli_fetch_array($res_Stu2)){
+                                        while($stu=mysqli_fetch_array($res_Stu2)){
                                     ?>
                                             <option value="<?php echo $stu["sid"] ?>" class="list-group-item drag-item cursor-move d-flex justify-content-between align-items-center"><?php echo $stu["name"] ?></option>
                                     <?php
-                                        }*/
+                                        }
                                     ?>
 
                           </select>

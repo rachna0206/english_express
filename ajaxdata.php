@@ -476,6 +476,40 @@ if(isset($_REQUEST['action']))
   	
   	echo $html;
 	}
+
+	if($_REQUEST['action']=="check_stu_roll")
+	{
+		$html="";
+		$stu_roll=$_REQUEST["stu_roll"];
+		$id=$_REQUEST['id'];
+		if($id!="")
+		{
+			//echo "select * from student where user_id=? and sid!=?";
+			
+			$stmt_faculty = $obj->con1->prepare("select * from student where user_id=? and sid!=?");
+			$stmt_faculty->bind_param("si",$stu_roll,$id);
+		}
+		else
+		{
+		
+		$stmt_faculty = $obj->con1->prepare("select * from student where user_id=?");
+		$stmt_faculty->bind_param("s",$stu_roll);
+		
+		}
+		$stmt_faculty->execute();
+		$res = $stmt_faculty->get_result();
+		$stmt_faculty->close();
+		if(mysqli_num_rows($res)>0)
+		{
+			$html=1;
+		}
+		else
+		{
+			$html=0;
+		}
+
+		echo $html;
+	}
 	
 }
 

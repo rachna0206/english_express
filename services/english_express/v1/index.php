@@ -89,6 +89,7 @@ $app->post('/login', function () use ($app) {
             $response->id = $student['sid'];
             $response->name = $student['name'];    
             $response->user_type=$user_type; 
+            $response->img_url="https://englishexpress.co.in/roots555/studentProfilePic/".$student["pic"];
 
             $insert_device = $db->insert_student_device($student['sid'], $device_token, $device_type);
             $data["data"]=$response;
@@ -117,6 +118,7 @@ $app->post('/login', function () use ($app) {
             $response->id = $faculty['id'];
             $response->name = $faculty['name'];       
             $response->user_type=$user_type; 
+            $response->img_url="https://englishexpress.co.in/roots555/faculty_pic/".$faculty["profilepic"];
 
             $insert_device = $db->insert_faculty_device($faculty['id'], $device_token, $device_type);
             $data["data"]=$response;
@@ -269,12 +271,41 @@ $app->post('/faculty_attendence', function () use ($app) {
         $data['message'] = "An error occurred";
         $data['success'] = true;
     }
-    
-     
-   
+       
+    echoResponse(200, $data);
+});
 
+
+/* *
+ * attendence from student side
+ * Parameters: stu_id,batch_id,attendence
+ * Method: POST
+ * 
+ */
+
+$app->post('/stu_attendence', function () use ($app) {
+    verifyRequiredParams(array('data'));
+    $data = json_decode($app->request->post('data'));
+    $batch_id = $data->batch_id;
+    $stu_id = $data->stu_id;
+    $attendence = $data->attendence;
+   
     
-    
+    $db = new DbOperation();
+    $data = array();
+    $data["data"] = array();  
+    if($db->stu_attendence($batch_id,$stu_id,$attendence))
+    {
+
+        $data['message'] = "Attendence added successfully";
+        $data['success'] = true;
+    }
+    else
+    {
+        $data['message'] = "An error occurred";
+        $data['success'] = true;
+    }
+       
     echoResponse(200, $data);
 });
 
@@ -601,6 +632,44 @@ $app->post('/stu_chapter_list', function () use ($app) {
     
     echoResponse(200, $data);
 });
+
+
+/* *
+ * banner
+ * Parameters:
+ * Method: POST
+ * 
+ */
+
+$app->post('/banner', function () use ($app) {
+
+    
+    $db = new DbOperation();
+    $data = array();
+    $data["data"] = array();  
+    $result=$db->banner();
+    
+     
+    $response = array();
+    while ($row = $result->fetch_assoc()) {
+        $temp = array();
+        foreach ($row as $key => $value) {
+            $temp[$key] = $value;
+           
+            $temp["image_path"]="http://englishexpress.co.in/roots555/banner/";
+            
+        }
+        $temp = array_map('utf8_encode', $temp);
+        array_push($data['data'], $temp);
+    }
+
+    $data['message'] = "";
+    $data['success'] = true;
+    
+    echoResponse(200, $data);
+});
+
+
 
 
 //---------------------------------------//

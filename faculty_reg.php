@@ -369,20 +369,20 @@ if(isset($_COOKIE["msg"]) )
                       
                     </div>
                     <div class="card-body">
-                      <form method="post" enctype="multipart/form-data">
+                      <form method="post" enctype="multipart/form-data" autocomplete="off">
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Faculty Name</label>
-                          <input type="text" class="form-control" name="fname" id="fname" required />
+                          <input type="text" class="form-control" name="fname" id="fname" required autocomplete="off" />
                           <input type="hidden" name="ttId" id="ttId">
                         </div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-company">Contact No.</label>
-                          <input type="tel" pattern="[0-9]{10}" class="form-control phone-mask" id="contact" name="contact"  required/>
+                          <input type="tel" pattern="[0-9]{10}" class="form-control phone-mask" id="contact" name="contact"  required autocomplete="off"/>
                         </div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-email">Email</label>
                           <input type="text" id="email" name="email" class="form-control" 
-                              aria-label="email" aria-describedby="basic-default-email2" required/>
+                              aria-label="email" aria-describedby="basic-default-email2" required autocomplete="off"/>
                         </div>
 
                         <div class="mb-3">
@@ -401,7 +401,7 @@ if(isset($_COOKIE["msg"]) )
                         
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Qualification</label>
-                          <input type="text" class="form-control" name="qualification" id="qualification" required />
+                          <input type="text" class="form-control" name="qualification" id="qualification" required autocomplete="off"/>
                         </div>
                         
                         <div class="mb-3">
@@ -420,13 +420,13 @@ if(isset($_COOKIE["msg"]) )
                         
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">User Id</label>
-                          <input type="text" class="form-control" name="userid" id="userid" required onblur="check_userid(this.value)" />
+                          <input type="text" class="form-control" name="userid" id="userid" required onblur="check_userid(this.value)" autocomplete="nope"/>
                           <div id="user_alert" class="text-danger"></div>
                           
                         </div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Password</label>
-                          <input type="password" class="form-control" name="password" id="password" required />
+                          <input type="password" class="form-control" name="password" id="password" required autocomplete="nope"/>
                         </div>
                         
                           <label class="form-label" for="basic-default-message">Address :</label>
@@ -668,10 +668,11 @@ function readPP(input) {
       }
   }
   function editdata(id,name,phone,email,gender,qualification,designation,uid,password,house_no,society,village,landmark,city,state,pin,dob,pp,adhar) {
-    $('#fname').focus(); 
-           	$('#ttId').val(id);
-            $('#fname').val(name);
-            $('#contact').val(phone);
+      $('#fname').focus(); 
+     	$('#ttId').val(id);
+      $('#fname').val(name);
+      $('#contact').val(phone);
+      $('#user_alert').html('');
 			$('#email').val(email);
 			//$('#gender').val(gender);
 			console.log("gender="+gender);

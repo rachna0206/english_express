@@ -139,8 +139,30 @@ public function faculty_attendence($batch_id,$stu_id,$attendence,$remark)
 {
 
     $date=date('Y-m-d');
-    $stmt = $this->con->prepare("INSERT INTO `attendance`( `student_id`, `stu_attendance`, `faculty_attendance`, `remark`, `batch_id`, `dt`) VALUES(?,?,?,?,?,?)");
-    $stmt->bind_param("isssis", $stu_id, $attendence, $attendence,$remark,$batch_id,$date);
+
+
+    $stmt = $this->con->prepare("update attendance set faculty_attendance=?, remark=? where student_id=? and batch_id=? and dt=?");
+    $stmt->bind_param("ssii", $attendence,$remark,$stu_id,$batch_id,$date);
+   
+    $result = $stmt->execute();
+    $stmt->close();
+    
+    if ($result) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+//add student attendence from stu side
+public function stu_attendence($batch_id,$stu_id,$attendence)
+{
+
+    $date=date('Y-m-d');
+
+
+    $stmt = $this->con->prepare("INSERT INTO `attendance`(`student_id`, `stu_attendance`, `faculty_attendance`,  `batch_id`, `dt`) VALUES (?,?,?,?,?)");
+    $stmt->bind_param("issis", $stu_id,$attendence,$attendence,$batch_id,$date);
    
     $result = $stmt->execute();
     $stmt->close();
@@ -260,6 +282,18 @@ public function exercise_list($book_id,$chapter_id)
 {
     $stmt = $this->con->prepare("SELECT s1.*,c1.chapter_name FROM stu_assignment s1, chapter c1 where s1.chap_id=c1.cid and s1.stu_id=? and s1.book_id=?");
     $stmt->bind_param("ii", $stu_id,$book_id);
+    $stmt->execute();
+    $exercise = $stmt->get_result();
+    $stmt->close();
+    return $exercise;
+}
+
+
+// banner
+ public function banner()
+{
+    $stmt = $this->con->prepare("SELECT * from motivation where `status`='enabled' ");
+    
     $stmt->execute();
     $exercise = $stmt->get_result();
     $stmt->close();

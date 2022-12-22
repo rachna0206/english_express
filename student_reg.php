@@ -246,31 +246,27 @@ if(isset($_REQUEST['btnupdate']))
 
 
     // check if student is assigned in any batch
-
-    $stmt_batch_select = $obj->con1->prepare("select * from student where sid=?");
+    $stmt_batch_select = $obj->con1->prepare("select id,count(*) from batch_assign where student_id=? and batch_id=37");
     $stmt_batch_select->bind_param("i", $id);
     $stmt_batch_select->execute();
     $res = $stmt_batch_select->get_result();
     $stmt_batch_select->close();
-    if(mysqli_num_rows($res)>0)
+    $row = mysqli_fetch_array($res);
+    if($row[1]==0)
     {
-
       // insert into batch assign
       $stmt_batch_assign = $obj->con1->prepare("INSERT INTO `batch_assign`( `batch_id`, `student_id`) VALUES (?,?)");
       $stmt_batch_assign->bind_param("ii", $btime,$id);
       $Resp=$stmt_batch_assign->execute();
-     
       $stmt_batch_assign->close();
     }
     else
     {
       // update batch assign
-
       $stmt_batch = $obj->con1->prepare("update batch_assign set batch_id=? where student_id=?");
       $stmt_batch->bind_param("ii",$btime, $id);
       $Resp_batch=$stmt_batch->execute();
       $stmt_batch->close();
-
     }
     
 	if(!$Resp)
@@ -525,7 +521,8 @@ if(isset($_COOKIE["msg"]) )
 						
 						<div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">User ID (Roll No.)</label>
-                          <input type="text" class="form-control" name="userid" id="userid" required />
+                          <input type="text" class="form-control" name="userid" id="userid" required onkeyup ="check_stu_roll(this.value)" />
+                          <div id="stu_alert_div" class="text-danger"></div>
                         </div>
                         
 						<div class="mb-3">
@@ -553,7 +550,7 @@ if(isset($_COOKIE["msg"]) )
                           <input type="date" class="form-control" name="dob" id="dob" required/>
                         </div>
                         
-						<div class="mb-3">
+						            <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Inquiry Date</label>
                           <input type="date" class="form-control" name="inquiry_dt" id="inquiry_dt" required value="<?php echo date('Y-m-d')?>" />
                         </div>
@@ -654,15 +651,15 @@ if(isset($_COOKIE["msg"]) )
                 <div class="card-header">
                
 <div class="form-check form-check-inline">
-    <input class="form-check-input" type="radio" name="stu_option" id="opt_reg" value="reg" onchange="get_stu_grid(this.value)" <?php echo ($_COOKIE["stu_reg_opt"]=="" || $_COOKIE['stu_reg_opt']=="reg")?"checked":""?>>
+    <input class="form-check-input" type="radio" name="stu_option" id="opt_reg" value="reg" onchange="get_stu_grid(this.value)" <?php echo (!isset($_COOKIE["stu_reg_opt"]) || $_COOKIE['stu_reg_opt']=="reg")?"checked":""?>>
     <label class="form-check-label" for="inlineRadio1">Registered</label>
 </div>
 <div class="form-check form-check-inline ">
-    <input class="form-check-input" type="radio" name="stu_option" id="opt_inquiry" value="inquiry" onchange="get_stu_grid(this.value)" <?php echo ($_COOKIE["stu_reg_opt"]!="" && $_COOKIE['stu_reg_opt']=="inquiry")?"checked":""?>>
+    <input class="form-check-input" type="radio" name="stu_option" id="opt_inquiry" value="inquiry" onchange="get_stu_grid(this.value)" <?php echo (isset($_COOKIE["stu_reg_opt"]) && $_COOKIE['stu_reg_opt']=="inquiry")?"checked":""?>>
     <label class="form-check-label" for="inlineRadio1">Inquiry</label>
 </div>
  <div class="form-check form-check-inline ">
-    <input class="form-check-input" type="radio" name="stu_option" id="opt_all" value="all" <?php echo ($_COOKIE["stu_reg_opt"]!="" && $_COOKIE['stu_reg_opt']=="all")?"checked":""?> onchange="get_stu_grid(this.value)">
+    <input class="form-check-input" type="radio" name="stu_option" id="opt_all" value="all" <?php echo (isset($_COOKIE["stu_reg_opt"]) && $_COOKIE['stu_reg_opt']=="all")?"checked":""?> onchange="get_stu_grid(this.value)">
     <label class="form-check-label" for="inlineRadio1">All</label>
 </div>
 </div>
@@ -683,7 +680,7 @@ if(isset($_COOKIE["msg"]) )
                         <th>Actions</th>
                       </tr>
                     </thead>
-                    <tbody class="table-border-bottom-0">
+                    <tbody class="table-border-bottom-0" id="grid">
                       <?php 
                       if(isset($_COOKIE["stu_reg_opt"]) && $_COOKIE['stu_reg_opt']=="all")
                       {
@@ -760,9 +757,41 @@ if(isset($_COOKIE["msg"]) )
 <?php } ?>
             <!-- / Content -->
 <script type="text/javascript">
+  function check_stu_roll(stu_roll)
+  {
+    
+    var id=$('#ttId').val();
+    $.ajax({
+          async: true,
+          type: "POST",
+          url: "ajaxdata.php?action=check_stu_roll",
+          data: "stu_roll="+stu_roll+"&id="+id,
+          cache: false,
+          success: function(result){
+            if(result>0)
+            {
+              $('#stu_alert_div').html('Roll No. already exists');
+              document.getElementById('btnsubmit').disabled = true;
+              document.getElementById('btnupdate').disabled = true;
+              
+            }
+            else
+            {
+              $('#stu_alert_div').html('');
+              document.getElementById('btnsubmit').disabled = false;
+              document.getElementById('btnupdate').disabled = false;
+              
+            }
+           
+            
+       
+            }
+        });
+  }
   function get_stu_grid(opt) {
     
     createCookie("stu_reg_opt",opt,1);
+   // createCookie("stu_opt_grid","1",1);
     window.location=window.location.href;
   }
 
@@ -825,6 +854,7 @@ if(isset($_COOKIE["msg"]) )
   
   function editdata(id,name,email,gender,password,house_no,society,village,landmark,city,state,pin,education,stu_type,userid,gname,phone,gphone,dob,inquiry,enrollment,btime,skill,course,pic,aadhar,status) {         
 		$('#ttId').val(id);
+    $('#sname').focus();
 		$('#sname').val(atob(name));
 		$('#email').val(atob(email));
 		$('#house_no').val(atob(house_no));
