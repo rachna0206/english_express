@@ -28,15 +28,22 @@ if(isset($_REQUEST['btnsubmit']))
   $state = $_REQUEST['state'];
   $pin_code = $_REQUEST['pin'];
   $status = $_REQUEST['status'];
+  $desig = "Associate";
 
   try
   {
-	$stmt = $obj->con1->prepare("INSERT INTO `associate`(`associate_name`, `contact_no`, `firm_name`, `house_no`, `society_name`, `village`, `landmark`, `city`, `state`, `pin`, `status`) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+/*	$stmt = $obj->con1->prepare("INSERT INTO `associate`(`associate_name`, `contact_no`, `firm_name`, `house_no`, `society_name`, `village`, `landmark`, `city`, `state`, `pin`, `status`) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
 	$stmt->bind_param("sssssssiiss", $associate_name,$contact_no,$firm_name,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$status);
-	$Resp=$stmt->execute();
+	$Resp=$stmt->execute();  */
+ 
+
+  $stmt = $obj->con1->prepare("INSERT INTO `faculty`(`name`, `phone`, `firm_name`, `house_no`, `society_name`, `village`, `landmark`, `city`, `state`, `pin`, `status`, `designation`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+  $stmt->bind_param("sssssssiisss",$associate_name,$contact_no,$firm_name,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$status,$desig);
+  $Resp=$stmt->execute();
+
 	if(!$Resp)
 	{
-      throw new Exception("Problem in deleting! ". strtok($obj->con1-> error,  '('));
+      throw new Exception("Problem in adding! ". strtok($obj->con1-> error,  '('));
     }
     $stmt->close();
   } 
@@ -74,9 +81,14 @@ if(isset($_REQUEST['btnupdate']))
 
   try
   {
-	$stmt = $obj->con1->prepare("update associate set associate_name=?, contact_no=?, firm_name=?, house_no=?, society_name=?, village=?, landmark=?, city=?, state=?, pin=?, status=? where aid=?");
+/*	$stmt = $obj->con1->prepare("update associate set associate_name=?, contact_no=?, firm_name=?, house_no=?, society_name=?, village=?, landmark=?, city=?, state=?, pin=?, status=? where aid=?");
 	$stmt->bind_param("sssssssiissi", $associate_name,$contact_no,$firm_name,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$status,$id);
-	$Resp=$stmt->execute();
+	$Resp=$stmt->execute();  */
+
+  $stmt = $obj->con1->prepare("update faculty set name=?, phone=?, firm_name=?, house_no=?, society_name=?, village=?, landmark=?, city=?, state=?, pin=?, status=? where id=?");
+  $stmt->bind_param("sssssssiissi",$associate_name,$contact_no,$firm_name,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$status,$id);
+  $Resp=$stmt->execute();
+
 	if(!$Resp)
 	{
       throw new Exception("Problem in deleting! ". strtok($obj->con1-> error,  '('));
@@ -299,7 +311,7 @@ if(isset($_COOKIE["msg"]))
                           <label class="form-label d-block" for="basic-default-fullname">Status</label>
                           
                           <div class="form-check form-check-inline mt-3">
-                            <input class="form-check-input" type="radio" name="status" id="active" value="active" required >
+                            <input class="form-check-input" type="radio" name="status" id="active" value="active" checked required >
                             <label class="form-check-label" for="inlineRadio1">Active</label>
                           </div>
                           <div class="form-check form-check-inline mt-3">
@@ -345,7 +357,7 @@ if(isset($_COOKIE["msg"]))
                     </thead>
                     <tbody class="table-border-bottom-0">
                       <?php 
-                        $stmt_list = $obj->con1->prepare("select * from associate order by aid desc");
+                        $stmt_list = $obj->con1->prepare("select * from faculty where designation='Associate' order by id desc");
                         $stmt_list->execute();
                         $result = $stmt_list->get_result();
                         
@@ -357,19 +369,19 @@ if(isset($_COOKIE["msg"]))
 
                       <tr>
                         <td><?php echo $i?></td>
-                        <td><?php echo $a["associate_name"]?></td>
-                        <td><?php echo $a["contact_no"]?></td>
+                        <td><?php echo $a["name"]?></td>
+                        <td><?php echo $a["phone"]?></td>
                         <td><?php echo $a["firm_name"]?></td>
                         <td><?php echo $a["status"]?></td>
                         
                    	<?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>
                         <?php if($row["upd_func"]=="y"){ ?>
-                        	<a href="javascript:editdata('<?php echo $a["aid"]?>','<?php echo base64_encode($a["associate_name"])?>','<?php echo base64_encode($a["contact_no"])?>','<?php echo base64_encode($a["firm_name"])?>','<?php echo base64_encode($a["house_no"])?>','<?php echo base64_encode($a["society_name"])?>','<?php echo base64_encode($a["village"])?>','<?php echo base64_encode($a["landmark"])?>','<?php echo $a["city"]?>','<?php echo $a["state"]?>','<?php echo base64_encode($a["pin"])?>','<?php echo $a["status"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
+                        	<a href="javascript:editdata('<?php echo $a["id"]?>','<?php echo base64_encode($a["name"])?>','<?php echo base64_encode($a["phone"])?>','<?php echo base64_encode($a["firm_name"])?>','<?php echo base64_encode($a["house_no"])?>','<?php echo base64_encode($a["society_name"])?>','<?php echo base64_encode($a["village"])?>','<?php echo base64_encode($a["landmark"])?>','<?php echo $a["city"]?>','<?php echo $a["state"]?>','<?php echo base64_encode($a["pin"])?>','<?php echo $a["status"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
                 		<?php } if($row["del_func"]=="y"){ ?>
-							<a  href="javascript:deletedata('<?php echo $a["aid"]?>');"><i class="bx bx-trash me-1"></i> </a>
+							<a  href="javascript:deletedata('<?php echo $a["id"]?>');"><i class="bx bx-trash me-1"></i> </a>
 						<?php } if($row["read_func"]=="y"){ ?>
-                        	<a href="javascript:viewdata('<?php echo $a["aid"]?>','<?php echo base64_encode($a["associate_name"])?>','<?php echo base64_encode($a["contact_no"])?>','<?php echo base64_encode($a["firm_name"])?>','<?php echo base64_encode($a["house_no"])?>','<?php echo base64_encode($a["society_name"])?>','<?php echo base64_encode($a["village"])?>','<?php echo base64_encode($a["landmark"])?>','<?php echo $a["city"]?>','<?php echo $a["state"]?>','<?php echo base64_encode($a["pin"])?>','<?php echo $a["status"]?>');">View</a>
+                        	<a href="javascript:viewdata('<?php echo $a["id"]?>','<?php echo base64_encode($a["name"])?>','<?php echo base64_encode($a["phone"])?>','<?php echo base64_encode($a["firm_name"])?>','<?php echo base64_encode($a["house_no"])?>','<?php echo base64_encode($a["society_name"])?>','<?php echo base64_encode($a["village"])?>','<?php echo base64_encode($a["landmark"])?>','<?php echo $a["city"]?>','<?php echo $a["state"]?>','<?php echo base64_encode($a["pin"])?>','<?php echo $a["status"]?>');">View</a>
                         <?php } ?>
                         </td>
                    <?php } ?>

@@ -13,7 +13,7 @@ $stmt_blist->execute();
 $book_res = $stmt_blist->get_result();
 $stmt_blist->close();
 
-$stmt_flist = $obj->con1->prepare("select id,name from faculty");
+$stmt_flist = $obj->con1->prepare("select id,name from faculty where designation!='Associate' and status='active'");
 $stmt_flist->execute();
 $faculty_res = $stmt_flist->get_result();
 $stmt_flist->close();

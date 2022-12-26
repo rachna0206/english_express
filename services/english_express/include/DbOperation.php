@@ -31,7 +31,7 @@ class DbOperation
     public function getStudent($userid)
     {
         
-        $stmt = $this->con->prepare("SELECT * FROM student WHERE user_id=?");
+        $stmt = $this->con->prepare("SELECT s1.*,b1.id as batch_id,b3.name as branch_name,b3.location as branch_location FROM `student` s1,batch b1,batch_assign b2,branch b3 WHERE b2.student_id=s1.sid and b2.batch_id=b1.id and b1.branch_id=b3.id and  s1.user_id=?");
         $stmt->bind_param("s", $userid);
         $stmt->execute();
         $stu = $stmt->get_result()->fetch_assoc();
@@ -72,7 +72,7 @@ class DbOperation
     // get faculty data
     public function getFaculty($userid)
     {
-        $stmt = $this->con->prepare("SELECT * FROM faculty WHERE uid=?");
+        $stmt = $this->con->prepare("SELECT f1.*,b1.id as batch_id,b2.name as branch_name,b2.location as branch_location FROM faculty f1,batch b1, branch b2 where b1.faculty_id=f1.id and b1.branch_id=b2.id and f1.uid=?");
         $stmt->bind_param("s", $userid);
         $stmt->execute();
         $stu = $stmt->get_result()->fetch_assoc();
@@ -267,12 +267,21 @@ public function exercise_list($book_id,$chapter_id)
 
 
 // roadmap
- public function roadmap($stu_id)
+public function roadmap($stu_id)
 {
-    $stmt = $this->con->prepare("SELECT b1.*,count( s1.skill) as total_skill,count( if( s1.status!='pending',1,null)) as completed_skill FROM `stu_assignment` s1,exercise e1,books b1 where s1.exercise_id=e1.eid and s1.book_id=b1.bid and s1.stu_id=? order by s1.book_id ");
+    $stmt = $this->con->prepare("SELECT b1.* from student s1,books b1 where s1.courseid=b1.courseid and s1.sid=? ");
     $stmt->bind_param("i", $stu_id);
     $stmt->execute();
-    $exercise = $stmt->get_result();
+    $books = $stmt->get_result();
+    $stmt->close();
+    return $books;
+}
+public function roadmap_exercise_count($stu_id,$book)
+{
+    $stmt = $this->con->prepare("SELECT b1.*,count( s1.skill) as total_skill,count( if( s1.status!='pending',1,null)) as completed_skill FROM `stu_assignment` s1,exercise e1,books b1 where s1.exercise_id=e1.eid and s1.book_id=b1.bid and s1.stu_id=? and b1.bid=? group by s1.book_id order by s1.book_id ");
+    $stmt->bind_param("ii", $stu_id,$book);
+    $stmt->execute();
+    $exercise = $stmt->get_result()->fetch_assoc();
     $stmt->close();
     return $exercise;
 }
@@ -292,13 +301,106 @@ public function exercise_list($book_id,$chapter_id)
 // banner
  public function banner()
 {
-    $stmt = $this->con->prepare("SELECT * from motivation where `status`='enabled' ");
+    $stmt = $this->con->prepare("SELECT * FROM (select * from motivation where `type`='image' and status='enabled' and banner_display='on' union (select * from motivation where `type`='video' and status='enabled' and banner_display='on' order by mid desc limit 1)) as tbl1 ");
     
     $stmt->execute();
     $exercise = $stmt->get_result();
     $stmt->close();
     return $exercise;
 }
+
+// edit stu profile
+public function edit_stu_profile($uid,$email,$pic)
+{
+    
+    if($pic!="")
+    {
+        $stmt = $this->con->prepare("update student set email=?,pic=? where sid=? ");
+        $stmt->bind_param("ssi",$email,$pic,$uid);
+    }
+    else
+    {
+        $stmt = $this->con->prepare("update student set email=? where sid=? ");
+        $stmt->bind_param("si",$email,$uid);
+    }
+    
+    
+    $result=$stmt->execute();
+    
+    $stmt->close();
+    if($result)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+// update faculty profile
+public function edit_faculty_profile($uid,$email,$pic)
+{
+
+    if($pic!="")
+    {
+        $stmt = $this->con->prepare("update faculty set email=?,profilepic=? where id=? ");
+        $stmt->bind_param("ssi",$email,$pic,$uid);
+    }
+    else
+    {
+        $stmt = $this->con->prepare("update faculty set email=? where id=? ");
+        $stmt->bind_param("si",$email,$uid);
+    }
+    
+    
+    $result=$stmt->execute();
+    
+    $stmt->close();
+    if($result)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+//student logout
+public function stu_logout($uid, $device_token,$device_type)
+{
+    $stmt = $this->con->prepare("DELETE FROM `student_device` WHERE `stu_id`=? and `device_token`=? and `device_type`=?");
+
+    $stmt->bind_param("iss", $uid, $device_token,$device_type);
+    $result = $stmt->execute();
+    $stmt->close();
+    if ($result) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+//faculty logout
+public function faculty_logout($uid, $device_token,$device_type)
+{
+    $stmt = $this->con->prepare("DELETE FROM `faculty_device` WHERE `f_id`=? and `device_token`=? and `device_type`=?");
+
+    $stmt->bind_param("iss", $uid, $device_token,$device_type);
+    $result = $stmt->execute();
+    $stmt->close();
+    if ($result) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+
+
+
+
 
   //---------- english express--------------//  
 

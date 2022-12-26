@@ -74,8 +74,8 @@ $reportmenu=array("stu_report.php");
     <!-- data tables -->
     <link rel="stylesheet" type="text/css" href="assets/vendor/DataTables/datatables.css">
      
-<!-- Row Group CSS -->
-<link rel="stylesheet" href="assets/vendor/datatables-rowgroup-bs5/rowgroup.bootstrap5.css">
+    <!-- Row Group CSS -->
+    <!-- <link rel="stylesheet" href="assets/vendor/datatables-rowgroup-bs5/rowgroup.bootstrap5.css"> -->
     <!-- Page CSS -->
 
     <!-- Helpers -->

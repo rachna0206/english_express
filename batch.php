@@ -12,14 +12,14 @@ else{
  $course_list = $stmt_list->get_result(); 
  $stmt_list->close();
  
- $stmt_list = $obj->con1->prepare("select * from faculty order by id");
+ $stmt_list = $obj->con1->prepare("select * from faculty where designation!='Associate' and status='active' order by id");
  $stmt_list->execute();
  $faculty_list = $stmt_list->get_result();  
  $stmt_list->close();
  
  // assistant faculty1
  
- $stmt_list1 = $obj->con1->prepare("select * from faculty order by id");
+ $stmt_list1 = $obj->con1->prepare("select * from faculty where designation!='Associate' and status='active' order by id");
  $stmt_list1->execute();
   
  $faculty_list1 = $stmt_list1->get_result();  
@@ -27,7 +27,7 @@ else{
  $stmt_list1->close();
 
  // assistant faculty2
- $stmt_list2 = $obj->con1->prepare("select * from faculty order by id");
+ $stmt_list2 = $obj->con1->prepare("select * from faculty where designation!='Associate' and status='active' order by id");
  $stmt_list2->execute();
    
  $faculty_list2 = $stmt_list2->get_result();  

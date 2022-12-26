@@ -84,16 +84,17 @@ $app->post('/login', function () use ($app) {
             
             $response = new stdClass();
 
-            $data['message'] = "";
-            $data['success'] = true;
-            $response->id = $student['sid'];
-            $response->name = $student['name'];    
-            $response->user_type=$user_type; 
+           $response = new stdClass();
+    
+            foreach ($student as $key => $value) {
+                $response->$key= $value;
+            }
             $response->img_url="https://englishexpress.co.in/roots555/studentProfilePic/".$student["pic"];
 
             $insert_device = $db->insert_student_device($student['sid'], $device_token, $device_type);
             $data["data"]=$response;
-
+            $data['success'] = true;
+            $data["user_type"]=$user_type;
             
 
         }
@@ -113,11 +114,18 @@ $app->post('/login', function () use ($app) {
        
             $response = new stdClass();
 
+            
+                
+            foreach ($faculty as $key => $value) {
+                $response->$key= $value;
+                
+            }
+               
+            
+            $data["user_type"]=$user_type;
             $data['message'] = "";
             $data['success'] = true;
-            $response->id = $faculty['id'];
-            $response->name = $faculty['name'];       
-            $response->user_type=$user_type; 
+            
             $response->img_url="https://englishexpress.co.in/roots555/faculty_pic/".$faculty["profilepic"];
 
             $insert_device = $db->insert_faculty_device($faculty['id'], $device_token, $device_type);
@@ -134,6 +142,7 @@ $app->post('/login', function () use ($app) {
             }
 
     }
+
     echoResponse(200, $data);
 });
 
@@ -156,7 +165,7 @@ $app->post('/faculty_list', function () use ($app) {
     $result=$db->faculty_list();
     
      
-    $response = array();
+    
     while ($row = $result->fetch_assoc()) {
         $temp = array();
         foreach ($row as $key => $value) {
@@ -542,16 +551,16 @@ $app->post('/skill_status', function () use ($app) {
     $result=$db->skill_status($stu_id);
     
      
-    $response = array();
+    
     while ($row = $result->fetch_assoc()) {
-        $temp = array();
+        $temp = new stdClass();
         foreach ($row as $key => $value) {
-            $temp[$key] = $value;
+            $temp->$key = $value;
         }
-        $temp = array_map('utf8_encode', $temp);
-        array_push($data['data'], $temp);
+        
+        
     }
-
+    $data['data']=$temp;
     $data['message'] = "";
     $data['success'] = true;
     
@@ -581,8 +590,12 @@ $app->post('/roadmap', function () use ($app) {
      
     $response = array();
     while ($row = $result->fetch_assoc()) {
+        // get exercise count
+        $result_exercise=$db->roadmap_exercise_count($stu_id,$row["bid"]);
         $temp = array();
         foreach ($row as $key => $value) {
+            $temp["total_skill"]=$result_exercise["total_skill"];
+            $temp["completed_skill"]=$result_exercise["completed_skill"];
             $temp[$key] = $value;
         }
         $temp = array_map('utf8_encode', $temp);
@@ -670,6 +683,133 @@ $app->post('/banner', function () use ($app) {
 });
 
 
+/* *
+ * edit_profile
+ * Parameters:uid,type
+ * Method: POST
+ * 
+ */
+
+$app->post('/edit_profile', function () use ($app) {
+
+    verifyRequiredParams(array('data'));
+    $data = json_decode($app->request->post('data'));
+    $uid = $data->uid;
+    $type=$data->type;
+    $email=$data->email;
+    $pic=(isset($_FILES["pic"]["name"]))?$_FILES["pic"]["name"]:"";
+    $db = new DbOperation();
+    $data = array();
+    $data["data"] = array();  
+    if($type=="student")
+    {
+        $result=$db->edit_stu_profile($uid,$email,$pic);
+    }
+    else
+    {
+        $result=$db->edit_faculty_profile($uid,$email,$pic);
+    }
+    
+    if($result==1)
+    {
+        // upload pic
+        if (isset($_FILES["pic"]["name"]) && $_FILES["pic"]["name"] != "" && $type=="student")
+        {
+                            
+            $i = 1;
+            $MainFileName = $_FILES["pic"]["name"];
+           
+            if(move_uploaded_file($_FILES["pic"]["tmp_name"], "../../../roots555/studentProfilePic/" . $MainFileName))
+            {
+                $data["image_upload"] = true;
+            }
+            else
+            {
+                $data["image_upload"] =false;
+            }
+                
+            
+        }
+        // upload faculty pic
+        if (isset($_FILES["pic"]["name"]) && $_FILES["pic"]["name"] != "" && $type=="faculty")
+        {
+                            
+            $i = 1;
+            $MainFileName = $_FILES["pic"]["name"];
+           
+            if(move_uploaded_file($_FILES["pic"]["tmp_name"], "../../../roots555/faculty_pic/" . $MainFileName))
+            {
+                $data["image_upload"] = true;
+            }
+            else
+            {
+                $data["image_upload"] =false;
+            }
+                
+            
+        }
+       
+        $data['message'] = "Profile updated successfully";
+        $data['success'] = true;
+    }
+    else
+    {
+
+        $data['message'] = "An error occurred! Try again";
+        $data['success'] = false;
+    }
+
+
+    
+    
+    echoResponse(200, $data);
+});
+
+
+// logout
+
+
+$app->post('/logout', function () use ($app) {
+    verifyRequiredParams(array('data'));
+
+    $data = json_decode($app->request->post('data'));
+    $device_token = $data->device_token;
+    $user_type=$data->user_type;
+    $device_type=$data->device_type;
+    $uid=$data->uid;
+    $data = array();
+    $data["data"] = array();  
+
+   //device_token
+
+    $db = new DbOperation();
+    if($user_type=="student")
+    {
+        $res = $db->stu_logout($uid, $device_token,$device_type);
+    }
+    else
+    {
+        $res = $db->faculty_logout($uid, $device_token,$device_type);
+    }
+    
+
+    if ($res == 1) {
+
+
+        $data['success'] = true;
+        
+        $data['message'] = "Logged out";
+        
+    } else {
+
+        $data['success'] = false;
+       
+        $data['message'] = "Please try again";
+        
+    }
+    echoResponse(201, $data);
+
+});
 
 
 //---------------------------------------//

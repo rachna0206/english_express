@@ -7,7 +7,7 @@ else{
 	header("location:home.php");
 }
 
-$stmt_balist = $obj->con1->prepare("select * from batch");
+$stmt_balist = $obj->con1->prepare("select * from batch where id!=37");
 $stmt_balist->execute();
 $r1 = $stmt_balist->get_result();
 $stmt_balist->close();
@@ -119,8 +119,14 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
           cache: false,
           success: function(result){
             //alert(result);
+            var res=result.split("@@@@@");
             $('#stu_list_div').html('');
-            $('#stu_list_div').append(result);
+            $('#stu_list_div').append(res[0]);
+            
+            $('#book').html('');
+            $('#book').html(res[1]);
+            $('#course_label').html("Course Name:"+res[2]);
+
        
             }
         });
@@ -342,7 +348,7 @@ if(isset($_COOKIE["msg"]) )
 					                </select>
                           <input type="hidden" name="ttId" id="ttId">
                         </div>
-                        
+                        <div><label id="course_label"></label></div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Students</label>
                           <div id="stu_list_div" class="row">
@@ -359,21 +365,21 @@ if(isset($_COOKIE["msg"]) )
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Book Name</label>
                           <select name="book" id="book" onChange="chapList(this.value)" class="form-control" required>
-                          	<option value="-1">Select Book</option>
-                    <?php    
-                      while($book=mysqli_fetch_array($res)){
-							          if($id==$book["bid"]){
-                    ?>
-                    		    <option value="<?php echo $book["bid"] ?>" selected="selected"><?php echo $book["bookname"] ?></option>
-                    <?php
-							          }else{
-					          ?>
-                            <option value="<?php echo $book["bid"] ?>"><?php echo $book["bookname"] ?></option>
-                    <?php
-							          }
-						          }
-					          ?>
-					      </select>
+                          	<option value="">Select Book</option>
+                            <?php    
+                              while($book=mysqli_fetch_array($res)){
+        							          if($id==$book["bid"]){
+                            ?>
+                            		    <option value="<?php echo $book["bid"] ?>" selected="selected"><?php echo $book["bookname"] ?></option>
+                            <?php
+        							          }else{
+        					          ?>
+                                    <option value="<?php echo $book["bid"] ?>"><?php echo $book["bookname"] ?></option>
+                            <?php
+        							          }
+        						          }
+        					          ?>
+        					      </select>
                         </div>
                         
                         <div class="mb-3">

@@ -15,20 +15,20 @@ if(isset($_REQUEST['btnsubmit']))
   if($type=="video"){  
     $vid = $_REQUEST['vid'];
 	
-  try
-  {
-	$stmt = $obj->con1->prepare("insert into `motivation` (`type`,`link`,`status`) values(?,?,?)");
-    $stmt->bind_param("sss", $type,$vid,$status);
-    $Resp=$stmt->execute();
-	if(!$Resp)
-	{
-      throw new Exception("Problem in deleting! ". strtok($obj->con1-> error,  '('));
+    try
+    {
+  	$stmt = $obj->con1->prepare("insert into `motivation` (`type`,`link`,`status`) values(?,?,?)");
+      $stmt->bind_param("sss", $type,$vid,$status);
+      $Resp=$stmt->execute();
+  	if(!$Resp)
+  	{
+        throw new Exception("Problem in deleting! ". strtok($obj->con1-> error,  '('));
+      }
+      $stmt->close();
+    } 
+    catch(\Exception  $e) {
+      setcookie("sql_error", urlencode($e->getMessage()),time()+3600,"/");
     }
-    $stmt->close();
-  } 
-  catch(\Exception  $e) {
-    setcookie("sql_error", urlencode($e->getMessage()),time()+3600,"/");
-  }
 
 
   }
@@ -418,7 +418,11 @@ if(isset($_COOKIE["msg"]) )
 
            <!-- Basic Bootstrap Table -->
               <div class="card">
-                <h5 class="card-header">Skills Records</h5>
+                <h5 class="card-header">Motivation Records</h5>
+                <span class="mb-3 " style="padding-left:1%">
+                  <input type="radio" name="motiv_display" id="motiv_display_img" value="image" onclick="set_banner(this.value)" /> Send Images
+                  <input type="radio" name="motiv_display" id="motiv_display_video" value="video"  onclick="set_banner(this.value)" /> Send Video
+                </span>
                 <div class="table-responsive text-nowrap">
                   <table class="table" id="table_id">
                     <thead>
@@ -427,6 +431,7 @@ if(isset($_COOKIE["msg"]) )
                         <th>Type</th>
                         <th>Link/Image</th>
                         <th>Status</th>
+                        
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -594,6 +599,22 @@ if(isset($_COOKIE["msg"]) )
 		$('#btnsubmit').attr('hidden',true);
 		$('#btnupdate').attr('hidden',true);
 		$('#btnsubmit').attr('disabled',true);
+  }
+  function set_banner(val)
+  {
+    $.ajax({
+        async: true,
+        type: "GET",
+        url: "ajaxdata.php?action=set_banner",
+        data:"val="+val,
+        async: true,
+        cache: false,
+        timeout:50000,
+
+        success: function(data){
+          window.location=window.location.href;
+        }
+        });
   }
 </script>
 <?php 

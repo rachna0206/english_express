@@ -42,6 +42,8 @@ if(isset($_REQUEST['btnsubmit']))
 	$srcpp=$_FILES['pp']['tmp_name'];
 	$adhar=$_FILES['adhar']['name'];
 	$srcadhar=$_FILES['adhar']['tmp_name'];
+  $status = $_REQUEST['status'];
+  $firm_name = "english_express";
 	
 	//rename file for profile pic
 	if ($_FILES["pp"]["name"] != "")
@@ -82,8 +84,8 @@ if(isset($_REQUEST['btnsubmit']))
 
   try
   {
-	$stmt = $obj->con1->prepare("INSERT INTO `faculty`(`name`, `phone`, `email`, `gender`, `qualification`, `designation`, `uid`, `password`, `house_no`, `society_name`, `village`, `landmark`, `city`, `state`, `pin`, `dob`, `profilepic`, `adhar`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-	$stmt->bind_param("ssssssssssssiissss",$fname,$contact,$email,$gender,$qualification,$desig,$userid,$password,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$dob,$PicFileName,$MainFileName);
+	$stmt = $obj->con1->prepare("INSERT INTO `faculty`(`name`, `phone`, `email`, `gender`, `qualification`, `designation`, `uid`, `password`, `house_no`, `society_name`, `village`, `landmark`, `city`, `state`, `pin`, `dob`, `profilepic`, `adhar`, `firm_name`, `status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+	$stmt->bind_param("ssssssssssssiissssss",$fname,$contact,$email,$gender,$qualification,$desig,$userid,$password,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$dob,$PicFileName,$MainFileName,$firm_name,$status);
 	$Resp=$stmt->execute();
 	$insert_id = mysqli_insert_id($obj->con1);
   	if(!$Resp)
@@ -136,8 +138,9 @@ if(isset($_REQUEST['btnupdate']))
 	$srcpp=$_FILES['pp']['tmp_name'];
 	$adhar=$_FILES['adhar']['name'];
 	$srcadhar=$_FILES['adhar']['tmp_name'];
-  	$id=$_REQUEST['ttId'];
-	
+  $id=$_REQUEST['ttId'];
+  $status = $_REQUEST['status'];
+  
 	
 	if($pp!="")
 	{
@@ -201,8 +204,8 @@ if(isset($_REQUEST['btnupdate']))
 
   try
   {
-	$stmt = $obj->con1->prepare("update faculty set  name=?, phone=?, email=?, gender=?, qualification=?, designation=?, uid=?, password=?, house_no=?, society_name=?, village=?, landmark=?, city=?, state=?, pin=?, dob=?, profilepic=?, adhar=? where id=?");
-	$stmt->bind_param("ssssssssssssiissssi",$fname,$contact,$email,$gender,$qualification,$desig,$userid,$password,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$dob,$PicFileName,$MainFileName,$id);
+	$stmt = $obj->con1->prepare("update faculty set  name=?, phone=?, email=?, gender=?, qualification=?, designation=?, uid=?, password=?, house_no=?, society_name=?, village=?, landmark=?, city=?, state=?, pin=?, dob=?, profilepic=?, adhar=?, status=? where id=?");
+	$stmt->bind_param("ssssssssssssiisssssi",$fname,$contact,$email,$gender,$qualification,$desig,$userid,$password,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$dob,$PicFileName,$MainFileName,$status,$id);
 	$Resp=$stmt->execute();
 	$rows =$stmt->affected_rows;
 	if(!$Resp)
@@ -369,20 +372,20 @@ if(isset($_COOKIE["msg"]) )
                       
                     </div>
                     <div class="card-body">
-                      <form method="post" enctype="multipart/form-data" autocomplete="off">
+                      <form method="post" enctype="multipart/form-data">
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Faculty Name</label>
-                          <input type="text" class="form-control" name="fname" id="fname" required autocomplete="off" />
+                          <input type="text" class="form-control" name="fname" id="fname" required />
                           <input type="hidden" name="ttId" id="ttId">
                         </div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-company">Contact No.</label>
-                          <input type="tel" pattern="[0-9]{10}" class="form-control phone-mask" id="contact" name="contact"  required autocomplete="off"/>
+                          <input type="tel" pattern="[0-9]{10}" class="form-control phone-mask" id="contact" name="contact"  required/>
                         </div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-email">Email</label>
                           <input type="text" id="email" name="email" class="form-control" 
-                              aria-label="email" aria-describedby="basic-default-email2" required autocomplete="off"/>
+                              aria-label="email" aria-describedby="basic-default-email2" required/>
                         </div>
 
                         <div class="mb-3">
@@ -401,7 +404,7 @@ if(isset($_COOKIE["msg"]) )
                         
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Qualification</label>
-                          <input type="text" class="form-control" name="qualification" id="qualification" required autocomplete="off"/>
+                          <input type="text" class="form-control" name="qualification" id="qualification" required />
                         </div>
                         
                         <div class="mb-3">
@@ -420,13 +423,13 @@ if(isset($_COOKIE["msg"]) )
                         
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">User Id</label>
-                          <input type="text" class="form-control" name="userid" id="userid" required onblur="check_userid(this.value)" autocomplete="nope"/>
+                          <input type="text" class="form-control" name="userid" id="userid" required onblur="check_userid(this.value)" onchange="check_userid(this.value)" />
                           <div id="user_alert" class="text-danger"></div>
                           
                         </div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Password</label>
-                          <input type="password" class="form-control" name="password" id="password" required autocomplete="nope"/>
+                          <input type="password" class="form-control" name="password" id="password" required />
                         </div>
                         
                           <label class="form-label" for="basic-default-message">Address :</label>
@@ -491,6 +494,18 @@ if(isset($_COOKIE["msg"]) )
                           <div id="imgdiv" style="color:red"></div>
                           <input type="hidden"  name="hadhar" id="hadhar" />
                         </div>
+
+                        <div class="mb-3">
+                          <label class="form-label d-block" for="basic-default-fullname">Status</label>
+                          <div class="form-check form-check-inline mt-3">
+                            <input class="form-check-input" type="radio" name="status" id="active" value="active" checked required >
+                            <label class="form-check-label" for="inlineRadio1">Active</label>
+                          </div>
+                          <div class="form-check form-check-inline mt-3">
+                            <input class="form-check-input" type="radio" name="status" id="inactive" value="inactive" required>
+                            <label class="form-check-label" for="inlineRadio1">Inactive</label>
+                          </div>
+                        </div>
                         
                     <?php if($row["write_func"]=="y"){ ?>
                         <button type="submit" name="btnsubmit" id="btnsubmit" class="btn btn-primary">Submit</button>
@@ -526,7 +541,7 @@ if(isset($_COOKIE["msg"]) )
                     </thead>
                     <tbody class="table-border-bottom-0">
                       <?php 
-                        $stmt_list = $obj->con1->prepare("select * from faculty order by id desc");
+                        $stmt_list = $obj->con1->prepare("select * from faculty where designation!='Associate' order by id desc");
                         $stmt_list->execute();
                         $result = $stmt_list->get_result();
                         
@@ -546,11 +561,11 @@ if(isset($_COOKIE["msg"]) )
                     <?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>
                         <?php if($row["upd_func"]=="y"){ ?>
-                        	<a  href="javascript:editdata('<?php echo $faculty["id"]?>','<?php echo $faculty["name"]?>','<?php echo $faculty["phone"]?>','<?php echo $faculty["email"]?>','<?php echo $faculty["gender"]?>','<?php echo $faculty["qualification"]?>','<?php echo $faculty["designation"]?>','<?php echo $faculty["uid"]?>','<?php echo $faculty["password"]?>','<?php echo base64_encode($faculty["house_no"])?>','<?php echo base64_encode($faculty["society_name"])?>','<?php echo base64_encode($faculty["village"])?>','<?php echo base64_encode($faculty["landmark"])?>','<?php echo $faculty["city"]?>','<?php echo $faculty["state"]?>','<?php echo base64_encode($faculty["pin"])?>','<?php echo $faculty["dob"]?>','<?php echo $faculty["profilepic"]?>','<?php echo $faculty["adhar"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
+                        	<a  href="javascript:editdata('<?php echo $faculty["id"]?>','<?php echo $faculty["name"]?>','<?php echo $faculty["phone"]?>','<?php echo $faculty["email"]?>','<?php echo $faculty["gender"]?>','<?php echo $faculty["qualification"]?>','<?php echo $faculty["designation"]?>','<?php echo $faculty["uid"]?>','<?php echo $faculty["password"]?>','<?php echo base64_encode($faculty["house_no"])?>','<?php echo base64_encode($faculty["society_name"])?>','<?php echo base64_encode($faculty["village"])?>','<?php echo base64_encode($faculty["landmark"])?>','<?php echo $faculty["city"]?>','<?php echo $faculty["state"]?>','<?php echo base64_encode($faculty["pin"])?>','<?php echo $faculty["dob"]?>','<?php echo $faculty["profilepic"]?>','<?php echo $faculty["adhar"]?>','<?php echo $faculty["status"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
                         <?php } if($row["del_func"]=="y"){ ?>
 							<a  href="javascript:deletedata('<?php echo $faculty["id"]?>','<?php echo base64_encode($faculty["profilepic"])?>','<?php echo base64_encode($faculty["adhar"])?>');"><i class="bx bx-trash me-1"></i> </a>
                         <?php } if($row["read_func"]=="y"){ ?>
-                        	<a  href="javascript:viewdata('<?php echo $faculty["id"]?>','<?php echo $faculty["name"]?>','<?php echo $faculty["phone"]?>','<?php echo $faculty["email"]?>','<?php echo $faculty["gender"]?>','<?php echo $faculty["qualification"]?>','<?php echo $faculty["designation"]?>','<?php echo $faculty["uid"]?>','<?php echo $faculty["password"]?>','<?php echo base64_encode($faculty["house_no"])?>','<?php echo base64_encode($faculty["society_name"])?>','<?php echo base64_encode($faculty["village"])?>','<?php echo base64_encode($faculty["landmark"])?>','<?php echo $faculty["city"]?>','<?php echo $faculty["state"]?>','<?php echo base64_encode($faculty["pin"])?>','<?php echo $faculty["dob"]?>','<?php echo $faculty["profilepic"]?>','<?php echo $faculty["adhar"]?>');">View</a>
+                        	<a  href="javascript:viewdata('<?php echo $faculty["id"]?>','<?php echo $faculty["name"]?>','<?php echo $faculty["phone"]?>','<?php echo $faculty["email"]?>','<?php echo $faculty["gender"]?>','<?php echo $faculty["qualification"]?>','<?php echo $faculty["designation"]?>','<?php echo $faculty["uid"]?>','<?php echo $faculty["password"]?>','<?php echo base64_encode($faculty["house_no"])?>','<?php echo base64_encode($faculty["society_name"])?>','<?php echo base64_encode($faculty["village"])?>','<?php echo base64_encode($faculty["landmark"])?>','<?php echo $faculty["city"]?>','<?php echo $faculty["state"]?>','<?php echo base64_encode($faculty["pin"])?>','<?php echo $faculty["dob"]?>','<?php echo $faculty["profilepic"]?>','<?php echo $faculty["adhar"]?>','<?php echo $faculty["status"]?>');">View</a>
                         <?php } ?>
                         </td>
                     <?php } ?>
@@ -667,13 +682,13 @@ function readPP(input) {
           window.location = loc;
       }
   }
-  function editdata(id,name,phone,email,gender,qualification,designation,uid,password,house_no,society,village,landmark,city,state,pin,dob,pp,adhar) {
+  function editdata(id,name,phone,email,gender,qualification,designation,uid,password,house_no,society,village,landmark,city,state,pin,dob,pp,adhar,status) {
       $('#fname').focus(); 
      	$('#ttId').val(id);
       $('#fname').val(name);
       $('#contact').val(phone);
-      $('#user_alert').html('');
 			$('#email').val(email);
+      $('#user_alert').html('');
 			//$('#gender').val(gender);
 			console.log("gender="+gender);
 			if(gender=="female")
@@ -708,13 +723,20 @@ function readPP(input) {
 			$('#PreviewImage').attr('src','adhar_pic/'+adhar);
 			$('#pp').removeAttr('required');
 			$('#adhar').removeAttr('required');
-            $('#btnsubmit').attr('hidden',true);
-            $('#btnupdate').removeAttr('hidden');
+      if(status=="active"){
+        $('#active').attr("checked","checked"); 
+      }
+      else if(status=="inactive"){
+        $('#inactive').attr("checked","checked"); 
+      }
+
+      $('#btnsubmit').attr('hidden',true);
+      $('#btnupdate').removeAttr('hidden');
 			$('#btnsubmit').attr('disabled',true);
             
         }
 		
-		function viewdata(id,name,phone,email,gender,qualification,designation,uid,password,house_no,society,village,landmark,city,state,pin,dob,pp,adhar) {
+		function viewdata(id,name,phone,email,gender,qualification,designation,uid,password,house_no,society,village,landmark,city,state,pin,dob,pp,adhar,status) {
     $('#fname').focus(); 
            	$('#ttId').val(id);
             $('#fname').val(name);
@@ -753,8 +775,16 @@ function readPP(input) {
 			$('#PreviewImage').attr('src','adhar_pic/'+adhar);
 			$('#pp').removeAttr('required');
 			$('#adhar').removeAttr('required');
-            $('#btnsubmit').attr('hidden',true);
-            $('#btnupdate').attr('hidden',true);
+
+      if(status=="active"){
+        $('#active').attr("checked","checked"); 
+      }
+      else if(status=="inactive"){
+        $('#inactive').attr("checked","checked"); 
+      }
+
+      $('#btnsubmit').attr('hidden',true);
+      $('#btnupdate').attr('hidden',true);
 			$('#btnsubmit').attr('disabled',true);   
         }
 </script>

@@ -12,7 +12,7 @@ if(isset($_REQUEST['action']))
 		$html="";
 		 $branch=$_REQUEST['branch'];
 		
-		$stmt_batch = $obj->con1->prepare("select * from batch where branch_id=?");
+		$stmt_batch = $obj->con1->prepare("select * from batch where id!=37 and branch_id=?");
 		$stmt_batch->bind_param("i",$branch);
 		$stmt_batch->execute();
 		$res = $stmt_batch->get_result();
@@ -214,6 +214,8 @@ if(isset($_REQUEST['action']))
 	if($_REQUEST['action']=="studList")
 	{
 		$html="";
+		$html_book="";
+		$coursename="";
 		$batch_id=$_REQUEST["batch_id"];
 		$stmt_clist = $obj->con1->prepare("select b.student_id, s.name from batch_assign b, student s where b.student_id=s.sid and b.batch_id=?");
 		$stmt_clist->bind_param("i",$batch_id);
@@ -226,7 +228,22 @@ if(isset($_REQUEST['action']))
 	  	$html.='<div class="col-md-3"><input type="checkbox" id="stu_list" name="s[]" id="" value="'.$students["student_id"].'" checked="checked"/> '.$students["name"].'</div>';
 
 	  }
-	  echo $html;
+
+
+	  // books list
+	  $stmt_blist = $obj->con1->prepare("SELECT b2.*,c1.coursename FROM `batch` b1,course c1,books b2 WHERE b2.courseid=b1.course_id and b1.course_id=c1.courseid and b1.id=?");
+		$stmt_blist->bind_param("i",$batch_id);
+	  $stmt_blist->execute();
+	  $book_res = $stmt_blist->get_result();
+	  $stmt_blist->close();
+	  while($books=mysqli_fetch_array($book_res))
+	  {
+	  	$coursename=$books["coursename"];
+	  	$html_book.='<option value="'.$books["bid"].'">'.$books["bookname"].'</option>';
+
+	  }
+
+	  echo $html."@@@@@".$html_book."@@@@@".$coursename;
 	}
 	if($_REQUEST['action']=="chapList")
 	{
@@ -297,7 +314,7 @@ if(isset($_REQUEST['action']))
 		$html="";
 		$batch_id=$_REQUEST["batch_id"];
 		
-		$stmt_flist = $obj->con1->prepare("select id,name from `faculty` where id not in (SELECT f1.id FROM `batch` b1 , faculty f1 where b1.faculty_id = f1.id and b1.id=? union SELECT f2.id FROM `batch` b1 , faculty f2 where b1.assist_faculty_1 = f2.id and b1.id=? union SELECT f3.id FROM `batch` b1 , faculty f3 where b1.assist_faculty_2 = f3.id and b1.id=?)");
+		$stmt_flist = $obj->con1->prepare("select id,name from `faculty` where designation!='Associate' and status='active' and id not in (SELECT f1.id FROM `batch` b1 , faculty f1 where b1.faculty_id = f1.id and b1.id=? union SELECT f2.id FROM `batch` b1 , faculty f2 where b1.assist_faculty_1 = f2.id and b1.id=? union SELECT f3.id FROM `batch` b1 , faculty f3 where b1.assist_faculty_2 = f3.id and b1.id=?)");
 		$stmt_flist->bind_param("iii",$batch_id,$batch_id,$batch_id);
 		$stmt_flist->execute();
 		$faculty_res = $stmt_flist->get_result();
@@ -509,6 +526,21 @@ if(isset($_REQUEST['action']))
 		}
 
 		echo $html;
+	}
+
+	if($_REQUEST['action']=="set_banner")
+	{
+		$typ=$_REQUEST["val"];
+		$stmt_banner = $obj->con1->prepare("update motivation set `banner_display`= CASE
+    WHEN (`type` = '".$typ."') THEN 'on'
+    WHEN (`type` != '".$typ."') THEN 'off'
+END ");
+		$stmt_banner->bind_param("ss",$typ,$typ);
+		$stmt_banner->execute();
+		$res = $stmt_banner->get_result();
+		$stmt_banner->close();
+
+
 	}
 	
 }

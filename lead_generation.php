@@ -30,7 +30,7 @@ $res2 = $stmt_clist->get_result();
 $stmt_clist->close();
 
 
-$stmt_associate = $obj->con1->prepare("select * from associate");
+$stmt_associate = $obj->con1->prepare("select * from faculty where status='active'");
 $stmt_associate->execute();
 $res_associate = $stmt_associate->get_result();
 $stmt_associate->close();
@@ -405,7 +405,7 @@ if(isset($_COOKIE["msg"]) )
                           <select name="associate" id="associate" class="form-control" required>
                             <option value="">Select</option>
                             <?php while($associate=mysqli_fetch_array($res_associate)){ ?>
-                                <option value="<?php echo $associate["aid"] ?>"><?php echo $associate["associate_name"] ?></option>
+                                <option value="<?php echo $associate["id"] ?>"><?php echo $associate["name"] ?></option>
                             <?php } ?>
                           </select>
                         </div>
