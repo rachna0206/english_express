@@ -34,6 +34,7 @@ if(isset($_REQUEST['btnsubmit']))
   $status = "pending";
   $work_type = $_REQUEST['type'];
   $explain_type = $_REQUEST['explain_type'];
+  $stu_status='Incomplete';
   foreach($_REQUEST['s'] as $stu_id){
     
    
@@ -49,8 +50,8 @@ if(isset($_REQUEST['btnsubmit']))
   try
   {
     
-  	$stmt = $obj->con1->prepare("INSERT INTO `stu_assignment`(`batch_id`,`stu_id`,`book_id`,`chap_id`,`exercise_id`,`alloted_dt`,`expected_dt`,`faculty_id`,`status`,`work_type`,`explain_by_teacher`,`skill`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-  	$stmt->bind_param("iiiiississss",$batch_id,$stu_id,$book_id,$chap_id,$exer_id,$alloted_dt,$expected_dt,$faculty_id,$status,$work_type,$explain_type,$exer_skill);
+  	$stmt = $obj->con1->prepare("INSERT INTO `stu_assignment`(`batch_id`,`stu_id`,`book_id`,`chap_id`,`exercise_id`,`alloted_dt`,`expected_dt`,`faculty_id`,`status`,`work_type`,`explain_by_teacher`,`skill`,`stu_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+  	$stmt->bind_param("iiiiississsss",$batch_id,$stu_id,$book_id,$chap_id,$exer_id,$alloted_dt,$expected_dt,$faculty_id,$status,$work_type,$explain_type,$exer_skill,$stu_status);
   	$Resp=$stmt->execute();
     if(!$Resp)
     {
@@ -71,10 +72,46 @@ if(isset($_REQUEST['btnsubmit']))
     header("location:stu_assignment.php");
 }
 
-if(isset($_REQUEST['btnupdate']))
+
+if(isset($_REQUEST["btn_modal_update"]))
 {
 
+  
+  $faculty_status = $_REQUEST['faculty_status'];
+  
+  $faculty_id = $_REQUEST['faculty_id'];
+  
+  $comp_dt=$_REQUEST['completion_date'];
+  $work_type = $_REQUEST['work_type'];
+  $explain_type = $_REQUEST['explain_status'];
+  $said=$_REQUEST["said"];
+    
+        
+  try
+  {
+    
+    $stmt = $obj->con1->prepare("update stu_assignment set status=?,faculty_id=?,completion_dt=?,work_type=?,explain_by_teacher=? where said=?");
+    $stmt->bind_param("sisssi",$faculty_status,$faculty_id,$comp_dt,$work_type,$explain_type,$said);
+    $Resp=$stmt->execute();
+    if(!$Resp)
+    {
+      throw new Exception("Problem in updating! ". strtok($obj->con1-> error,  '('));
+    }
+    $stmt->close();
+  } 
+  catch(Exception  $e) {
+    setcookie("sql_error",urlencode($e->getMessage()),time()+3600,"/");
+  }
+  //"Assignment not alloted to already assigned students!!"
+   
+
+    
+  
+
+    setcookie("msg", "update",time()+3600,"/");
+    header("location:stu_assignment.php");
 }
+
 
 // delete data
 if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
@@ -126,6 +163,7 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
             $('#book').html('');
             $('#book').html(res[1]);
             $('#course_label').html("Course Name:"+res[2]);
+            $('#chap').html('');
 
        
             }
@@ -187,8 +225,17 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
           cache: false,
           success: function(result){
             //alert(result);
+            var res=result.split("@@@@@");
             $('#exer_list_div').html('');
-            $('#exer_list_div').append(result);
+            $('#exer_list_div').append(res[0]);
+             if(res[1]==0)
+              {
+                $('#btnsubmit').attr('disabled',true);
+              }
+              else
+              {
+                $('#btnsubmit').attr('disabled',false);
+              }
        
             }
         });
@@ -202,13 +249,16 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
           data: "exercise_id="+exer_id+"&count="+count,
           cache: false,
           success: function(result){
+            
             //alert(result);
-            $('#skill_list_div').append(result);
-            }
+            $('#skill_list_div_'+count).append(result);
+           
+          }
         });
     }
     else{
      // alert("not");
+      $('#skill_list_div_'+count).html('');
     }
   }
 
@@ -348,7 +398,7 @@ if(isset($_COOKIE["msg"]) )
 					                </select>
                           <input type="hidden" name="ttId" id="ttId">
                         </div>
-                        <div><label id="course_label"></label></div>
+                        <div class="mb-3"><label id="course_label"></label></div>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Students</label>
                           <div id="stu_list_div" class="row">
@@ -446,15 +496,15 @@ if(isset($_COOKIE["msg"]) )
                         <label class="form-label d-block" for="basic-default-fullname">For Teachers</label>
                         
                         <div class="form-check form-check-inline mt-3">
-                          <input class="form-check-input" type="radio" name="explain_type" id="not_explain" value="not_explain" checked required >
+                          <input class="form-check-input" type="radio" name="explain_type" id="not_explain" value="Not Explained" checked required >
                           <label class="form-check-label" for="inlineRadio1">Not Explained</label>
                         </div>
                         <div class="form-check form-check-inline mt-3">
-                          <input class="form-check-input" type="radio" name="explain_type" id="half_explain" value="half_explain" required>
+                          <input class="form-check-input" type="radio" name="explain_type" id="half_explain" value="Half Explained" required>
                           <label class="form-check-label" for="inlineRadio1">Half Explained</label>
                         </div>
                         <div class="form-check form-check-inline mt-3">
-                          <input class="form-check-input" type="radio" name="explain_type" id="explained" value="explained" required>
+                          <input class="form-check-input" type="radio" name="explain_type" id="explained" value="Explained" required>
                           <label class="form-check-label" for="inlineRadio1">Explained</label>
                         </div>
                       </div>
@@ -489,13 +539,13 @@ if(isset($_COOKIE["msg"]) )
                           <input type="date" class="form-control" name="expec_dt" id="expec_dt" required />
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3" id="comp_date_div" style="display:none">
                           <label class="form-label" for="basic-default-fullname">Completion Date</label>
                           <input type="date" class="form-control" name="com_dt" id="com_dt" />
                         </div>
                       
-                        <div class="mb-3">
-                          <label class="form-label" for="basic-default-fullname">Status</label>
+                        <div class="mb-3" id="faculty_remark_div" style="display:none">
+                          <label class="form-label" for="basic-default-fullname">Faculty Remark</label>
                           <select name="status" id="status" class="form-control">
                             <option value="">Select Status</option>
                             <option value="Completed with Good Understanding">Completed with Good Understanding</option>
@@ -541,8 +591,6 @@ if(isset($_COOKIE["msg"]) )
                         
                     <?php if($row["write_func"]=="y"){ ?>
                         <button type="submit" name="btnsubmit" id="btnsubmit" class="btn btn-primary">Save</button>
-                    <?php } if($row["upd_func"]=="y"){ ?>
-						<button type="submit" name="btnupdate" id="btnupdate" class="btn btn-primary " hidden>Update</button>
                     <?php } ?>
                         <button type="reset" name="btncancel" id="btncancel" class="btn btn-secondary" onclick="window.location.reload()">Cancel</button>
 
@@ -605,6 +653,7 @@ if(isset($_COOKIE["msg"]) )
                         
                     <?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                     	<td>
+                        <a  href="javascript:editdata('<?php echo $a["said"]?>','<?php echo $a["sname"] ?>','<?php echo $a["exercise_id"] ?>','<?php echo $a["skill"]?>');"><i class="bx bx-edit me-1"></i> </a>
                         <?php if($row["del_func"]=="y"){ ?>
 							<a  href="javascript:deletedata('<?php echo $a["said"]?>');"><i class="bx bx-trash me-1"></i> </a>
                         <?php } ?>
@@ -625,6 +674,30 @@ if(isset($_COOKIE["msg"]) )
 
 
            <!-- / grid -->
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalCenter" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalCenterTitle">Assignment Update Page</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div id="stu_assign_modal">
+      
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- /modal-->
 <?php } ?>
             <!-- / Content -->
 <script type="text/javascript">
@@ -634,6 +707,24 @@ if(isset($_COOKIE["msg"]) )
           var loc = "stu_assignment.php?flg=del&n_id=" + id;
           window.location = loc;
       }
+  }
+  function editdata(said,sname,exercise_id,skill)
+  {
+    $('#modalCenter').modal('toggle');
+    $.ajax({
+          async: true,
+          type: "POST",
+          url: "ajaxdata.php?action=assignment_modal",
+          data: "said="+said,
+          cache: false,
+          success: function(result){
+          //  alert(result);
+            $('#stu_assign_modal').html('');
+            $('#stu_assign_modal').html(result);
+       
+            }
+        });
+    
   }
 </script>
 <?php 

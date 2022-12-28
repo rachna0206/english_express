@@ -210,9 +210,17 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
           data: "chap_id="+chap_id,
           cache: false,
           success: function(result){
-            //alert(result);
-            $('#exer_list_div').html('');
-            $('#exer_list_div').append(result);
+              var res=result.split("@@@@@");
+              $('#exer_list_div').html('');
+              $('#exer_list_div').append(res[0]);
+              if(res[1]==0)
+              {
+                $('#btnsubmit').attr('disabled',true);
+              }
+              else
+              {
+                $('#btnsubmit').attr('disabled',false);
+              }
        
             }
         });
