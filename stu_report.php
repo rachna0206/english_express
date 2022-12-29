@@ -1,6 +1,6 @@
 <?php
 include("header.php");
-error_reporting(E_ALL);
+error_reporting(0);
 //123s
 // for permission
 if($row=checkPermission($_SESSION["utype"],"student_reg")){ }
@@ -18,10 +18,10 @@ $stmt_batch->execute();
 $res_batch = $stmt_batch->get_result();
 $stmt_batch->close();
 
-$stmt_branch = $obj->con1->prepare("select * from branch");
-$stmt_branch->execute();
-$res_branch = $stmt_branch->get_result();
-$stmt_branch->close();
+$stmt_course = $obj->con1->prepare("select * from course");
+$stmt_course->execute();
+$res_course = $stmt_course->get_result();
+$stmt_course->close();
 
 
 // generate random password
@@ -57,21 +57,27 @@ if(isset($_REQUEST['btnsubmit']))
   $batch=isset($_REQUEST['batch'])?$_REQUEST['batch']:"";
   $dt_from=isset($_REQUEST['dt_from'])?$_REQUEST['dt_from']:"";
   $dt_to=isset($_REQUEST['dt_to'])?$_REQUEST['dt_to']:"";
+  $gender=isset($_REQUEST['gender'])?$_REQUEST['gender']:"";
+  $course=isset($_REQUEST['course'])?$_REQUEST['course']:"";
 
-  $user_str=($userid!="")?"and s1.user_id='".$userid."'":"";
+  $user_str=($userid!="")?"and s1.user_id like '%".$userid."%'":"";
   $name_str=($name!="")?"and s1.name like '%".$name."%'":"";
-  $contact_str=($contact!="")?"and s1.phone='".$contact."'":"";
+  $contact_str=($contact!="")?"and s1.phone like '%".$contact."%'":"";
   $batch_str=($batch!="")?"and b1.id='".$batch."'":"";
   $dt_fromstr=($dt_from!="")?"and s1.enrollment_dt>='".$dt_from."'":"";
   $dt_tostr=($dt_to!="")?"and s1.enrollment_dt<='".$dt_to."'":"";
+  $genderstr=($gender!="")?"and s1.gender='".$gender."'":"";
+  $coursestr=($course!="")?"and s1.courseid='".$course."'":"";
   if($batch!="")
   {
 
-     $stmt_list = $obj->con1->prepare("select * from student s1, course c1,batch b1,batch_assign b2 where s1.courseid=c1.courseid and b2.batch_id=b1.id and b2.student_id=s1.sid ".$user_str.$name_str.$contact_str.$batch_str.$dt_fromstr.$dt_tostr);
+
+     $stmt_list = $obj->con1->prepare("select s1.*,c1.*,b1.name as batch_name,b1.stime from student s1, course c1,batch b1,batch_assign b2 where s1.courseid=c1.courseid and b2.batch_id=b1.id and b2.student_id=s1.sid ".$user_str.$name_str.$contact_str.$batch_str.$dt_fromstr.$dt_tostr.$genderstr.$coursestr);
   }
   else
   {
-     $stmt_list = $obj->con1->prepare("select * from student s1, course c1 where s1.courseid=c1.courseid ".$user_str.$name_str.$contact_str.$dt_fromstr.$dt_tostr);
+
+     $stmt_list = $obj->con1->prepare("select * from student s1, course c1 where s1.courseid=c1.courseid ".$user_str.$name_str.$contact_str.$dt_fromstr.$dt_tostr.$genderstr.$coursestr);
   }
 
   
@@ -145,24 +151,24 @@ if(isset($_REQUEST['btnsubmit']))
               <label class="form-label d-block" for="basic-default-fullname">Gender</label>
                           
                 <div class="form-check form-check-inline mt-3">
-                    <input class="form-check-input" type="radio" name="gender" id="gender_male" value="male" required >
+                    <input class="form-check-input" type="radio" name="gender" id="gender_male" value="male"  <?php echo ($_REQUEST['gender']!="" && $_REQUEST['gender']=="male")?"checked":""?> >
                     <label class="form-check-label" for="inlineRadio1">Male</label>
                 </div>
                 <div class="form-check form-check-inline mt-3">
-                    <input class="form-check-input" type="radio" name="gender" id="gender_female" value="female" required>
+                    <input class="form-check-input" type="radio" name="gender" id="gender_female" value="female"  <?php echo ($_REQUEST['gender']!="" && $_REQUEST['gender']=="female")?"checked":""?>>
                     <label class="form-check-label" for="inlineRadio1">Female</label>
                 </div>
               
             </div>
             <div class="mb-3 col-md-3">
-              <label class="form-label" for="basic-default-fullname">Branch</label>
-              <select class="form-control" name="branch" id="branch">
-                <option value="">Select Branch</option>
+              <label class="form-label" for="basic-default-fullname">Course</label>
+              <select class="form-control" name="course" id="course">
+                <option value="">Select Course</option>
                 <?php 
-                while($branch=mysqli_fetch_array($res_branch))
+                while($course=mysqli_fetch_array($res_course))
                 {
                   ?>
-                  <option value="<?php echo $branch["id"]?>" <?php echo (isset($_REQUEST['branch']) && $_REQUEST['batch']==$branch["id"])?"selected":""?>><?php echo $branch["stime"]?></option>
+                  <option value="<?php echo $course["courseid"]?>" <?php echo (isset($_REQUEST['course']) && $_REQUEST['course']==$course["courseid"])?"selected":""?>><?php echo $course["coursename"]?></option>
 
                   <?php
 
@@ -176,7 +182,7 @@ if(isset($_REQUEST['btnsubmit']))
 
           <button type="submit" name="btnsubmit" id="btnsubmit" class="btn btn-primary">Submit</button>
         
-          <button type="reset" name="btncancel" id="btncancel" class="btn btn-secondary" onclick="window.location='student_report.php'">Cancel</button>
+          <button type="reset" name="btncancel" id="btncancel" class="btn btn-secondary" onclick="window.location='stu_report.php'">Cancel</button>
 
         </form>
       </div>
@@ -236,10 +242,12 @@ if(isset($_REQUEST['btnsubmit']))
                         
                     
                           
-                    <?php } ?>
+                    <?php 
+                    $i++;
+                  } ?>
                       </tr>
                       <?php
-                          $i++;
+                          
                         }
                         
                       ?>

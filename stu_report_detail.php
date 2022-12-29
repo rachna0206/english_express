@@ -18,7 +18,7 @@ $result_batch = $stmt_batch->get_result();
 $stmt_batch->close();
 
 //assignment qry
-$stmt_assign = $obj->con1->prepare("SELECT s1.*,c1.chapter_name,e1.exer_name,GROUP_CONCAT(s1.skill) as skills FROM stu_assignment s1, chapter c1,exercise e1 where s1.chap_id=c1.cid and s1.exercise_id=e1.eid and s1.stu_id=? GROUP by e1.eid");
+$stmt_assign = $obj->con1->prepare("SELECT s1.*,c1.chapter_name,e1.exer_name,b1.bookname,GROUP_CONCAT(s1.skill) as skills FROM stu_assignment s1, chapter c1,exercise e1,books b1 where s1.chap_id=c1.cid and s1.exercise_id=e1.eid and s1.book_id=b1.bid and s1.stu_id=? GROUP by e1.eid");
 
 $stmt_assign->bind_param("i",$stu_id); 
 $stmt_assign->execute();
@@ -88,10 +88,18 @@ $stmt_assign->close();
                             $attendence=mysqli_fetch_array($result_attendance);
                             $stmt_attendence->close();
 
+                            $stmt_attend = $obj->con1->prepare("select * from attendance where batch_id=? and student_id=?");
+                            $stmt_attend->bind_param("ii",$batch_data["id"],$stu_id); 
+                            $stmt_attend->execute();
+                            $result_attend = $stmt_attend->get_result();
+                            
+                            
+                            $stmt_attend->close();
+
                         ?>
                           <li class="d-flex mb-4 pb-1">
                            
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                            <!-- <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                               <div class="me-2">
                                 
                                 <h6 class="mb-0"><?php echo $batch_data["batch_name"]." - ".$batch_data["batch_time"]?></h6>
@@ -102,7 +110,72 @@ $stmt_assign->close();
                                 <h6 class="mb-0"><?php echo $attendence["faculty_attendance"]?></h6>
                                 <span class="text-muted">/<?php echo $attendence["total_attendance"]?></span>
                               </div>
-                            </div>
+                            </div> -->
+                            <div class="accordion mt-3" id="accordionExample">
+                              <div class="card accordion-item active">
+                                <h2 class="accordion-header" id="headingOne">
+                                  <button type="button" class="accordion-button" data-bs-toggle="collapse" data-bs-target="#accordionOne" aria-expanded="true" aria-controls="accordionOne">
+                                  <?php echo $batch_data["batch_name"]." - ".$batch_data["batch_time"]?>
+                                  <span class="text-muted " style="margin-left:50%">Attendance-<?php echo $attendence["faculty_attendance"]?>
+                                    /<?php echo $attendence["total_attendance"]?></span>
+
+                                    
+                                  
+                                  </button>
+                                  
+
+                                </h2>
+
+                                <div id="accordionOne" class="accordion-collapse collapse show"data-bs-parent="#accordionExample">
+                                  <div class="accordion-body">
+                                    <div class="table-responsive">
+                                      <table class="table table-striped table-borderless border-bottom">
+                                        <thead>
+                                          <tr>
+                                            <th class="text-nowrap">Date</th>
+                                            <th class="text-nowrap text-center">Student Attendance</th>
+                                            <th class="text-nowrap text-center">Faculty Attendance</th>
+                                            <th class="text-nowrap text-center">Remark</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody id="vertical-example">
+                                          <?php 
+                                          while($stu_attendance=mysqli_fetch_array($result_attend))
+                                          {
+                                          ?>
+                                          <tr>
+                                            <td class="text-nowrap"><?php echo $stu_attendance["dt"]?></td>
+                                            <td>
+                                              <div class="form-check d-flex justify-content-center">
+                                                <input class="form-check-input" type="checkbox" disabled  <?php echo ($stu_attendance["stu_attendance"]=="p")?"checked":""?>>
+                                              </div>
+                                              
+                                            </td>
+                                            <td>
+                                              <div class="form-check d-flex justify-content-center">
+                                              <input class="form-check-input" type="checkbox" disabled  <?php echo ($stu_attendance["faculty_attendance"]=="p")?"checked":""?>>
+                                              </div>
+                                            </td>
+                                            <td>
+                                              <div class="form-check d-flex justify-content-center">
+                                              <?php echo ($stu_attendance["remark"]!="")?$stu_attendance["remark"]:"-"?>
+                                            </div>
+                                            </td>
+                                          </tr>
+                                          <?php
+                                          }
+                                          ?>
+                                          
+                                         
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                    
+                                  </div>
+                                </div>
+                              </div>
+                    
+                                      </div>
                           </li>
                         <?php
                           }
@@ -141,23 +214,42 @@ $stmt_assign->close();
                           <li class="d-flex mb-4 pb-1">
                            
                               <div class=" d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="me-2 row">
+                                <div class="me-2 row w-100">
                                   
-                                  <h6 class="mb-1"><?php echo $assignment_data["exer_name"]?> <span class="text-muted" style="float: right;">Alloted Date-<?php echo $assignment_data["alloted_dt"]?>
+                                  <h6 class=" d-block mb-1 text-italics">Chapter Name: <?php echo $assignment_data["chapter_name"]." ( ".$assignment_data["bookname"]." )"?> </h6>
+                                  <h6 class="mb-1"><?php echo $assignment_data["exer_name"]?> <span  style="float: right;">Alloted Date: <?php echo $assignment_data["alloted_dt"]?>
                                   
                                 </span></h6>
-                                  <h6 class="text-muted d-block mb-1"><?php echo $assignment_data["chapter_name"]?> </h6>
-
-                                  <?php 
-                                  while($exercise=mysqli_fetch_array($result_exe))
-                                  {
-                                    ?>
-                                    <small class="text-muted d-block mb-1 col-6"><?php echo $exercise["skill"]?>  <span>Student Status-<?php echo $exercise["stu_status"]?></span></small>
-                                    <small class="text-muted d-block mb-1 col-6 ">  <span class="text-right"><?php echo $exercise["status"]?></span></small>
-                                    <?php
-                                  }
-                                  ?>
                                   
+                                  <div class="table-responsive">
+                                      <table class="table table-striped table-borderless border-bottom">
+                                        <thead>
+                                          <tr>
+                                            <th class="text-nowrap">Skill</th>
+                                            <th class="text-nowrap text-center">Student Status</th>
+                                            <th class="text-nowrap text-center">Faculty Status</th>
+                                            
+                                          </tr>
+                                        </thead>
+                                        <tbody id="vertical-example">
+
+                                          <?php 
+                                          while($exercise=mysqli_fetch_array($result_exe))
+                                          {
+                                            ?>
+                                            <tr>
+                                              <td><?php echo $exercise["skill"]?></td>
+                                              <td><div class="form-check d-flex justify-content-center"><?php echo $exercise["stu_status"]?></div ></td>
+                                                <td><div class="form-check d-flex justify-content-center"><?php echo $exercise["status"]?></div></td>
+                                            <!-- <small class=" d-block mb-1 col-6"><?php echo $exercise["skill"]?>  <span>Student Status-<?php echo $exercise["stu_status"]?></span></small>
+                                            <small class="text-muted d-block mb-1 col-6 ">  <span class="text-right"><?php echo $exercise[""]?></span></small> -->
+                                            </tr>
+                                            <?php
+                                          }
+                                          ?>
+                                          </tbody>
+                                        </table>
+                                      </div>
                                 </div>
 
                                 <!-- <div class="user-progress d-flex align-items-center gap-1">

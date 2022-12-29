@@ -308,7 +308,7 @@ $stmt_list9->close();
                     <i class="bx bx-dots-vertical-rounded"></i>
                   </button>
                   <div class="dropdown-menu" aria-labelledby="cardOpt1">
-                    <a class="dropdown-item" href="student_reg.php">View More</a>
+                    <a class="dropdown-item" href="attendance.php">View More</a>
                     
                   </div>
                 </div>
@@ -340,7 +340,7 @@ $stmt_list9->close();
                     <i class="bx bx-dots-vertical-rounded"></i>
                   </button>
                   <div class="dropdown-menu" aria-labelledby="cardOpt1">
-                    <a class="dropdown-item" href="student_reg.php">View More</a>
+                    <a class="dropdown-item" href="attendance.php">View More</a>
                     
                   </div>
                 </div>

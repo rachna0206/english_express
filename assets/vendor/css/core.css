@@ -483,6 +483,9 @@ progress {
   font-weight: 500;
   line-height: 1.1;
 }
+.text-italics{
+  font-style: italic;
+}
 @media (min-width: 1200px) {
   .display-1 {
     font-size: 4rem;
@@ -3987,6 +3990,9 @@ textarea.form-control-lg {
 .card-group > .card:not(:first-child) .card-footer {
     border-bottom-left-radius: 0;
   }
+}
+.accordion{
+  width: 100%;
 }
 
 .accordion-button {
