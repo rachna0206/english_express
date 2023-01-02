@@ -3,7 +3,7 @@ include("header.php");
 error_reporting(0);
 //123s
 // for permission
-if($row=checkPermission($_SESSION["utype"],"student_reg")){ }
+if($row=checkPermission($_SESSION["utype"],"student_report")){ }
 else{
 	header("location:home.php");
 }
@@ -93,7 +93,7 @@ if(isset($_REQUEST['btnsubmit']))
 
 <h4 class="fw-bold py-3 mb-4">Student Report</h4>
 
-
+<?php if($row["read_func"]=="y"){ ?>
 
 <!-- Basic Layout -->
 <div class="row">
@@ -256,6 +256,9 @@ if(isset($_REQUEST['btnsubmit']))
                   </table>
                 </div>
               </div>
+
+<?php } ?>
+
               <!--/ Basic Bootstrap Table -->
 <script type="text/javascript">
   function view_stu_data(stu)

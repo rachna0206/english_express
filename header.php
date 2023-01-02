@@ -3,7 +3,7 @@ ob_start();
 //include ("db_connect.php");
 //$obj=new DB_connect();
 date_default_timezone_set("Asia/Kolkata");
-error_reporting(0);
+//error_reporting(E_ALL);
 
 session_start();
 include("checkPer.php");
@@ -399,8 +399,7 @@ function removeplaysound(ids) {
                           <div data-i18n="course">Permission Master</div>
                         </a>
                       </li>
-              <?php }
-              if(isset($menu["associate_reg"])=="associate_reg"){ ?>
+              <?php } if(isset($menu["associate_reg"])=="associate_reg"){ ?>
               <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="associate_reg.php"?"active":"" ?>">
                 <a href="associate_reg.php" class="menu-link">
                 <div data-i18n="course">Associates Master</div>
@@ -440,11 +439,26 @@ function removeplaysound(ids) {
               </a>
               <ul class="menu-sub">
                 
+                <?php if(isset($menu["student_report"])=="student_report"){ ?>
                 <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="stu_report.php"?"active":"" ?>">
-                <a href="stu_report.php" class="menu-link">
-                <div data-i18n="course">Student Report</div>
-                </a>
-              </li>
+                  <a href="stu_report.php" class="menu-link">
+                  <div data-i18n="course">Student Report</div>
+                  </a>
+                </li>
+                <?php } if(isset($menu["faculty_report"])=="faculty_report"){ ?>
+                <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="faculty_report.php"?"active":"" ?>">
+                  <a href="faculty_report.php" class="menu-link">
+                  <div data-i18n="course">Staff Report</div>
+                  </a>
+                </li>
+                <?php } if(isset($menu["attendance_report"])=="attendance_report"){ ?>
+                <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="attendance_report_detail.php"?"active":"" ?>">
+                  <a href="attendance_report_detail.php" class="menu-link">
+                  <div data-i18n="course">Attendance Report</div>
+                  </a>
+                </li>
+                <?php } ?>
+
               </ul>
             </li>
             

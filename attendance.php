@@ -260,7 +260,7 @@ if(isset($_COOKIE["msg"]))
           					  
           						$i=1;
 
-                          if(mysqli_num_rows($result)==0){
+                        if(mysqli_num_rows($result)==0){
                         ?>
                           <td valign="top" align="center" colspan="4" class="dataTables_empty">No data available in table</td>
                         <?php

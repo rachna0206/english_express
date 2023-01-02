@@ -53,6 +53,7 @@ if(isset($_REQUEST['btnsubmit']))
   $status=$_REQUEST['status'];
   $assist_faculty_1=$_REQUEST['assist_faculty1'];
   $assist_faculty_2=$_REQUEST['assist_faculty2'];
+  $capacity=$_REQUEST["capacity"];
   
   $mon=$tues=$wed=$thurs=$fri=$sat=$sun="n";
   if(isset($_REQUEST["mon"])){
@@ -80,8 +81,8 @@ if(isset($_REQUEST['btnsubmit']))
   
   try
   {
-    $stmt = $obj->con1->prepare("INSERT INTO `batch`(`name`, `course_id`,`faculty_id`,`branch_id`,`stdate`,`endate`,`stime`,`monday`,`tuesday`,`wednesday`,`thursday`,`friday`,`saturday`,`sunday`,`status`,`assist_faculty_1`,`assist_faculty_2`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-      $stmt->bind_param("siiisssssssssssii",$name,$course,$faculty,$branch,$stdate,$endate,$stime,$mon,$tues,$wed,$thurs,$fri,$sat,$sun,$status,$assist_faculty_1,$assist_faculty_2);
+    $stmt = $obj->con1->prepare("INSERT INTO `batch`(`name`, `course_id`,`faculty_id`,`branch_id`,`stdate`,`endate`,`stime`,`monday`,`tuesday`,`wednesday`,`thursday`,`friday`,`saturday`,`sunday`,`status`,`assist_faculty_1`,`assist_faculty_2`,`capacity`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+      $stmt->bind_param("siiisssssssssssiis",$name,$course,$faculty,$branch,$stdate,$endate,$stime,$mon,$tues,$wed,$thurs,$fri,$sat,$sun,$status,$assist_faculty_1,$assist_faculty_2,$capacity);
       $Resp=$stmt->execute();
     
     if(!$Resp)
@@ -122,6 +123,7 @@ if(isset($_REQUEST['btnupdate']))
   $bid=$_REQUEST['ttbatchid'];
   $assist_faculty_1=$_REQUEST['assist_faculty1'];
   $assist_faculty_2=$_REQUEST['assist_faculty2'];
+  $capacity=$_REQUEST["capacity"];
   
   $mon=$tues=$wed=$thurs=$fri=$sat=$sun="n";
   if(isset($_REQUEST["mon"])){
@@ -149,8 +151,8 @@ if(isset($_REQUEST['btnupdate']))
 
   try
   {
-    $stmt = $obj->con1->prepare("update batch set name=?, course_id=?, faculty_id=?, branch_id=?, stdate=? , endate=?, stime=?,  monday=?, tuesday=?, wednesday=?, thursday=?, friday=? , saturday=?, sunday=?, status=?,assist_faculty_1=?,assist_faculty_2=? where id=?");
-      $stmt->bind_param("siiisssssssssssiii", $name,$course,$faculty,$branch,$stdate,$endate,$stime,$mon,$tues,$wed,$thurs,$fri,$sat,$sun,$status,$assist_faculty_1,$assist_faculty_2,$bid);
+    $stmt = $obj->con1->prepare("update batch set name=?, course_id=?, faculty_id=?, branch_id=?, stdate=? , endate=?, stime=?,  monday=?, tuesday=?, wednesday=?, thursday=?, friday=? , saturday=?, sunday=?, status=?,assist_faculty_1=?,assist_faculty_2=?,capacity=? where id=?");
+      $stmt->bind_param("siiisssssssssssiisi", $name,$course,$faculty,$branch,$stdate,$endate,$stime,$mon,$tues,$wed,$thurs,$fri,$sat,$sun,$status,$assist_faculty_1,$assist_faculty_2,$capacity,$bid);
       $Resp=$stmt->execute();
     
     if(!$Resp)
@@ -287,7 +289,7 @@ if(isset($_COOKIE["msg"]) )
                     <div class="card-body">
                       <form method="post" >
                         <div class="mb-3">
-                   <label class="form-label" for="basic-default-fullname">Batch name</label>
+                          <label class="form-label" for="basic-default-fullname">Batch name</label>
                           <input type="text" class="form-control" name="name" id="name" required />
                           <input type="hidden"name="ttbatchid" id="ttbatchid" hidden="hidden">
                         </div>
@@ -406,6 +408,11 @@ if(isset($_COOKIE["msg"]) )
                                 <label class="form-check-label" for="inlineRadio1">Cancelled</label>
                             </div>
                        </div>
+                       <div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Capacity</label>
+                          <input type="number" class="form-control" name="capacity" id="capacity" required />
+                          
+                        </div>
 
                        
                          
@@ -442,6 +449,7 @@ if(isset($_COOKIE["msg"]) )
                         <th>Branch name</th>
                        
                         <th>Time</th>
+                        <th>Capacity</th>
                         <th>Strength</th>
                         
                         <th>Action</th>
@@ -449,7 +457,8 @@ if(isset($_COOKIE["msg"]) )
                     </thead>
                     <tbody class="table-border-bottom-0">
                       <?php 
-                        $stmt_list = $obj->con1->prepare("SELECT b1.*,f1.name as faculty_name,b2.name as branch_name,c1.coursename,count(b3.student_id) as strength FROM batch b1, faculty f1,course c1, branch b2,batch_assign b3 where b1.faculty_id=f1.id and b1.branch_id=b2.id and c1.courseid=b1.course_id and b3.batch_id=b1.id and b1.id!=37 GROUP by b1.id order by id desc");
+                        //$stmt_list = $obj->con1->prepare("SELECT b1.*,f1.name as faculty_name,b2.name as branch_name,c1.coursename,count(b3.student_id) as strength FROM batch b1, faculty f1,course c1, branch b2,batch_assign b3 where b1.faculty_id=f1.id and b1.branch_id=b2.id and c1.courseid=b1.course_id and b3.batch_id=b1.id and b1.id!=37 GROUP by b1.id order by id desc");
+                        $stmt_list=$obj->con1->prepare("select tbl1.*,count(b3.student_id) as strength  from (SELECT b1.*,f1.name as faculty_name,b2.name as branch_name,c1.coursename FROM batch b1, faculty f1,course c1, branch b2 where b1.faculty_id=f1.id and b1.branch_id=b2.id and c1.courseid=b1.course_id and  b1.id!=37) as tbl1 left join batch_assign b3  on b3.batch_id=tbl1.id  GROUP by tbl1.id order by id desc");
                         $stmt_list->execute();
                         $batch_list = $stmt_list->get_result();
                         
@@ -468,16 +477,17 @@ if(isset($_COOKIE["msg"]) )
                           <td><?php echo $batch["branch_name"]?></td>
                          
                           <td><?php echo $batch["stime"]?></td>
+                          <td><?php echo ($batch["capacity"]!="")?$batch["capacity"]:"-"?></td>
                           <th><?php echo $batch["strength"]?></th>
                           
                     <?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>
                         <?php if($row["upd_func"]=="y"){ ?>
-                          <a  href="javascript:editdata('<?php echo $batch["id"]?>','<?php echo base64_encode($batch["name"])?>','<?php echo $batch["course_id"]?>','<?php echo $batch["faculty_id"]?>','<?php echo $batch["branch_id"]?>','<?php echo $batch["stime"]?>','<?php echo $batch["monday"]?>','<?php echo $batch["tuesday"]?>','<?php echo $batch["wednesday"]?>','<?php echo $batch["thursday"]?>','<?php echo $batch["friday"]?>','<?php echo $batch["saturday"]?>','<?php echo $batch["sunday"]?>','<?php echo $batch["status"]?>','<?php echo $batch["assist_faculty_1"]?>','<?php echo $batch["assist_faculty_2"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
+                          <a  href="javascript:editdata('<?php echo $batch["id"]?>','<?php echo base64_encode($batch["name"])?>','<?php echo $batch["course_id"]?>','<?php echo $batch["faculty_id"]?>','<?php echo $batch["branch_id"]?>','<?php echo $batch["stime"]?>','<?php echo $batch["monday"]?>','<?php echo $batch["tuesday"]?>','<?php echo $batch["wednesday"]?>','<?php echo $batch["thursday"]?>','<?php echo $batch["friday"]?>','<?php echo $batch["saturday"]?>','<?php echo $batch["sunday"]?>','<?php echo $batch["status"]?>','<?php echo $batch["assist_faculty_1"]?>','<?php echo $batch["assist_faculty_2"]?>','<?php echo $batch["capacity"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
                         <?php } if($row["del_func"]=="y"){ ?>
               <a  href="javascript:deletedata('<?php echo $batch["id"]?>');"><i class="bx bx-trash me-1"></i> </a>
                         <?php } if($row["read_func"]=="y"){ ?>
-                          <a  href="javascript:viewdata('<?php echo $batch["id"]?>','<?php echo base64_encode($batch["name"])?>','<?php echo $batch["course_id"]?>','<?php echo $batch["faculty_id"]?>','<?php echo $batch["branch_id"]?>','<?php echo $batch["stime"]?>','<?php echo $batch["monday"]?>','<?php echo $batch["tuesday"]?>','<?php echo $batch["wednesday"]?>','<?php echo $batch["thursday"]?>','<?php echo $batch["friday"]?>','<?php echo $batch["saturday"]?>','<?php echo $batch["sunday"]?>','<?php echo $batch["status"]?>','<?php echo $batch["assist_faculty_1"]?>','<?php echo $batch["assist_faculty_2"]?>');">View</a>
+                          <a  href="javascript:viewdata('<?php echo $batch["id"]?>','<?php echo base64_encode($batch["name"])?>','<?php echo $batch["course_id"]?>','<?php echo $batch["faculty_id"]?>','<?php echo $batch["branch_id"]?>','<?php echo $batch["stime"]?>','<?php echo $batch["monday"]?>','<?php echo $batch["tuesday"]?>','<?php echo $batch["wednesday"]?>','<?php echo $batch["thursday"]?>','<?php echo $batch["friday"]?>','<?php echo $batch["saturday"]?>','<?php echo $batch["sunday"]?>','<?php echo $batch["status"]?>','<?php echo $batch["assist_faculty_1"]?>','<?php echo $batch["assist_faculty_2"]?>','<?php echo $batch["capacity"]?>');">View</a>
                         <?php } ?>
                         </td>
                     <?php } ?>
@@ -506,8 +516,10 @@ if(isset($_COOKIE["msg"]) )
           window.location = loc;
       }
   }
-  function editdata(id,name,course,faculty,branch,stime,mo,tu,we,th,fr,sa,su,status,assist_faculty1,assist_faculty2) {
-        $('#name').val(atob(name));
+  function editdata(id,name,course,faculty,branch,stime,mo,tu,we,th,fr,sa,su,status,assist_faculty1,assist_faculty2,capacity) {
+        
+       $('#name').focus();
+       $('#name').val(atob(name));
        $('#courses').val(course);
        $('#faculties').val(faculty);
        $('#branches').val(branch);
@@ -517,7 +529,7 @@ if(isset($_COOKIE["msg"]) )
        
        $('#assist_faculty1').val(assist_faculty1);
        $('#assist_faculty2').val(assist_faculty2);
-       
+       $('#capacity').val(capacity);
        if(mo=="y"){
       $('#mon').attr("checked","checked");  
        } else{
@@ -574,14 +586,14 @@ if(isset($_COOKIE["msg"]) )
 		   $('#btnsubmit').attr('disabled',true);
    }
    
-  function viewdata(id,name,course,faculty,branch,stime,mo,tu,we,th,fr,sa,su,status,assist_faculty1,assist_faculty2) {
+  function viewdata(id,name,course,faculty,branch,stime,mo,tu,we,th,fr,sa,su,status,assist_faculty1,assist_faculty2,capacity) {
            $('#name').val(atob(name));
        $('#courses').val(course);
        $('#faculties').val(faculty);
        $('#branches').val(branch);
        $('#assist_faculty1').val(assist_faculty1);
        $('#assist_faculty2').val(assist_faculty2);
-       
+       $('#capacity').val(capacity);
        $('#stime').val(stime);
        
        
