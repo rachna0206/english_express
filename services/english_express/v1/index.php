@@ -766,9 +766,52 @@ $app->post('/edit_profile', function () use ($app) {
 });
 
 
+// change password
+
+
+$app->post('/change_password', function () use ($app) {
+    verifyRequiredParams(array('data'));
+
+    $data = json_decode($app->request->post('data'));
+    
+    $user_type=$data->user_type;
+    $password=$data->password;
+    $uid=$data->uid;
+    $data = array();
+    $data["data"] = array();  
+
+   //device_token
+
+    $db = new DbOperation();
+    if($user_type=="student")
+    {
+        $res = $db->stu_password_update($uid,$password);
+    }
+    else
+    {
+        $res = $db->faculty_password_update($uid,$password);
+    }
+    
+
+    if ($res == 1) {
+
+
+        $data['success'] = true;
+        
+        $data['message'] = "Password updated successfully.";
+        
+    } else {
+
+        $data['success'] = false;
+       
+        $data['message'] = "Please try again";
+        
+    }
+    echoResponse(201, $data);
+
+});
+
 // logout
-
-
 $app->post('/logout', function () use ($app) {
     verifyRequiredParams(array('data'));
 

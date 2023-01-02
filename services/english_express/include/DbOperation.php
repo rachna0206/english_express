@@ -398,7 +398,34 @@ public function faculty_logout($uid, $device_token,$device_type)
 }
 
 
+//student password change
+public function stu_password_update($uid, $password)
+{
+    $stmt = $this->con->prepare("update student set password=? where sid=?");
 
+    $stmt->bind_param("si",$password,$uid);
+    $result = $stmt->execute();
+    $stmt->close();
+    if ($result) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+public function faculty_password_update($uid, $password)
+{
+    $stmt = $this->con->prepare("update faculty set password=? where id=?");
+
+    $stmt->bind_param("si", $password,$uid);
+    $result = $stmt->execute();
+    $stmt->close();
+    if ($result) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
 
 
 

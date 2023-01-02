@@ -225,7 +225,7 @@ if(isset($_REQUEST['action']))
 	  while($students=mysqli_fetch_array($stu_res))
 	  {
 
-	  	$html.='<div class="col-md-3"><input type="checkbox" id="stu_list" name="s[]" id="" value="'.$students["student_id"].'" checked="checked"/> '.$students["name"].'</div>';
+	  	$html.='<div class="col-md-3"><input type="checkbox" id="stu_list" name="s[]" id="" value="'.$students["student_id"].'" /> '.$students["name"].'</div>';
 
 	  }
 

@@ -34,9 +34,23 @@ if(isset($_REQUEST['submit1']))
         }
         $remark = $_REQUEST["remark".$i];
         $aid = $_REQUEST["atten_id".$i];
+        $status = $_REQUEST["status".$i];
     		$stmt = $obj->con1->prepare("update attendance set faculty_attendance=?, remark=? where aid=?");
     		$stmt->bind_param("ssi", $faculty_atten,$remark,$aid);
     		$Resp=$stmt->execute();
+
+        //get attendance data
+        $stmt_attn = $obj->con1->prepare("select * from attendance where aid=?");
+        $stmt_attn->bind_param("i", $aid);
+        $Resp=$stmt_attn->execute();
+        $res_attn = $stmt_attn->get_result()->fetch_assoc();
+        $stmt_attn->close();
+
+
+        //update stu status in batch assign
+        $stmt_batch = $obj->con1->prepare("update batch_assign set student_status=? where student_id=? and batch_id=?");
+        $stmt_batch->bind_param("sii", $status,$res_attn["student_id"],$res_attn["batch_id"]);
+        $Resp_batch=$stmt_batch->execute();
       }
 		if(!$Resp)
 		{
@@ -181,10 +195,21 @@ if(isset($_COOKIE["msg"]))
                           </select>
 					</div>
 					
-					<div class="mb-3">
+				            <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Date</label>
                          <input type="date" class="form-control" name="dt" id="dt" value="<?php echo $dt ?>"/>
                         <!--  <input type="date" class="form-control" name="dt" id="dt" value="<?php echo date("Y-m-d") ?>"/> -->
+                    </div>
+                    <div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Students</label><br>
+                          <div class="form-check form-check-inline mt-3">
+                            <input class="form-check-input" type="radio" name="stu_type" id="stu_type_all" value="all"  <?php echo ($_REQUEST['stu_type']!="" && $_REQUEST['stu_type']=="all")?"checked":""?> >
+                            <label class="form-check-label" for="inlineRadio1">All</label>
+                          </div>
+                          <div class="form-check form-check-inline mt-3">
+                            <input class="form-check-input" type="radio" name="stu_type" id="stu_type_current" value="current"  <?php echo ($_REQUEST['stu_type']!="" && $_REQUEST['stu_type']=="current")?"checked":""?> >
+                            <label class="form-check-label" for="inlineRadio1">Current Students</label>
+                          </div>
                     </div>
 					
 					<button type="submit" name="btnsubmit" id="btnsubmit" class="btn btn-primary">Show</button>
@@ -203,6 +228,8 @@ if(isset($_COOKIE["msg"]))
 
                 if(isset($_REQUEST['btnsubmit']))
                 {
+                  $stu_type=($_REQUEST["stu_type"]!="" && $_REQUEST['stu_type']=="current")?"ongoing":"";
+                  $stu_str=($stu_type!="")?" and b1.student_status='ongoing'":"";
                   ?>
                 <div class="table-responsive text-nowrap">
                   <table class="table">
@@ -213,6 +240,7 @@ if(isset($_COOKIE["msg"]))
                         <th>Student Name</th>
                         <th>Attendance by Student</th>
             						<th>Attendance by Faculty</th>
+                        <th>Status</th>
             						<th>Remark</th>
                       </tr>
                     </thead>
@@ -220,9 +248,12 @@ if(isset($_COOKIE["msg"]))
                     <tbody class="table-border-bottom-0">
                       <?php
           					
-                     
+                    
           							
-          						$stmt_list = $obj->con1->prepare("select a.*,s.name from attendance a, student s where a.student_id=s.sid and batch_id = '".$batch_id."' and dt ='".$dt."'");
+          						//$stmt_list = $obj->con1->prepare("select a.*,s.name from attendance a, student s where a.student_id=s.sid and batch_id = '".$batch_id."' and dt ='".$dt."'");
+                      
+                      $stmt_list = $obj->con1->prepare("select a.*,s.name from attendance a, student s,batch_assign b1 where a.student_id=s.sid and b1.student_id=a.student_id and a.batch_id = '".$batch_id."' and a.dt ='".$dt."'".$stu_str." group by a.student_id");
+                      
           						$stmt_list->execute();
           						$result = $stmt_list->get_result();
           						$stmt_list->close();
@@ -237,6 +268,13 @@ if(isset($_COOKIE["msg"]))
                             }
                                   while($a=mysqli_fetch_array($result))
                                   {
+                                    // get data from batch assign
+
+                                    $stmt_batch_assign = $obj->con1->prepare("select * from batch_assign where student_id=? and batch_id=?");
+                                    $stmt_batch_assign->bind_param("ii", $a["student_id"],$a["batch_id"]);
+                                    $Resp_batch=$stmt_batch_assign->execute();
+                                    $res_batch_assign = $stmt_batch_assign->get_result()->fetch_assoc();
+                                    $stmt_batch_assign->close();
                                     
                                 ?>
 
@@ -249,6 +287,15 @@ if(isset($_COOKIE["msg"]))
                                     <input type="hidden" name="atten_id<?php echo $i ?>" value="<?php echo $a["aid"] ?>">
                                     
                                   </td>
+                                  <td><select class="form-control" name="status<?php echo $i?>">
+                                    <option value="">Select Status</option>
+                                    <option value="course_completed" <?php echo ($res_batch_assign["student_status"]=="course_completed")?"selected":""?>>Course Completed</option>
+                                    <option value="batch_change" <?php echo ($res_batch_assign["student_status"]=="batch_change")?"selected":""?>>Batch Changed</option>
+                                    <option value="on_hold" <?php echo ($res_batch_assign["student_status"]=="on_hold")?"selected":""?>>On Hold</option>
+                                    <option value="dismiss" <?php echo ($res_batch_assign["student_status"]=="dismiss")?"selected":""?>>Dismiss</option>
+                                    <option value="on_leave" <?php echo ($res_batch_assign["student_status"]=="on_leave")?"selected":""?>>On Leave</option>
+                                    <option value="irregular" <?php echo ($res_batch_assign["student_status"]=="irregular")?"selected":""?>>Irregular</option>
+                                  </select></td>
           						              <td><input type="text" class="form-control" name="remark<?php echo $i ?>" id="" value="<?php echo $a["remark"] ?>"/></td>
                                 </tr>
                                 <?php

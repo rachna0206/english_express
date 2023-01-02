@@ -206,7 +206,6 @@ $stmt_assign->close();
                             $stmt_exe->execute();
                             $result_exe = $stmt_exe->get_result();
                             
-                            
                             $stmt_exe->close();
                             
 

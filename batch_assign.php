@@ -31,6 +31,7 @@ if(isset($_REQUEST['btnsubmit']))
   
   $stu1=$_REQUEST['stu_list1'];
   $stu2=$_REQUEST['stu_list2'];
+  $student_status="ongoing";
 
   try
   {
@@ -73,8 +74,8 @@ if(isset($_REQUEST['btnsubmit']))
         if($row1[1]==0)
         {
           // insert into batch assign
-          $stmt_batch_assign = $obj->con1->prepare("INSERT INTO `batch_assign`( `batch_id`, `student_id`) VALUES (?,?)");
-          $stmt_batch_assign->bind_param("ii", $batch,$stu2[$i]);
+          $stmt_batch_assign = $obj->con1->prepare("INSERT INTO `batch_assign`( `batch_id`, `student_id`,`student_status`) VALUES (?,?,?)");
+          $stmt_batch_assign->bind_param("iis", $batch,$stu2[$i],$student_status);
           $Resp=$stmt_batch_assign->execute();
           $stmt_batch_assign->close();
           echo "insert";
@@ -103,8 +104,8 @@ if(isset($_REQUEST['btnsubmit']))
       $bid = 37;
       $stu_id = array();
       while($stu=mysqli_fetch_array($result)){
-        $stmt = $obj->con1->prepare("INSERT INTO `batch_assign`(`batch_id`,`student_id`) VALUES (?,?)");
-        $stmt->bind_param("ii", $bid,$stu[0]);
+        $stmt = $obj->con1->prepare("INSERT INTO `batch_assign`(`batch_id`,`student_id`,`student_status`) VALUES (?,?,?)");
+        $stmt->bind_param("iis", $bid,$stu[0],$student_status);
         $Resp1=$stmt->execute();
 
       }

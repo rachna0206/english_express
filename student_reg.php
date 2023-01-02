@@ -181,7 +181,7 @@ if(isset($_REQUEST['btnupdate']))
   $srcaadhar=$_FILES['aadhar']['tmp_name'];
   $id = $_REQUEST['ttId'];
   $status=$_REQUEST['status'];
-  
+  $student_status="ongoing";
   if($pp!=""){
 	unlink("studentProfilePic/".$rpp);	
 	
@@ -240,12 +240,14 @@ if(isset($_REQUEST['btnupdate']))
 
   try
   {
-  	$stmt = $obj->con1->prepare("update student set name=?, email=?, gender=?, house_no=?, society_name=?, village=?, landmark=?, city=?, state=?, pin=?, education=?, stu_type=?, guard_name=?, user_id=?, password=?, phone=?, guardian_phone=?, dob=?, inquiry_dt=?, enrollment_dt=?, skillid=?, courseid=?, pic=?, aadhar=?,`status`=? where sid=?");
+    $stmt = $obj->con1->prepare("update student set name=?, email=?, gender=?, house_no=?, society_name=?, village=?, landmark=?, city=?, state=?, pin=?, education=?, stu_type=?, guard_name=?, user_id=?, password=?, phone=?, guardian_phone=?, dob=?, inquiry_dt=?, enrollment_dt=?, skillid=?, courseid=?, pic=?, aadhar=?,`status`=? where sid=?");
   	$stmt->bind_param("sssssssiisssssssssssiisssi", $sname,$email,$gender,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$education,$stu_type,$guard_name,$userid,$password,$contact,$guardian_contact,$birthdate,$inquiry_dt,$enrollment_dt,$skills,$course,$PicFileName,$AadFileName,$status,$id);
   	$Resp=$stmt->execute();
 
 
+   // echo "select id,count(*) from batch_assign where student_id=? and batch_id=!37";
     // check if student is assigned in any batch
+    
     $stmt_batch_select = $obj->con1->prepare("select id,count(*) from batch_assign where student_id=? and batch_id=37");
     $stmt_batch_select->bind_param("i", $id);
     $stmt_batch_select->execute();
@@ -254,14 +256,16 @@ if(isset($_REQUEST['btnupdate']))
     $row = mysqli_fetch_array($res);
     if($row[1]==0)
     {
+      //echo "INSERT INTO `batch_assign`( `batch_id`, `student_id`) VALUES ( '$btime','$id')";
       // insert into batch assign
-      $stmt_batch_assign = $obj->con1->prepare("INSERT INTO `batch_assign`( `batch_id`, `student_id`) VALUES (?,?)");
-      $stmt_batch_assign->bind_param("ii", $btime,$id);
-      $Resp=$stmt_batch_assign->execute();
+      $stmt_batch_assign = $obj->con1->prepare("INSERT INTO `batch_assign`( `batch_id`, `student_id`,`student_status`) VALUES (?,?,?)");
+      $stmt_batch_assign->bind_param("iis", $btime,$id,$student_status);
+      $Resp_batch=$stmt_batch_assign->execute();
       $stmt_batch_assign->close();
     }
     else
     {
+      
       // update batch assign
       $stmt_batch = $obj->con1->prepare("update batch_assign set batch_id=? where student_id=?");
       $stmt_batch->bind_param("ii",$btime, $id);
@@ -288,7 +292,7 @@ if(isset($_REQUEST['btnupdate']))
   else
   {
 	  setcookie("msg", "fail",time()+3600,"/");
-      header("location:student_reg.php");
+     header("location:student_reg.php");
   }
 }
 
@@ -862,8 +866,8 @@ if(isset($_COOKIE["msg"]) )
 		$('#village').val(atob(village));
 		$('#landmark').val(atob(landmark));
 		$('#state').val(state);
-		cityList(state);
-      	cityList(state);
+		
+    cityList(state);
 		setTimeout(function() {
       		$('#city').val(city);
 		}, 1000);
@@ -871,7 +875,17 @@ if(isset($_COOKIE["msg"]) )
 		$('#education').val(atob(education));
 		$('#stu_type').val(atob(stu_type));
 		$('#userid').val(atob(userid));
-		$('#password').val(atob(password));
+    if(password=="")
+    {
+      var pass=generatePassword();
+      
+      $('#password').val(pass);
+    }
+    else
+    {
+      $('#password').val(atob(password));
+    }
+
 		$('#guard_name').val(atob(gname));
 		$('#contact').val(phone);
 		$('#guardian_contact').val(gphone);
@@ -933,7 +947,17 @@ if(isset($_COOKIE["msg"]) )
 		$('#education').val(atob(education));
 		$('#stu_type').val(atob(stu_type));
 		$('#userid').val(atob(userid));
-		$('#password').val(atob(password));
+    if(password=="")
+    {
+      var pass=generatePassword();
+      console.log("pass="+pass);
+      $('#password').val(pass);
+    }
+    else
+    {
+      $('#password').val(atob(password));
+    }
+		
 		$('#guard_name').val(atob(gname));
 		$('#contact').val(phone);
 		$('#guardian_contact').val(gphone);
@@ -943,7 +967,7 @@ if(isset($_COOKIE["msg"]) )
 		$('#btime').val(atob(btime));
 		$('#skills').val(skill);
 		$('#course').val(course);
-    	$('#status').val(status);
+    $('#status').val(status);
 		$('#hprofile_pic').val(atob(pic));
 		$('#haadhar').val(atob(aadhar));
 		$('#PreviewImageP').show();
@@ -974,6 +998,15 @@ if(isset($_COOKIE["msg"]) )
             }
         });
   }
+  function generatePassword() {
+    var length = 6,
+        charset = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcefghijklmnopqrstuvwxyz",
+        retVal = "";
+    for (var i = 0, n = charset.length; i < length; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+    return retVal;
+}
 </script>
 
 <?php 

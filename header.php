@@ -3,7 +3,7 @@ ob_start();
 //include ("db_connect.php");
 //$obj=new DB_connect();
 date_default_timezone_set("Asia/Kolkata");
-//error_reporting(E_ALL);
+error_reporting(0);
 
 session_start();
 include("checkPer.php");
