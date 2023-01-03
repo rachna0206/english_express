@@ -693,11 +693,11 @@ function readPP(input) {
 			console.log("gender="+gender);
 			if(gender=="female")
 			{
-				$('#gender_female').attr("checked","checked");	
+				$('#gender_female').prop("checked","checked");	
 			}
 			else
 			{
-				$('#gender_male').attr("checked","checked");	
+				$('#gender_male').prop("checked","checked");	
 			}
 			$('#qualification').val(qualification);
 			$('#designation').val(designation);
@@ -745,11 +745,11 @@ function readPP(input) {
 			console.log("gender="+gender);
 			if(gender=="female")
 			{
-				$('#gender_female').attr("checked","checked");	
+				$('#gender_female').prop("checked","checked");	
 			}
 			else
 			{
-				$('#gender_male').attr("checked","checked");	
+				$('#gender_male').prop("checked","checked");	
 			}
 			$('#qualification').val(qualification);
 			$('#designation').val(designation);

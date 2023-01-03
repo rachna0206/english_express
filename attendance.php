@@ -295,6 +295,8 @@ if(isset($_COOKIE["msg"]))
                                     <option value="dismiss" <?php echo ($res_batch_assign["student_status"]=="dismiss")?"selected":""?>>Dismiss</option>
                                     <option value="on_leave" <?php echo ($res_batch_assign["student_status"]=="on_leave")?"selected":""?>>On Leave</option>
                                     <option value="irregular" <?php echo ($res_batch_assign["student_status"]=="irregular")?"selected":""?>>Irregular</option>
+                                    <option value="course_completed_with_exam" <?php echo ($res_batch_assign["student_status"]=="course_completed_with_exam")?"selected":""?>>Course Completed With Exam</option>
+                                    <option value="course_completed_without_exam" <?php echo ($res_batch_assign["student_status"]=="course_completed_without_exam")?"selected":""?>>Course Completed Without Exam</option>
                                   </select></td>
           						              <td><input type="text" class="form-control" name="remark<?php echo $i ?>" id="" value="<?php echo $a["remark"] ?>"/></td>
                                 </tr>

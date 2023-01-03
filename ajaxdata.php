@@ -655,6 +655,77 @@ END ");
       </div>';
       echo $html;
 	}
+	if($_REQUEST['action']=="get_stu_skills")
+	{
+		$stu_id=$_REQUEST['stu_id'];
+		$html="";
+		$stmt_slist = $obj->con1->prepare("select * from skill");
+		$stmt_slist->execute();
+		$res1 = $stmt_slist->get_result();
+		$stmt_slist->close();
+
+		$stmt_clist = $obj->con1->prepare("select * from course");
+		$stmt_clist->execute();
+		$res2 = $stmt_clist->get_result();
+		$stmt_clist->close();
+
+		// stu skills
+		$stmt_slist_Stu = $obj->con1->prepare("select GROUP_CONCAT(skill_id) as skill from stu_skills where stu_id=?");
+		$stmt_slist_Stu->bind_param("i",$stu_id);
+		$stmt_slist_Stu->execute();
+		$res_Stu = $stmt_slist_Stu->get_result();
+		$stu_Skills=mysqli_fetch_array($res_Stu);
+		$stmt_slist_Stu->close();
+		$skills = explode(",", $stu_Skills["skill"]);
+
+		// stu_ course
+		$stmt_course= $obj->con1->prepare("select GROUP_CONCAT(course_id) as course from stu_course where stu_id=?");
+		$stmt_course->bind_param("i",$stu_id);
+		$stmt_course->execute();
+		$res_course = $stmt_course->get_result();
+		$stu_course=mysqli_fetch_array($res_course);
+		$stmt_course->close();
+		$courses = explode(",", $stu_course["course"]);
+		
+
+			$html.='<div class="mb-3">
+        <label class="form-label" for="basic-default-fullname">Course Enrolled</label>
+        <select name="course[]" id="course" class="form-control js-example-basic-multiple" required multiple="multiple">
+          <option value="">Select</option>';
+
+           while($c=mysqli_fetch_array($res2)){
+
+           	if (in_array($c['courseid'], $courses)) {
+           		$html.='<option value="'.$c["courseid"].'" selected="selected">'.$c["coursename"].'</option>';
+           	}
+           	else
+           	{
+
+              $html.='<option value="'.$c["courseid"].'" >'.$c["coursename"].'</option>';
+           	}
+           } 
+        $html.='</select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="basic-default-fullname">Skills</label>
+        <select name="skills[]" id="skills" class="form-control js-example-basic-multiple" required multiple="multiple">
+        	<option value="">Select</option>';
+
+				 while($s=mysqli_fetch_array($res1)){ 
+
+				 	if (in_array($s['skid'], $skills)) {
+				 		$html.='<option value="'.$s["skid"].'" selected="selected">'. $s["skills"].'</option>';
+				 	}
+				 	else
+				 	{
+				 		$html.='<option value="'.$s["skid"].'" >'. $s["skills"].'</option>';
+				 	}
+  				
+  			}	
+        $html.='</select>
+      </div>';
+      echo $html;
+	}
 	
 }
 

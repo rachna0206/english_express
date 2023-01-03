@@ -15,8 +15,8 @@ $stmt_list2->execute();
 $students = $stmt_list2->get_result()->num_rows;	
 $stmt_list2->close();
 
-// total capacity
-$stmt_list3 = $obj->con1->prepare("select * from branch ");
+// total capacity 
+$stmt_list3 = $obj->con1->prepare("select sum(capacity) as capacity from batch");
 $stmt_list3->execute();
 $res_capacity = $stmt_list3->get_result();	
 $capacity=$res_capacity->fetch_assoc();
@@ -171,7 +171,7 @@ $stmt_list9->close();
                 </div>
               </div>
               <span class="fw-semibold d-block mb-1">Total Capacity</span>
-              <h3 class="card-title mb-2"><?php echo $capacity["capacity"]."/".$students?></h3>
+              <h3 class="card-title mb-2"><?php echo $students."/".$capacity["capacity"]?></h3>
               
             </div>
           </div>
@@ -308,7 +308,7 @@ $stmt_list9->close();
                     <i class="bx bx-dots-vertical-rounded"></i>
                   </button>
                   <div class="dropdown-menu" aria-labelledby="cardOpt1">
-                    <a class="dropdown-item" href="attendance.php">View More</a>
+                    <a class="dropdown-item" href="attendance_report_detail.php">View More</a>
                     
                   </div>
                 </div>
@@ -340,7 +340,7 @@ $stmt_list9->close();
                     <i class="bx bx-dots-vertical-rounded"></i>
                   </button>
                   <div class="dropdown-menu" aria-labelledby="cardOpt1">
-                    <a class="dropdown-item" href="attendance.php">View More</a>
+                    <a class="dropdown-item" href="attendance_report_detail.php">View More</a>
                     
                   </div>
                 </div>
