@@ -358,13 +358,24 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
   
   try
   {
-	$stmt_del = $obj->con1->prepare("delete from student where sid='".$_REQUEST["n_id"]."'");
-	$Resp=$stmt_del->execute();
+    $stmt_del = $obj->con1->prepare("delete from student where sid='".$_REQUEST["n_id"]."'");
+  	$Resp=$stmt_del->execute();
 
-  // delete from batch_assign
-  $stmt_del_batch = $obj->con1->prepare("delete from batch_assign where student_id='".$_REQUEST["n_id"]."'");
-  $Resp_batch=$stmt_del_batch->execute();
-  $stmt_del_batch->close();
+    // delete from batch_assign
+    $stmt_del_batch = $obj->con1->prepare("delete from batch_assign where student_id='".$_REQUEST["n_id"]."'");
+    $Resp_batch=$stmt_del_batch->execute();
+    $stmt_del_batch->close();
+
+    //delete from course
+    $del_course_stmt=$obj->con1->prepare("delete from stu_course where stu_id=?");
+    $del_course_stmt->bind_param("i",$_REQUEST["n_id"]);
+    $del_course_stmt->execute();
+    $del_course_stmt->close();
+    // delete from skills
+    $del_skill_stmt=$obj->con1->prepare("delete from stu_skills where stu_id=?");
+    $del_skill_stmt->bind_param("i",$_REQUEST["n_id"]);
+    $del_skill_stmt->execute();
+    $del_skill_stmt->close();
 	if(!$Resp)
 	{
       throw new Exception("Problem in deleting! ". strtok($obj->con1-> error,  '('));

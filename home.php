@@ -22,6 +22,12 @@ $res_capacity = $stmt_list3->get_result();
 $capacity=$res_capacity->fetch_assoc();
 $stmt_list3->close();
 
+// total stu capacity
+$stmt_list10 = $obj->con1->prepare("select s1.* from student s1,batch_assign b1 where b1.student_id=s1.sid and s1.status='registered' and b1.batch_id!=37");
+$stmt_list10->execute();
+$stu_capacity = $stmt_list10->get_result()->num_rows;  
+$stmt_list10->close();
+
 
 // pending printing task
 $stmt_list4 = $obj->con1->prepare("select * from printing where `status`='pending'");
@@ -52,7 +58,7 @@ $stmt_list7->close();
 
 //today's absent stu
 
-$stmt_list8 = $obj->con1->prepare("select * from attendance where dt='".$date."' and faculty_attendance='a' and stu_attendance='a' ");
+$stmt_list8 = $obj->con1->prepare("select * from attendance where dt='".$date."' and faculty_attendance='a'  ");
 $stmt_list8->execute();
 $absent = $stmt_list8->get_result()->num_rows;  
 $stmt_list8->close();
@@ -171,7 +177,7 @@ $stmt_list9->close();
                 </div>
               </div>
               <span class="fw-semibold d-block mb-1">Total Capacity</span>
-              <h3 class="card-title mb-2"><?php echo $students."/".$capacity["capacity"]?></h3>
+              <h3 class="card-title mb-2"><?php echo $stu_capacity."/".$capacity["capacity"]?></h3>
               
             </div>
           </div>

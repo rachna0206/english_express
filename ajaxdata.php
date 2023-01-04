@@ -8,7 +8,7 @@ if(isset($_REQUEST['action']))
 {
 	if($_REQUEST['action']=="get_batch")
 	{
-		echo "here";
+		
 		$html="";
 		 $branch=$_REQUEST['branch'];
 		

@@ -70,10 +70,29 @@ if(isset($_REQUEST['btnsubmit']))
   try
   {
      
-    	$stmt = $obj->con1->prepare("INSERT INTO `student`(`name`, `email`, `gender`, `house_no`, `society_name`, `village`, `landmark`, `city`, `state`, `pin`, `education`, `stu_type`,`phone`, `guardian_phone`, `dob`, `inquiry_dt`, `followup_dt`, `skillid`, `courseid`, `status`, `remark`,`associate`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-    	$stmt->bind_param("sssssssiissssssssiisss", $sname,$email,$gender,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$education,$stu_type,$contact,$guardian_contact,$birthdate,$inquiry_dt,$followup_dt,$skills,$course,$status,$remark,$associate);
+    	$stmt = $obj->con1->prepare("INSERT INTO `student`(`name`, `email`, `gender`, `house_no`, `society_name`, `village`, `landmark`, `city`, `state`, `pin`, `education`, `stu_type`,`phone`, `guardian_phone`, `dob`, `inquiry_dt`, `followup_dt`, `status`, `remark`,`associate`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+    	$stmt->bind_param("sssssssiisssssssssss", $sname,$email,$gender,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$education,$stu_type,$contact,$guardian_contact,$birthdate,$inquiry_dt,$followup_dt,$status,$remark,$associate);
     	$Resp=$stmt->execute();
       $lastId = mysqli_insert_id($obj->con1);
+
+    // insert into skills 
+    for($i=0;$i<count($skills);$i++)
+    {
+      $stmt_skills = $obj->con1->prepare("INSERT INTO `stu_skills`(  `stu_id`, `skill_id`) VALUES (?,?)");
+      $stmt_skills->bind_param("ii", $lastId,$skills[$i]);
+      $Resp_skill=$stmt_skills->execute();
+      $stmt_skills->close();
+    }
+    
+
+    // insert into courses 
+    for($i=0;$i<count($course);$i++)
+    {
+      $stmt_course = $obj->con1->prepare("INSERT INTO `stu_course`( `stu_id`, `course_id`) VALUES (?,?)");
+      $stmt_course->bind_param("ii", $lastId,$course[$i]);
+      $Resp_course=$stmt_course->execute();
+      $stmt_course->close();
+    } 
 
   	if(!$Resp)
   	{
@@ -130,9 +149,41 @@ if(isset($_REQUEST['btnupdate']))
   try
   {
     
-  	$stmt = $obj->con1->prepare("update student set name=?, email=?, gender=?, house_no=?, society_name=?, village=?, landmark=?, city=?, state=?, pin=?, education=?, stu_type=?,  phone=?, guardian_phone=?, dob=?, inquiry_dt=?, followup_dt=?, skillid=?, courseid=?,status=?,remark=?,associate=? where sid=?");
-  	$stmt->bind_param("sssssssiissssssssiisssi", $sname,$email,$gender,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$education,$stu_type,$contact,$guardian_contact,$birthdate,$inquiry_dt,$followup_dt,$skills,$course,$status,$remark,$associate,$id);
+  	$stmt = $obj->con1->prepare("update student set name=?, email=?, gender=?, house_no=?, society_name=?, village=?, landmark=?, city=?, state=?, pin=?, education=?, stu_type=?,  phone=?, guardian_phone=?, dob=?, inquiry_dt=?, followup_dt=?, status=?,remark=?,associate=? where sid=?");
+  	$stmt->bind_param("sssssssiisssssssssssi", $sname,$email,$gender,$house_no,$society,$village,$landmark,$city,$state,$pin_code,$education,$stu_type,$contact,$guardian_contact,$birthdate,$inquiry_dt,$followup_dt,$status,$remark,$associate,$id);
   	$Resp=$stmt->execute();
+
+    // update skills
+
+    $del_skill_stmt=$obj->con1->prepare("delete from stu_skills where stu_id=?");//delete old skills first
+    $del_skill_stmt->bind_param("i",$id);
+    $del_skill_stmt->execute();
+    $del_skill_stmt->close();
+
+    //add new skills
+    for($i=0;$i<count($skills);$i++)
+    {
+      $stmt_skills = $obj->con1->prepare("INSERT INTO `stu_skills`(  `stu_id`, `skill_id`) VALUES (?,?)");
+      $stmt_skills->bind_param("ii", $id,$skills[$i]);
+      $Resp_skill=$stmt_skills->execute();
+      $stmt_skills->close();
+    }
+
+
+    //update courses
+    $del_course_stmt=$obj->con1->prepare("delete from stu_course where stu_id=?");//delete old course first
+    $del_course_stmt->bind_param("i",$id);
+    $del_course_stmt->execute();
+    $del_course_stmt->close();
+
+    // insert new courses 
+    for($i=0;$i<count($course);$i++)
+    {
+      $stmt_course = $obj->con1->prepare("INSERT INTO `stu_course`( `stu_id`, `course_id`) VALUES (?,?)");
+      $stmt_course->bind_param("ii", $id,$course[$i]);
+      $Resp_course=$stmt_course->execute();
+      $stmt_course->close();
+    } 
 
     
 	if(!$Resp)
@@ -168,6 +219,17 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
 	$stmt_del = $obj->con1->prepare("delete from student where sid='".$_REQUEST["n_id"]."'");
 	$Resp=$stmt_del->execute();
   $stmt_del->close();
+
+  //delete from course
+    $del_course_stmt=$obj->con1->prepare("delete from stu_course where stu_id=?");
+    $del_course_stmt->bind_param("i",$_REQUEST["n_id"]);
+    $del_course_stmt->execute();
+    $del_course_stmt->close();
+    // delete from skills
+    $del_skill_stmt=$obj->con1->prepare("delete from stu_skills where stu_id=?");
+    $del_skill_stmt->bind_param("i",$_REQUEST["n_id"]);
+    $del_skill_stmt->execute();
+    $del_skill_stmt->close();
   
   	if(!$Resp)
   	{
@@ -214,7 +276,8 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
   }
 
 </script>
-
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <h4 class="fw-bold py-3 mb-4">Lead Generation</h4>
 
@@ -409,10 +472,10 @@ if(isset($_COOKIE["msg"]) )
                             <?php } ?>
                           </select>
                         </div>
-						
+						            <div id="stu_course_div">
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Course Enrolled</label>
-                          <select name="course" id="course" class="form-control" required>
+                          <select name="course[]" id="course" class="form-control js-example-basic-multiple" required multiple="multiple">
                             <option value="">Select</option>
                             <?php while($c=mysqli_fetch_array($res2)){ ?>
                                 <option value="<?php echo $c["courseid"] ?>"><?php echo $c["coursename"] ?></option>
@@ -423,13 +486,14 @@ if(isset($_COOKIE["msg"]) )
 						
 						            <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Skills</label>
-                          <select name="skills" id="skills" class="form-control" required>
+                          <select name="skills[]" id="skills" class="form-control js-example-basic-multiple" required multiple="multiple">
                           	<option value="">Select</option>
           					         <?php while($s=mysqli_fetch_array($res1)){ ?>
                               		<option value="<?php echo $s["skid"] ?>"><?php echo $s["skills"] ?></option>
                               <?php }	?>
                           </select>
                         </div>
+                      </div>
                         <!-- <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Status</label>
                           <select name="status" id="status" class="form-control" required>
@@ -482,7 +546,9 @@ if(isset($_COOKIE["msg"]) )
                     </thead>
                     <tbody class="table-border-bottom-0">
                       <?php 
-                         $stmt_list = $obj->con1->prepare("select st.*,sk.skills,GROUP_CONCAT(c.coursename)as coursename from student as st, skill as sk, course as c where st.skillid=sk.skid and st.courseid=c.courseid  and st.status='inquiry'  GROUP by st.sid order by sid desc");
+                        // $stmt_list = $obj->con1->prepare("select st.*,sk.skills,GROUP_CONCAT(c.coursename)as coursename from student as st, skill as sk, course as c where st.skillid=sk.skid and st.courseid=c.courseid  and st.status='inquiry'  GROUP by st.sid order by sid desc");
+
+                        $stmt_list = $obj->con1->prepare(" select st.*,GROUP_CONCAT(c.coursename)as coursename,'-' as batch_time,'-' as batch_name,1 as bid from student as st, course as c,stu_course sc   where  sc.stu_id=st.sid  and sc.course_id=c.courseid and st.status='inquiry' order by sid desc");
                         $stmt_list->execute();
                         $result = $stmt_list->get_result();
                         
@@ -532,6 +598,9 @@ if(isset($_COOKIE["msg"]) )
 <?php } ?>
             <!-- / Content -->
 <script type="text/javascript">
+  $(document).ready(function() {
+    $('.js-example-basic-multiple').select2();
+});
 
 	function readURL_p(input) {
 	    if (input.files && input.files[0]) {
@@ -622,8 +691,6 @@ if(isset($_COOKIE["msg"]) )
     $('#inquiry_dt').val(atob(inquiry));
 		$('#followup_dt').val(atob(followup));
 		
-		$('#skills').val(skill);
-		$('#course').val(course);
 		$('#remark').val(atob(remark));
 		$('#status').val(status);
 		$('#associate').val(associate);
@@ -631,6 +698,20 @@ if(isset($_COOKIE["msg"]) )
 		$('#btnsubmit').attr('hidden',true);
 		$('#btnupdate').removeAttr('hidden');
 		$('#btnsubmit').attr('disabled',true);
+    // get skills & course
+     $.ajax({
+          async: true,
+          type: "POST",
+          url: "ajaxdata.php?action=get_stu_skills",
+          data: "stu_id="+id,
+          cache: false,
+          success: function(result){
+           
+            $('#stu_course_div').html('');
+            $('#stu_course_div').append(result);
+            $('.js-example-basic-multiple').select2();
+            }
+        });
 	}
 	
 	function viewdata(id,name,email,gender,house_no,society,village,landmark,city,state,pin,education,stu_type,phone,gphone,dob,inquiry,followup,skill,course,status,remark,associate) {         
@@ -666,8 +747,7 @@ if(isset($_COOKIE["msg"]) )
 		$('#inquiry_dt').val(atob(inquiry));
 		$('#followup_dt').val(atob(followup));
 		
-		$('#skills').val(skill);
-		$('#course').val(course);
+		
 		$('#remark').val(remark);
 		$('#remark').val(atob(remark));
 		$('#status').val(status);
@@ -677,6 +757,20 @@ if(isset($_COOKIE["msg"]) )
 		$('#btnupdate').attr('hidden',true);
 		$('#btnsubmit').attr('disabled',true);
     $('#btnupdate').attr('disabled',true);
+    // get skills & course
+     $.ajax({
+          async: true,
+          type: "POST",
+          url: "ajaxdata.php?action=get_stu_skills",
+          data: "stu_id="+id,
+          cache: false,
+          success: function(result){
+           
+            $('#stu_course_div').html('');
+            $('#stu_course_div').append(result);
+            $('.js-example-basic-multiple').select2();
+            }
+        });
 	}
   function get_faculty(batch)
   {
