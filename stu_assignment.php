@@ -629,7 +629,7 @@ if(isset($_COOKIE["msg"]) )
                     </thead>
                     <tbody class="table-border-bottom-0">
                       <?php 
-                        $stmt_list = $obj->con1->prepare("select sa.*, ba.name bname, s.name sname, b.bookname, c.chapter_name, e.exer_name, f.name fname  from stu_assignment sa, batch ba, books b, chapter c, student s, exercise e, faculty f where sa.batch_id= ba.id and sa.stu_id=s.sid and sa.book_id=b.bid and sa.chap_id=c.cid and sa.exercise_id=e.eid and sa.faculty_id=f.id order by said desc");
+                        $stmt_list = $obj->con1->prepare("select sa.*, DATE_FORMAT(sa.alloted_dt, '%d-%m-%Y') as alloted, DATE_FORMAT(sa.expected_dt, '%d-%m-%Y') as expected, ba.name bname, s.name sname, b.bookname, c.chapter_name, e.exer_name, f.name fname  from stu_assignment sa, batch ba, books b, chapter c, student s, exercise e, faculty f where sa.batch_id= ba.id and sa.stu_id=s.sid and sa.book_id=b.bid and sa.chap_id=c.cid and sa.exercise_id=e.eid and sa.faculty_id=f.id order by said desc");
                         $stmt_list->execute();
                         $result = $stmt_list->get_result();
                         
@@ -647,8 +647,8 @@ if(isset($_COOKIE["msg"]) )
                         <td><?php echo $a["chapter_name"] ?></td>
                         <td><?php echo $a["exer_name"] ?></td>
                         <td><?php echo $a["skill"] ?></td>
-                        <td><?php echo $a["alloted_dt"] ?></td>
-                        <td><?php echo $a["expected_dt"] ?></td>
+                        <td><?php echo $a["alloted"] ?></td>
+                        <td><?php echo $a["expected"] ?></td>
                         <td><?php echo $a["fname"] ?></td>
                         
                     <?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>

@@ -18,7 +18,7 @@ $result_batch = $stmt_batch->get_result();
 $stmt_batch->close();
 
 //assignment qry
-$stmt_assign = $obj->con1->prepare("SELECT s1.*,c1.chapter_name,e1.exer_name,b1.bookname,GROUP_CONCAT(s1.skill) as skills FROM stu_assignment s1, chapter c1,exercise e1,books b1 where s1.chap_id=c1.cid and s1.exercise_id=e1.eid and s1.book_id=b1.bid and s1.stu_id=? GROUP by e1.eid");
+$stmt_assign = $obj->con1->prepare("SELECT s1.*,DATE_FORMAT(s1.alloted_dt, '%d-%m-%Y') as alloted,c1.chapter_name,e1.exer_name,b1.bookname,GROUP_CONCAT(s1.skill) as skills FROM stu_assignment s1, chapter c1,exercise e1,books b1 where s1.chap_id=c1.cid and s1.exercise_id=e1.eid and s1.book_id=b1.bid and s1.stu_id=? GROUP by e1.eid");
 
 $stmt_assign->bind_param("i",$stu_id); 
 $stmt_assign->execute();
@@ -88,7 +88,7 @@ $stmt_assign->close();
                             $attendence=mysqli_fetch_array($result_attendance);
                             $stmt_attendence->close();
 
-                            $stmt_attend = $obj->con1->prepare("select * from attendance where batch_id=? and student_id=?");
+                            $stmt_attend = $obj->con1->prepare("select *, DATE_FORMAT(dt, '%d-%m-%Y') as a_dt from attendance where batch_id=? and student_id=?");
                             $stmt_attend->bind_param("ii",$batch_data["id"],$stu_id); 
                             $stmt_attend->execute();
                             $result_attend = $stmt_attend->get_result();
@@ -144,7 +144,7 @@ $stmt_assign->close();
                                           {
                                           ?>
                                           <tr>
-                                            <td class="text-nowrap"><?php echo $stu_attendance["dt"]?></td>
+                                            <td class="text-nowrap"><?php echo $stu_attendance["a_dt"]?></td>
                                             <td>
                                               <div class="form-check d-flex justify-content-center">
                                                 <input class="form-check-input" type="checkbox" disabled  <?php echo ($stu_attendance["stu_attendance"]=="p")?"checked":""?>>
@@ -216,7 +216,7 @@ $stmt_assign->close();
                                 <div class="me-2 row w-100">
                                   
                                   <h6 class=" d-block mb-1 text-italics">Chapter Name: <?php echo $assignment_data["chapter_name"]." ( ".$assignment_data["bookname"]." )"?> </h6>
-                                  <h6 class="mb-1"><?php echo $assignment_data["exer_name"]?> <span  style="float: right;">Alloted Date: <?php echo $assignment_data["alloted_dt"]?>
+                                  <h6 class="mb-1"><?php echo $assignment_data["exer_name"]?> <span  style="float: right;">Alloted Date: <?php echo $assignment_data["alloted"]?>
                                   
                                 </span></h6>
                                   

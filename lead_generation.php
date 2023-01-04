@@ -548,7 +548,7 @@ if(isset($_COOKIE["msg"]) )
                       <?php 
                         // $stmt_list = $obj->con1->prepare("select st.*,sk.skills,GROUP_CONCAT(c.coursename)as coursename from student as st, skill as sk, course as c where st.skillid=sk.skid and st.courseid=c.courseid  and st.status='inquiry'  GROUP by st.sid order by sid desc");
 
-                        $stmt_list = $obj->con1->prepare(" select st.*,GROUP_CONCAT(c.coursename)as coursename,'-' as batch_time,'-' as batch_name,1 as bid from student as st, course as c,stu_course sc   where  sc.stu_id=st.sid  and sc.course_id=c.courseid and st.status='inquiry' order by sid desc");
+                        $stmt_list = $obj->con1->prepare("select st.*,GROUP_CONCAT(c.coursename)as coursename from student as st,course as c,stu_course sc where sc.course_id=c.courseid and sc.stu_id=st.sid  and st.status='inquiry'  GROUP by sc.stu_id order by sid desc");
                         $stmt_list->execute();
                         $result = $stmt_list->get_result();
                         
@@ -563,8 +563,8 @@ if(isset($_COOKIE["msg"]) )
                         <td><?php echo $s["name"]?></td>
                         
                         <td><?php echo $s["phone"]?></td>
-                        <td><?php echo $s["inquiry_dt"]?></td>
-                        <td><?php echo $s["followup_dt"]?></td>
+                        <td><?php echo date("d-m-Y", strtotime($s["inquiry_dt"]))?></td>
+                        <td><?php echo ($s["followup_dt"]!="")?date("d-m-Y", strtotime($s["followup_dt"])):"-"?></td>
                         
                         
                         <td><?php echo $s["coursename"]?></td>

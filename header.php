@@ -8,6 +8,9 @@ date_default_timezone_set("Asia/Kolkata");
 session_start();
 include("checkPer.php");
 
+// for permission
+if($row1=checkPermission($_SESSION["utype"],"notify")){ }
+
 if(!isset($_SESSION["userlogin"]) )
 {
     header("location:index.php");
@@ -518,7 +521,7 @@ function removeplaysound(ids) {
                 <!-- Place this tag where you want the button to render. -->
                 
 
-              
+              <?php if($row1["read_func"]=="y"){ ?>
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
                   <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar">
@@ -529,6 +532,7 @@ function removeplaysound(ids) {
                   <ul class="dropdown-menu dropdown-menu-end" id="notification_list">
                   </ul>
                 </li>
+              <?php } ?>
 
 
                 <!-- User -->

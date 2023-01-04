@@ -15,7 +15,7 @@ if(isset($_REQUEST['btnsubmit']))
 }
 
 //batches qry
-$stmt_batch = $obj->con1->prepare("select a1.*, b1.name, b1.stime from attendance a1, batch b1 where dt=? and faculty_attendance='p' and a1.batch_id=b1.id group by a1.batch_id");
+$stmt_batch = $obj->con1->prepare("select a1.*, b1.name, b1.stime, b1.capacity from attendance a1, batch b1 where dt=? and faculty_attendance='p' and a1.batch_id=b1.id group by a1.batch_id");
 $stmt_batch->bind_param("s",$dt);
 $stmt_batch->execute();
 $result_batch = $stmt_batch->get_result();
@@ -75,7 +75,7 @@ $stmt_batch->close();
 
                             $bid = $batch_data["batch_id"];
 
-                            $stmt_attend = $obj->con1->prepare("select a1.*,s1.name from attendance a1, student s1 where a1.student_id=s1.sid and batch_id=? and dt=?");
+                            $stmt_attend = $obj->con1->prepare("select a1.*,DATE_FORMAT(a1.dt, '%d-%m-%Y') as a_dt,s1.name from attendance a1, student s1 where a1.student_id=s1.sid and batch_id=? and dt=?");
                             $stmt_attend->bind_param("is",$batch_data["batch_id"],$dt); 
                             $stmt_attend->execute();
                             $result_attend = $stmt_attend->get_result();
@@ -88,8 +88,10 @@ $stmt_batch->close();
                                 <h2 class="accordion-header" id="headingOne">
                                   <button type="button" class="accordion-button" data-bs-toggle="collapse" data-bs-target="#accordionOne" aria-expanded="true" aria-controls="accordionOne">
                                   <?php echo $batch_data["name"]." - ".$batch_data["stime"]?>
-                                  <span class="text-muted " style="margin-left:50%">Attendance-<?php echo $attendence["faculty_attendance"]?>
+                                  <span class="text-muted " style="margin-left:20%">Attendance-<?php echo $attendence["faculty_attendance"]?>
                                     /<?php echo $attendence["total_attendance"]?></span>
+                                  <span class="text-muted " style="margin-left:10%">Capacity-<?php echo $attendence["total_attendance"]?>
+                                    /<?php echo $batch_data["capacity"]?></span>
                                   </button>
                                 </h2>
 
@@ -112,7 +114,7 @@ $stmt_batch->close();
                                             {
                                           ?>
                                               <tr>
-                                            <td class="text-nowrap"><?php echo $attend["dt"]?></td>
+                                            <td class="text-nowrap"><?php echo $attend["a_dt"]?></td>
                                             <td class="text-nowrap"><?php echo $attend["name"]?></td>
                                             <td align="center" style="color:<?php echo ($attend["stu_attendance"]=="p")?'green':'red' ?>"><?php echo ucfirst($attend["stu_attendance"])?></td>
                                             <td align="center" style="color:<?php echo ($attend["faculty_attendance"]=="p")?'green':'red' ?>"><?php echo ucfirst($attend["faculty_attendance"])?></td>

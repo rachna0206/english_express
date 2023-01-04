@@ -154,7 +154,7 @@ if(isset($_REQUEST['btnupdate']))
 		if(isset($_REQUEST['n'.$i])){
 			$none = "y";
 		}
-//		echo $read.$write.$delete.$update.$all.$none.$formnm.$user."<br/>";
+		//echo $read.$write.$delete.$update.$all.$none.$formnm.$user."<br/>";
 		
 	  try
 	  {
@@ -516,50 +516,50 @@ if(isset($_COOKIE["msg"]) )
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Student Report</label><br>
                            <input type="checkbox" name="r20" id="r20" value="read" <?php if(($per[120])=="y"){?> checked="checked" <?php } ?>/> Read
-                           <input type="checkbox" name="w20" id="w20" value="write" <?php if(($per[121])=="y"){?> checked="checked" <?php } ?>/> Write
-                           <input type="checkbox" name="d20" id="d20" value="delete" <?php if(($per[122])=="y"){?> checked="checked" <?php } ?>/> Delete
-                           <input type="checkbox" name="u20" id="u20" value="update" <?php if(($per[123])=="y"){?> checked="checked" <?php } ?>/> Update
-                           <input type="checkbox" name="a20" id="a20" value="all" <?php if(($per[124])=="y"){?> checked="checked" <?php } ?>/>All
+                           <input type="checkbox" name="w20" id="w20" value="write" hidden <?php if(($per[121])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="d20" id="d20" value="delete" hidden <?php if(($per[122])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="u20" id="u20" value="update" hidden <?php if(($per[123])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="a20" id="a20" value="all" hidden <?php if(($per[124])=="y"){?> checked="checked" <?php } ?>/>
                            <input type="checkbox" name="n20" id="n20" value="none" <?php if(($per[125])=="y"){?> checked="checked" <?php } ?>/> None
 												</div>
 												<hr>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Staff Report</label><br>
                            <input type="checkbox" name="r21" id="r21" value="read" <?php if(($per[126])=="y"){?> checked="checked" <?php } ?>/> Read
-                           <input type="checkbox" name="w21" id="w21" value="write" <?php if(($per[127])=="y"){?> checked="checked" <?php } ?>/> Write
-                           <input type="checkbox" name="d21" id="d21" value="delete" <?php if(($per[128])=="y"){?> checked="checked" <?php } ?>/> Delete
-                           <input type="checkbox" name="u21" id="u21" value="update" <?php if(($per[129])=="y"){?> checked="checked" <?php } ?>/> Update
-                           <input type="checkbox" name="a21" id="a21" value="all" <?php if(($per[130])=="y"){?> checked="checked" <?php } ?>/>All
+                           <input type="checkbox" name="w21" id="w21" value="write" hidden <?php if(($per[127])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="d21" id="d21" value="delete" hidden <?php if(($per[128])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="u21" id="u21" value="update" hidden <?php if(($per[129])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="a21" id="a21" value="all" hidden <?php if(($per[130])=="y"){?> checked="checked" <?php } ?>/>
                            <input type="checkbox" name="n21" id="n21" value="none" <?php if(($per[131])=="y"){?> checked="checked" <?php } ?>/> None
 												</div>
 												<hr>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Attendance Report</label><br>
                            <input type="checkbox" name="r22" id="r22" value="read" <?php if(($per[132])=="y"){?> checked="checked" <?php } ?>/> Read
-                           <input type="checkbox" name="w22" id="w22" value="write" <?php if(($per[133])=="y"){?> checked="checked" <?php } ?>/> Write
-                           <input type="checkbox" name="d22" id="d22" value="delete" <?php if(($per[134])=="y"){?> checked="checked" <?php } ?>/> Delete
-                           <input type="checkbox" name="u22" id="u22" value="update" <?php if(($per[135])=="y"){?> checked="checked" <?php } ?>/> Update
-                           <input type="checkbox" name="a22" id="a22" value="all" <?php if(($per[136])=="y"){?> checked="checked" <?php } ?>/>All
+                           <input type="checkbox" name="w22" id="w22" value="write" hidden <?php if(($per[133])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="d22" id="d22" value="delete" hidden <?php if(($per[134])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="u22" id="u22" value="update" hidden <?php if(($per[135])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="a22" id="a22" value="all" hidden <?php if(($per[136])=="y"){?> checked="checked" <?php } ?>/>
                            <input type="checkbox" name="n22" id="n22" value="none" <?php if(($per[137])=="y"){?> checked="checked" <?php } ?>/> None
 												</div>
 												<hr>
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Dashboard</label><br>
                            <input type="checkbox" name="r23" id="r23" value="read" <?php if(($per[138])=="y"){?> checked="checked" <?php } ?>/> Read
-                           <input type="checkbox" name="w23" id="w23" value="write" <?php if(($per[139])=="y"){?> checked="checked" <?php } ?>/> Write
-                           <input type="checkbox" name="d23" id="d23" value="delete" <?php if(($per[140])=="y"){?> checked="checked" <?php } ?>/> Delete
-                           <input type="checkbox" name="u23" id="u23" value="update" <?php if(($per[141])=="y"){?> checked="checked" <?php } ?>/> Update
-                           <input type="checkbox" name="a23" id="a23" value="all" <?php if(($per[142])=="y"){?> checked="checked" <?php } ?>/>All
+                           <input type="checkbox" name="w23" id="w23" value="write" hidden <?php if(($per[139])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="d23" id="d23" value="delete" hidden <?php if(($per[140])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="u23" id="u23" value="update" hidden <?php if(($per[141])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="a23" id="a23" value="all" hidden <?php if(($per[142])=="y"){?> checked="checked" <?php } ?>/>
                            <input type="checkbox" name="n23" id="n23" value="none" <?php if(($per[143])=="y"){?> checked="checked" <?php } ?>/> None
 												</div>
 												<hr>
 												<div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Notifications</label><br>
                            <input type="checkbox" name="r24" id="r24" value="read" <?php if(($per[144])=="y"){?> checked="checked" <?php } ?>/> Read
-                           <input type="checkbox" name="w24" id="w24" value="write" <?php if(($per[145])=="y"){?> checked="checked" <?php } ?>/> Write
-                           <input type="checkbox" name="d24" id="d24" value="delete" <?php if(($per[146])=="y"){?> checked="checked" <?php } ?>/> Delete
-                           <input type="checkbox" name="u24" id="u24" value="update" <?php if(($per[147])=="y"){?> checked="checked" <?php } ?>/> Update
-                           <input type="checkbox" name="a24" id="a24" value="all" <?php if(($per[148])=="y"){?> checked="checked" <?php } ?>/>All
+                           <input type="checkbox" name="w24" id="w24" value="write" hidden <?php if(($per[145])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="d24" id="d24" value="delete" hidden <?php if(($per[146])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="u24" id="u24" value="update" hidden <?php if(($per[147])=="y"){?> checked="checked" <?php } ?>/>
+                           <input type="checkbox" name="a24" id="a24" value="all" hidden <?php if(($per[148])=="y"){?> checked="checked" <?php } ?>/>
                            <input type="checkbox" name="n24" id="n24" value="none" <?php if(($per[149])=="y"){?> checked="checked" <?php } ?>/> None
 												</div>
 

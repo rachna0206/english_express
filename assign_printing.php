@@ -420,7 +420,7 @@ if(isset($_COOKIE["msg"]) )
                     </thead>
                     <tbody class="table-border-bottom-0">
                       <?php 
-                        $stmt1_list = $obj->con1->prepare("select p.*,f.name,b.bookname,c.chapter_name,e.exer_name from printing p, faculty f, books b, chapter c, exercise e where p.faculty_id=f.id and p.book_id=b.bid and p.chap_id=c.cid and p.exercise_id=e.eid order by pid desc");
+                        $stmt1_list = $obj->con1->prepare("select p.*,DATE_FORMAT(p.dt, '%d-%m-%Y') as a_dt,f.name,b.bookname,c.chapter_name,e.exer_name from printing p, faculty f, books b, chapter c, exercise e where p.faculty_id=f.id and p.book_id=b.bid and p.chap_id=c.cid and p.exercise_id=e.eid order by pid desc");
                         $stmt1_list->execute();
                         $result1 = $stmt1_list->get_result();
                         
@@ -437,7 +437,7 @@ if(isset($_COOKIE["msg"]) )
 						<td><?php echo $print["chapter_name"]?></td>
 						<td><?php echo $print["exer_name"]?></td>
 						<td><?php echo $print["copies"]?></td>
-						<td><?php echo $print["dt"]?></td>
+						<td><?php echo $print["a_dt"]?></td>
 						<td><?php if($row["upd_func"]=="y"){ 
 										if($print["status"]=="pending"){ ?>
 							<a href="javascript:changeStatus('<?php echo $print["pid"]?>');"><?php echo $print["status"]?></a>

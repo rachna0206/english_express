@@ -1,6 +1,9 @@
 <?php
 include("header.php");
 
+include_once("checkPer.php");
+if($row=checkPermission($_SESSION["utype"],"dashboard")){ }
+
 $date=isset($_COOKIE["dash_date"])?$_COOKIE['dash_date']:date('Y-m-d');
 
 // total faculty
@@ -102,7 +105,7 @@ $stmt_list9->close();
 </div> -->
 
  
-
+<?php if($row["read_func"]=="y"){ ?>
 
 <div class="row">
   <div class="navbar-nav-right d-flex align-items-center mb-3" id="navbar-collapse">
@@ -360,7 +363,9 @@ $stmt_list9->close();
 
       </div>
     </div>
-</div>       
+</div>    
+
+<?php } ?>   
 
 <script type="text/javascript">
   // Use datepicker on the date inputs

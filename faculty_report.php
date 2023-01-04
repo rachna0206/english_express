@@ -104,7 +104,6 @@ if(isset($_REQUEST['btnsubmit']))
                         <th>Name</th>
                         <th>Contact No.</th>
                         <th>Designation</th>
-                        <th>Gender</th>
                         <th>Action</th>
                         
                       </tr>
@@ -125,7 +124,6 @@ if(isset($_REQUEST['btnsubmit']))
                         <td><?php echo $s["name"]?></td>
                         <td><?php echo $s["phone"]?></td>
                         <td><?php echo $s["designation"]?></td>
-                        <td><?php echo $s["gender"]?></td>
                         <td ><a href="javascript:view_faculty_data('<?php echo $s["id"]?>')">View</a></td>
                           
                       <?php
