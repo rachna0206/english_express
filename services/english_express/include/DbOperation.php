@@ -160,9 +160,8 @@ public function stu_attendence($batch_id,$stu_id,$attendence)
 
     $date=date('Y-m-d');
 
-
-    $stmt = $this->con->prepare("INSERT INTO `attendance`(`student_id`, `stu_attendance`, `faculty_attendance`,  `batch_id`, `dt`) VALUES (?,?,?,?,?)");
-    $stmt->bind_param("issis", $stu_id,$attendence,$attendence,$batch_id,$date);
+    $stmt = $this->con->prepare("update attendance set stu_attendance=? where student_id=? and batch_id=? and dt=?");
+    $stmt->bind_param("ssii", $attendence,$stu_id,$batch_id,$date);
    
     $result = $stmt->execute();
     $stmt->close();
@@ -206,13 +205,26 @@ public function stu_reg($name,$address,$education,$stu_type,$enrollment_dt,$skil
 {
 
     $date=date('Y-m-d');
-    $stmt = $this->con->prepare("INSERT INTO `student`( `name`, `address`, `education`, `stu_type`,`enrollment_dt`, `skillid`, `courseid`) VALUES(?,?,?,?,?,?,?)");
-    $stmt->bind_param("sssssii", $name,$address,$education,$stu_type,$enrollment_dt,$skill_id,$course_id);
+    $stmt = $this->con->prepare("INSERT INTO `student`( `name`, `address`, `education`, `stu_type`,`enrollment_dt`) VALUES(?,?,?,?,?)");
+    $stmt->bind_param("sssss", $name,$address,$education,$stu_type,$enrollment_dt);
    
     $result = $stmt->execute();
+    $lastId=mysql_insert_id($this->con);
     $stmt->close();
     
     if ($result) {
+        // insert skills
+        $stmt_skills = $obj->con1->prepare("INSERT INTO `stu_skills`(  `stu_id`, `skill_id`) VALUES (?,?)");
+          $stmt_skills->bind_param("ii", $lastId,$skill_id);
+          $Resp_skill=$stmt_skills->execute();
+          $stmt_skills->close();
+          
+        //insert course
+        $stmt_course = $obj->con1->prepare("INSERT INTO `stu_course`( `stu_id`, `course_id`) VALUES (?,?)");
+          $stmt_course->bind_param("ii", $lastId,$course_id);
+          $Resp_course=$stmt_course->execute();
+          $stmt_course->close();
+
         return 1;
     } else {
         return 0;
@@ -269,7 +281,7 @@ public function exercise_list($book_id,$chapter_id)
 // roadmap
 public function roadmap($stu_id)
 {
-    $stmt = $this->con->prepare("SELECT b1.* from student s1,books b1 where s1.courseid=b1.courseid and s1.sid=? ");
+    $stmt = $this->con->prepare("SELECT b1.* from student s1,books b1,stu_course sc where sc.stu_id=s1.sid and sc.course_id=b1.courseid and s1.sid=? ");
     $stmt->bind_param("i", $stu_id);
     $stmt->execute();
     $books = $stmt->get_result();

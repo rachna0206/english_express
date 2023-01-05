@@ -5,7 +5,7 @@ $obj=new DB_connect();
 date_default_timezone_set("Asia/Kolkata");
 error_reporting(E_ALL);
 session_start();
-$batch_assign_qry="select * from batch_assign b1,batch b2 where b1.batch_id=b2.id and b2.status='ongoing' and ".strtolower(date('l'))."='y'";
+$batch_assign_qry="select * from batch_assign b1,batch b2 where b1.batch_id=b2.id and b2.status='ongoing' and ".strtolower(date('l'))."='y' and b2.id!=37";
 $res_batch_assign=$obj->select($batch_assign_qry);
 while($batch_assign=mysqli_fetch_array($res_batch_assign))
 {

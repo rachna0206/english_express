@@ -164,6 +164,7 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
             $('#book').html(res[1]);
             $('#course_label').html("Course Name:"+res[2]);
             $('#chap').html('');
+            $('#check_all_stu').prop('checked',false);
 
        
             }
@@ -399,9 +400,9 @@ if(isset($_COOKIE["msg"]) )
                           <input type="hidden" name="ttId" id="ttId">
                         </div>
                         <div class="mb-3"><label id="course_label"></label></div>
-                        <div class="mb-3">
-                          <label class="form-label" for="basic-default-fullname">Students</label>
-                          <div id="stu_list_div" class="row">
+                        <div class="mb-3" >
+                          <label class="form-label" for="basic-default-fullname">Students</label><br> <input type="checkbox" name="check_stu" id="check_all_stu" > Select ALL
+                          <div  id="stu_list_div" class="row">
                     <?php    
                       while($stu=mysqli_fetch_array($r2)){
 					          ?>      
@@ -726,6 +727,19 @@ if(isset($_COOKIE["msg"]) )
         });
     
   }
+  $('#check_all_stu').on('click',function(){
+        if(this.checked){
+          console.log("checked");
+            $('.checkbox').each(function(){
+                this.checked = true;
+            });
+        }else{
+          console.log("checked");
+             $('.checkbox').each(function(){
+                this.checked = false;
+            });
+        }
+    });
 </script>
 <?php 
 include("footer.php");
