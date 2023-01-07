@@ -160,9 +160,8 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
             $('#stu_list_div').html('');
             $('#stu_list_div').append(res[0]);
             
-            $('#book').html('');
-            $('#book').html(res[1]);
-            $('#course_label').html("Course Name:"+res[2]);
+            
+            $('#course').html(res[1]);
             $('#chap').html('');
             $('#check_all_stu').prop('checked',false);
 
@@ -199,6 +198,24 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
         });
 
 	}
+
+  function bookList(course_id){
+
+    $.ajax({
+          async: true,
+          type: "POST",
+          url: "ajaxdata.php?action=bookList",
+          data: "course_id="+course_id,
+          cache: false,
+          success: function(result){
+           // alert(result);
+            $('#book').html('');
+            $('#book').append(result);
+       
+            }
+        });
+
+  }
 	function chapList(book_id){
 
 		$.ajax({
@@ -378,28 +395,30 @@ if(isset($_COOKIE["msg"]) )
                     </div>
                     <div class="card-body">
                       <form method="post" >
-                        
+                        <input type="hidden" name="ttId" id="ttId">
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Batch Name</label>
                           <select name="batch" id="batch" onChange="studList(this.value)" class="form-control" required>
                           	<option value="">Select Batch</option>
-                    <?php    
-                      while($batch=mysqli_fetch_array($r1)){
-                        if($baid==$batch["id"]){
-                    ?>
-                    		      <option value="<?php echo $batch["id"] ?>" selected="selected"><?php echo $batch["name"] ?></option>
-                    <?php
-							       }else{
-					         ?>
-                              <option value="<?php echo $batch["id"] ?>"><?php echo $batch["name"] ?></option>
-                    <?php
-							          }
-						          }
-					          ?>
+                            <?php    
+                              while($batch=mysqli_fetch_array($r1)){
+                                if($baid==$batch["id"]){
+                            ?>
+                            		      <option value="<?php echo $batch["id"] ?>" selected="selected"><?php echo $batch["name"] ?></option>
+                            <?php
+        							       }else{
+        					         ?>
+                                      <option value="<?php echo $batch["id"] ?>"><?php echo $batch["name"] ?></option>
+                            <?php
+        							          }
+        						          }
+        					          ?>
 					                </select>
-                          <input type="hidden" name="ttId" id="ttId">
+                          
                         </div>
-                        <div class="mb-3"><label id="course_label"></label></div>
+                        
+                        
+                       
                         <div class="mb-3" >
                           <label class="form-label" for="basic-default-fullname">Students</label><br> <input type="checkbox" name="check_stu" id="check_all_stu" > Select ALL
                           <div  id="stu_list_div" class="row">
@@ -411,6 +430,12 @@ if(isset($_COOKIE["msg"]) )
 						          }
 					          ?>
                     	    </div>
+                        </div>
+                        <div class="mb-3" >
+                          <label class="form-label" for="basic-default-fullname">Course Name</label>
+                          <select name="course" id="course" onChange="bookList(this.value)" class="form-control" required>
+                            <option value="">Select Course</option>
+                          </select>
                         </div>
                         
                         <div class="mb-3">

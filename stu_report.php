@@ -89,6 +89,17 @@ if(isset($_REQUEST['btnsubmit']))
   $stmt_list->close();
 
 }
+else if(isset($_REQUEST["typ"]))
+{
+  if($_REQUEST['typ']=="unassigned")
+  {
+    $stmt_list = $obj->con1->prepare("SELECT s1.*,b2.name as batch_name,b2.stime as batch_time FROM  student s1,batch_assign b1,batch b2 WHERE b1.student_id=s1.sid and b1.batch_id=b2.id  and b2.id=37 ");
+  }
+  $stmt_list->execute();
+  $result = $stmt_list->get_result(); 
+  $stmt_list->close();
+
+}
 ?>
 
 <h4 class="fw-bold py-3 mb-4">Student Report</h4>
@@ -213,10 +224,10 @@ if(isset($_REQUEST['btnsubmit']))
                     </thead>
                     <tbody class="table-border-bottom-0" id="grid">
                       <?php 
-                     if(isset($_REQUEST['btnsubmit']))
+                     if(isset($_REQUEST['btnsubmit']) || isset($_REQUEST["typ"]))
                       {
                       
-                      $i=1;
+                        $i=1;
                         while($s=mysqli_fetch_array($result))
                         {
                           

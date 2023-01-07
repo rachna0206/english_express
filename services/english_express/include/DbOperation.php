@@ -281,7 +281,7 @@ public function exercise_list($book_id,$chapter_id)
 // roadmap
 public function roadmap($stu_id)
 {
-    $stmt = $this->con->prepare("SELECT b1.* from student s1,books b1,stu_course sc where sc.stu_id=s1.sid and sc.course_id=b1.courseid and s1.sid=? ");
+    $stmt = $this->con->prepare("SELECT b1.* FROM stu_assignment s1, books b1 where s1.book_id=b1.bid and s1.stu_id=? group by b1.bid ");
     $stmt->bind_param("i", $stu_id);
     $stmt->execute();
     $books = $stmt->get_result();

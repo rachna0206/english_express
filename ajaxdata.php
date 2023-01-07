@@ -30,7 +30,7 @@ if(isset($_REQUEST['action']))
 	{
 		$html="";
 		$batch=$_REQUEST['batch'];
-		$stmt_batch = $obj->con1->prepare("select f1.name as faculty_name, f2.name as assist_faculty1, f3.name assist_faculty2 , b1.* from batch b1,faculty f1, faculty f2 , faculty f3 where b1.faculty_id=f1.id and b1.assist_faculty_1=f2.id and b1.assist_faculty_2=f3.id and b1.id=?");
+		$stmt_batch = $obj->con1->prepare("select f1.name as faculty_name, f2.name as assist_faculty1, f3.name assist_faculty2 , b1.*,c1.coursename from batch b1,faculty f1, faculty f2 , faculty f3,course c1 where b1.course_id=c1.courseid and b1.faculty_id=f1.id and b1.assist_faculty_1=f2.id and b1.assist_faculty_2=f3.id and b1.id=?");
 		$stmt_batch->bind_param("i",$batch);
 		$stmt_batch->execute();
 		$batch_data = $stmt_batch->get_result()->fetch_assoc();
@@ -38,7 +38,7 @@ if(isset($_REQUEST['action']))
 
 		//  student list
 		
-		$stmt_stu = $obj->con1->prepare("select * from student where sid not in (select student_id from batch_assign where batch_id=?)");
+		$stmt_stu = $obj->con1->prepare("select * from student where status='registered' and sid not in (select student_id from batch_assign where batch_id=?)");
 		$stmt_stu->bind_param("i",$batch);
 		$stmt_stu->execute();
 		$res_Stu = $stmt_stu->get_result();
@@ -54,14 +54,19 @@ if(isset($_REQUEST['action']))
 		$stmt_stu2->close();
 
 		$html='<div class="row" >
-                <div class="mb-3 col-6">
+                <div class="mb-3 col-3">
                   <label class="form-label" for="basic-default-fullname">Start Date </label>
                   <input type="date" class="form-control" name="start_date" id="start_date" value="'.$batch_data["stdate"].'" readonly />
                   
                 </div>
-                <div class="mb-3 col-6">
+                <div class="mb-3 col-3">
                   <label class="form-label" for="basic-default-company">End Date</label>
                   <input type="date"  class="form-control " id="end_date" name="end_date"  value="'.$batch_data["endate"].'" readonly />
+                </div>
+                <div class="mb-3 col-6">
+                  <label class="form-label" for="basic-default-fullname">Course Name</label>
+                  <input type="text" class="form-control" name="faculty" id="faculty" value="'.$batch_data["coursename"].'" readonly />
+                  
                 </div>
             </div>
             <div class="row">
@@ -82,7 +87,11 @@ if(isset($_REQUEST['action']))
                   <input type="text" class="form-control" name="assist_faculty2" id="assist_faculty2" value="'.$batch_data["assist_faculty2"].'" readonly />
                   
                 </div>
-                <div class="mb-3 col-6">
+                <div class="mb-3 col-3">
+                  <label class="form-label" for="basic-default-company">Capacity</label>
+                  <input type="text"  class="form-control " id="strength" name="strength" value="'.$batch_data["capacity"].'" readonly />
+                </div>
+                <div class="mb-3 col-3">
                   <label class="form-label" for="basic-default-company">Strength</label>
                   <input type="text"  class="form-control " id="strength" name="strength" value="'.$num_stu.'"  />
                 </div>
@@ -215,7 +224,8 @@ if(isset($_REQUEST['action']))
 	{
 		$html="";
 		$html_book="";
-		$coursename="";
+		
+		$html_course="";
 		$batch_id=$_REQUEST["batch_id"];
 		$stmt_clist = $obj->con1->prepare("select b.student_id, s.name from batch_assign b, student s where b.student_id=s.sid and b.batch_id=?");
 		$stmt_clist->bind_param("i",$batch_id);
@@ -229,22 +239,41 @@ if(isset($_REQUEST['action']))
 
 	  }
 
+	  // course list
+	  $stmt_course = $obj->con1->prepare("select * from course ");
+		
+	  $stmt_course->execute();
+	  $res_course = $stmt_course->get_result();
+	  $stmt_course->close();
+	  $html_course='<option value="">Select Course</option>';
+	  while($course=mysqli_fetch_array($res_course))
+	  {
 
-	  // books list
-	  $stmt_blist = $obj->con1->prepare("SELECT b2.*,c1.coursename FROM `batch` b1,course c1,books b2 WHERE b2.courseid=b1.course_id and b1.course_id=c1.courseid and b1.id=?");
-		$stmt_blist->bind_param("i",$batch_id);
+	  	$html_course.='<option value="'.$course["courseid"].'">'.$course["coursename"].'</option>';
+
+	  }
+	  echo $html."@@@@@".$html_course;
+	}
+	if($_REQUEST['action']=="bookList")
+	{
+		$html_book="";
+		$course_id=$_REQUEST["course_id"];
+
+
+		// books list
+	  $stmt_blist = $obj->con1->prepare("SELECT b2.*,c1.coursename FROM course c1,books b2 WHERE b2.courseid=c1.courseid and c1.courseid=?");
+		$stmt_blist->bind_param("i",$course_id);
 	  $stmt_blist->execute();
 	  $book_res = $stmt_blist->get_result();
 	  $stmt_blist->close();
 	  $html_book='<option value="">Select Book</option>';
 	  while($books=mysqli_fetch_array($book_res))
 	  {
-	  	$coursename=$books["coursename"];
+	  	
 	  	$html_book.='<option value="'.$books["bid"].'">'.$books["bookname"].'</option>';
 
 	  }
-
-	  echo $html."@@@@@".$html_book."@@@@@".$coursename;
+	  echo $html_book;
 	}
 	if($_REQUEST['action']=="chapList")
 	{

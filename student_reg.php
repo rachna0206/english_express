@@ -31,7 +31,7 @@ $stmt_clist->execute();
 $res2 = $stmt_clist->get_result();
 $stmt_clist->close();
 
-$stmt_batch = $obj->con1->prepare("select * from batch");
+$stmt_batch = $obj->con1->prepare("select b1.*,c1.coursename from batch b1,course c1 where b1.course_id=c1.courseid");
 $stmt_batch->execute();
 $res_batch = $stmt_batch->get_result();
 $stmt_batch->close();
@@ -641,7 +641,7 @@ if(isset($_COOKIE["msg"]) )
                             while($batch=mysqli_fetch_array($res_batch))
                             {
                               ?>
-                              <option value="<?php echo $batch["id"]?>"><?php echo $batch["stime"]."-".$batch["name"]?></option>
+                              <option value="<?php echo $batch["id"]?>"><?php echo $batch["stime"]."-".$batch["name"]."-".$batch["coursename"]?></option>
                               <?php
                             }
                             ?>

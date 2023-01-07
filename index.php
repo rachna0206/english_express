@@ -92,6 +92,8 @@ if(isset($_REQUEST["login"])){
   <body>
     <!-- Content -->
 
+    
+
     <div class="container-xxl">
       <div class="authentication-wrapper authentication-basic container-p-y">
         <div class="authentication-inner">
@@ -108,6 +110,8 @@ if(isset($_REQUEST["login"])){
                 </a>
               </div>
               <!-- /Logo -->
+
+
               
              <!--  <p class="mb-4">Please sign-in to your account and start the adventure</p> -->
 
