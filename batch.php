@@ -87,7 +87,7 @@ if(isset($_REQUEST['btnsubmit']))
     
     if(!$Resp)
     {
-      throw new Exception("Problem in deleting! ". strtok($obj->con1-> error,  '('));
+      throw new Exception("Problem in adding! ". strtok($obj->con1-> error,  '('));
     }
     $stmt->close();
   }

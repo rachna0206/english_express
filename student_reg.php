@@ -758,7 +758,7 @@ if(isset($_COOKIE["msg"]) )
                       if(isset($_COOKIE["stu_reg_opt"]) && $_COOKIE['stu_reg_opt']=="all")
                       {
                         $stmt_list = $obj->con1->prepare("select st.*,GROUP_CONCAT(c.coursename)as coursename,GROUP_CONCAT(b2.stime) as batch_time,b2.name as batch_name,b2.id as bid from student as st, course as c,batch_assign b1,batch b2,stu_course sc  where sc.course_id=c.courseid and sc.stu_id=st.sid   and b1.batch_id=b2.id and b1.student_id=st.sid and st.status='registered'  GROUP by st.sid       UNION
-select st.*,GROUP_CONCAT(c.coursename)as coursename,'-' as batch_time,'-' as batch_name,1 as bid from student as st, course as c,stu_course sc   where  sc.stu_id=st.sid  and sc.course_id=c.courseid and st.status='inquiry' order by sid desc");
+select st.*,GROUP_CONCAT(c.coursename)as coursename,'-' as batch_time,'-' as batch_name,1 as bid from student as st,course as c,stu_course sc where sc.course_id=c.courseid and sc.stu_id=st.sid  and st.status='inquiry'  GROUP by sc.stu_id order by sid desc");
                       }
                       else if(isset($_COOKIE["stu_reg_opt"]) && $_COOKIE['stu_reg_opt']=="inquiry")
                       {

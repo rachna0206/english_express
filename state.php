@@ -198,12 +198,12 @@ if(isset($_COOKIE["msg"]) )
                           <label class="form-label d-block" for="basic-default-fullname">Status</label>
                           
                           <div class="form-check form-check-inline mt-3">
-                            <input class="form-check-input" type="radio" name="status" id="active" value="active" required >
-                            <label class="form-check-label" for="inlineRadio1">Active</label>
+                            <input class="form-check-input" type="radio" name="status" id="enable" value="enable" required >
+                            <label class="form-check-label" for="inlineRadio1">Enable</label>
                           </div>
                           <div class="form-check form-check-inline mt-3">
-                            <input class="form-check-input" type="radio" name="status" id="inactive" value="inactive" required>
-                            <label class="form-check-label" for="inlineRadio1">Inactive</label>
+                            <input class="form-check-input" type="radio" name="status" id="disable" value="disable" required>
+                            <label class="form-check-label" for="inlineRadio1">Disable</label>
                           </div>
                          
                         </div>
@@ -298,13 +298,13 @@ if(isset($_COOKIE["msg"]) )
            
 	   $('#ttid').val(sid);
 	   $('#state_name').val(atob(sname));
-	   if(status=="active")
+	   if(status=="enable")
 	   {
-	   		$('#active').attr("checked","checked");	
+	   		$('#enable').attr("checked","checked");	
 	   }
-	   else if(status=="inactive")
+	   else if(status=="disable")
 	   {
-			$('#inactive').attr("checked","checked");	
+			$('#disable').attr("checked","checked");	
 	   }
 	    
        $('#btnsubmit').attr('hidden',true);
@@ -316,13 +316,13 @@ if(isset($_COOKIE["msg"]) )
            
        $('#ttid').val(sid);
 	   $('#state_name').val(atob(sname));
-	   if(status=="active")
+	   if(status=="enable")
 	   {
-	   		$('#active').attr("checked","checked");	
+	   		$('#enable').attr("checked","checked");	
 	   }
-	   else if(status=="inactive")
+	   else if(status=="disable")
 	   {
-			$('#inactive').attr("checked","checked");	
+			$('#disable').attr("checked","checked");	
 	   }
 	    
        $('#btnsubmit').attr('hidden',true);

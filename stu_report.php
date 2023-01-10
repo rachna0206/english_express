@@ -72,7 +72,7 @@ if(isset($_REQUEST['btnsubmit']))
   {
 
 
-     $stmt_list = $obj->con1->prepare("select s1.*,c1.*,b1.name as batch_name,b1.stime from student s1, course c1,batch b1,batch_assign b2 where s1.courseid=c1.courseid and b2.batch_id=b1.id and b2.student_id=s1.sid ".$user_str.$name_str.$contact_str.$batch_str.$dt_fromstr.$dt_tostr.$genderstr.$coursestr);
+     $stmt_list = $obj->con1->prepare("select s1.*,c1.*,b1.name as batch_name,b1.stime from student s1, course c1,batch b1,batch_assign b2,stu_course sc where sc.course_id=c1.courseid and sc.stu_id=s1.sid and b2.batch_id=b1.id and b2.student_id=s1.sid ".$user_str.$name_str.$contact_str.$batch_str.$dt_fromstr.$dt_tostr.$genderstr.$coursestr);
   }
   else
   {
@@ -94,6 +94,13 @@ else if(isset($_REQUEST["typ"]))
   if($_REQUEST['typ']=="unassigned")
   {
     $stmt_list = $obj->con1->prepare("SELECT s1.*,b2.name as batch_name,b2.stime as batch_time FROM  student s1,batch_assign b1,batch b2 WHERE b1.student_id=s1.sid and b1.batch_id=b2.id  and b2.id=37 ");
+  }
+  if($_REQUEST['typ']=="new_admission")
+  {
+    $dt_from=date('Y-m-d');
+    $dt_to=date('Y-m-d');
+    $stmt_list = $obj->con1->prepare("select s1.*,c1.*,b1.name as batch_name,b1.stime from student s1, course c1,batch b1,batch_assign b2,stu_course sc where sc.course_id=c1.courseid and sc.stu_id=s1.sid and b2.batch_id=b1.id and b2.student_id=s1.sid and s1.enrollment_dt='".date("Y-m-d")."' ");
+
   }
   $stmt_list->execute();
   $result = $stmt_list->get_result(); 
@@ -150,12 +157,12 @@ else if(isset($_REQUEST["typ"]))
             </div>
              <div class="mb-3 col-md-3">
               <label class="form-label" for="basic-default-fullname">Registration Date From</label>
-              <input type="date" class="form-control" name="dt_from" id="dt_from"  value="<?php echo isset($_REQUEST['dt_from'])?$_REQUEST['dt_from']:""?>"/>
+              <input type="date" class="form-control" name="dt_from" id="dt_from"  value="<?php echo $dt_from?>"/>
               
             </div>
              <div class="mb-3 col-md-3">
               <label class="form-label" for="basic-default-fullname">Registration Date To</label>
-              <input type="date" class="form-control" name="dt_to" id="dt_to" value="<?php echo isset($_REQUEST['dt_to'])?$_REQUEST['dt_to']:""?>" />
+              <input type="date" class="form-control" name="dt_to" id="dt_to" value="<?php echo $dt_to?>" />
               
             </div>
             <div class="mb-3 col-md-3">

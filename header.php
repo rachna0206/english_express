@@ -3,7 +3,7 @@ ob_start();
 //include ("db_connect.php");
 //$obj=new DB_connect();
 date_default_timezone_set("Asia/Kolkata");
-//error_reporting(E_ALL);
+error_reporting(E_ALL);
 
 session_start();
 include("checkPer.php");
@@ -26,7 +26,7 @@ else{ }
 
 $frontdeskmenu=array("lead_generation.php","student_reg.php","batch.php","batch_assign.php");
 $facultymenu=array("stu_assignment.php","attendance.php","assign_printing.php");
-$adminmenu=array("branch.php","course.php","skills.php","Book.php","chapter.php","city.php","exercise.php","faculty_reg.php","associate_reg.php","motivation.php","permissions.php","send_notification.php");
+$adminmenu=array("branch.php","course.php","skills.php","Book.php","chapter.php","city.php","exercise.php","faculty_reg.php","associate_reg.php","motivation.php","permissions.php","send_notification.php","state.php");
 $reportmenu=array("stu_report.php");
 ?>
 
@@ -269,14 +269,14 @@ function removeplaysound(ids) {
                 if(isset($menu["lead_generation"])=="lead_generation"){ ?>
                   <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="lead_generation.php"?"active":"" ?>">
                     <a href="lead_generation.php" class="menu-link">
-                    <div data-i18n="course">Lead Generation</div>
+                    <div data-i18n="course">Enquiries</div>
                     </a>
                   </li>
                   <?php }
                   if(isset($menu["student_reg"])=="student_reg"){ ?>
                   <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="student_reg.php"?"active":"" ?>">
                             <a href="student_reg.php" class="menu-link">
-                              <div data-i18n="course">Student Registration</div>
+                              <div data-i18n="course">Admission</div>
                             </a>
                           </li>
                   <?php }
@@ -293,7 +293,6 @@ function removeplaysound(ids) {
                                 </a>
                               </li>
                       <?php }
-
 
                 ?>
 				
@@ -408,6 +407,12 @@ function removeplaysound(ids) {
                 <div data-i18n="course">Associates Master</div>
                 </a>
               </li>
+            <?php } if(isset($menu["task"])=="task"){ ?>
+              <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="task.php"?"active":"" ?>">
+                <a href="task.php" class="menu-link">
+                <div data-i18n="course">Task Assign Master</div>
+                </a>
+              </li>
               <?php }
                  if(isset($menu["state"])=="state"){ ?>
               <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="state.php"?"active":"" ?>">
@@ -419,6 +424,12 @@ function removeplaysound(ids) {
               <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="city.php"?"active":"" ?>">
                 <a href="city.php" class="menu-link">
                 <div data-i18n="course">City Master</div>
+                </a>
+              </li>
+              <?php } if(isset($menu["area"])=="area"){ ?>
+              <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="area.php"?"active":"" ?>">
+                <a href="area.php" class="menu-link">
+                <div data-i18n="course">Area Master</div>
                 </a>
               </li>
               <?php }
@@ -529,7 +540,7 @@ function removeplaysound(ids) {
                      <span class="flex-shrink-0 badge badge-center rounded-pill bg-danger w-px-20 h-px-20" id="noti_count"></span>
                     </div>
                   </a>
-                  <ul class="dropdown-menu dropdown-menu-end" id="notification_list">
+                  <ul class="dropdown-menu dropdown-menu-end" id="notification_list" style="overflow-y: auto;height: 400px;">
                   </ul>
                 </li>
               <?php } ?>

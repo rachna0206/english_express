@@ -5,7 +5,7 @@ include("header.php");
 include_once("checkPer.php");
 if($row=checkPermission($_SESSION["utype"],"task")){ }
 else{
-//	header("location:home.php");
+	header("location:home.php");
 }
 
 
@@ -287,7 +287,7 @@ if(isset($_COOKIE["msg"]))
 
 ?>
 
-<?php //if($row["write_func"]=="y" || $row["upd_func"]=="y" || $row["read_func"]=="y"){ ?>
+<?php if($row["write_func"]=="y" || $row["upd_func"]=="y" || $row["read_func"]=="y"){ ?>
               <!-- Basic Layout -->
               <div class="row">
                 <div class="col-xl">
@@ -345,11 +345,11 @@ if(isset($_COOKIE["msg"]))
                         
                         
                         
-                    <?php //if($row["write_func"]=="y"){ ?>
+                    <?php if($row["write_func"]=="y"){ ?>
                         <button type="submit" name="btnsubmit" id="btnsubmit" class="btn btn-primary">Save</button>
-                    <?php // } if($row["upd_func"]=="y"){ ?>
+                    <?php  } if($row["upd_func"]=="y"){ ?>
 						<button type="submit" name="btnupdate" id="btnupdate" class="btn btn-primary " hidden>Update</button>
-                    <?php //} ?>
+                    <?php } ?>
                         <button type="reset" name="btncancel" id="btncancel" class="btn btn-secondary" onclick="window.location.reload()">Cancel</button>
 
                       </form>
@@ -359,9 +359,9 @@ if(isset($_COOKIE["msg"]))
                 
               </div>
            
-<?php //} ?>
+<?php } ?>
 
-<?php //if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
+<?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
            <!-- grid -->
 
            <!-- Basic Bootstrap Table -->
@@ -396,17 +396,17 @@ if(isset($_COOKIE["msg"]))
                         <td><?php echo $t["task_time"]?></td>
                         <td><?php echo $t["status"]?></td>
                         
-                   	<?php// if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
+                   	<?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>
-                    <?php // if($row["upd_func"]=="y"){ ?>
+                    <?php  if($row["upd_func"]=="y"){ ?>
                       	<a href="javascript:editdata('<?php echo $t["task_id"]?>','<?php echo base64_encode($t["task_detail"])?>','<?php echo base64_encode($t["task_time"])?>','<?php echo $t["status"]?>','<?php echo $t["monday"]?>','<?php echo $t["tuesday"]?>','<?php echo $t["wednesday"]?>','<?php echo $t["thursday"]?>','<?php echo $t["friday"]?>','<?php echo $t["saturday"]?>','<?php echo $t["sunday"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
-                		<?php //} if($row["del_func"]=="y"){ ?>
+                		<?php } if($row["del_func"]=="y"){ ?>
           							<a  href="javascript:deletedata('<?php echo $t["task_id"]?>');"><i class="bx bx-trash me-1"></i> </a>
-						        <?php //} if($row["read_func"]=="y"){ ?>
+						        <?php } if($row["read_func"]=="y"){ ?>
                       	<a href="javascript:viewdata('<?php echo $t["task_id"]?>','<?php echo base64_encode($t["task_detail"])?>','<?php echo base64_encode($t["task_time"])?>','<?php echo $t["status"]?>','<?php echo $t["monday"]?>','<?php echo $t["tuesday"]?>','<?php echo $t["wednesday"]?>','<?php echo $t["thursday"]?>','<?php echo $t["friday"]?>','<?php echo $t["saturday"]?>','<?php echo $t["sunday"]?>');">View</a>
-                    <?php //} ?>
+                    <?php } ?>
                         </td>
-                    <?php //} ?>
+                    <?php } ?>
                    
                       </tr>
                       <?php
@@ -422,7 +422,7 @@ if(isset($_COOKIE["msg"]))
 
 
            <!-- / grid -->
-<?php //} ?>  
+<?php } ?>  
 
             <!-- / Content -->
 <script type="text/javascript">
@@ -491,9 +491,9 @@ if(isset($_COOKIE["msg"]))
 		$('#btnsubmit').attr('disabled',true);
 
   }
-	function viewdata(id,task_detail,time,status,mo,tu,we,th,fr,sa,su) {
+	function viewdata(tid,task_detail,time,status,mo,tu,we,th,fr,sa,su) {
 	   
-		$('#ttId').val(id);
+		$('#ttId').val(tid);
     $('#task').val(atob(task_detail));
     $('#task_time').val(atob(time));
     
@@ -541,6 +541,8 @@ if(isset($_COOKIE["msg"]))
     } else{
       $('#sun').removeAttr("checked");
     }
+
+    getTaskFacultyList(tid);
 
 		$('#btnsubmit').attr('hidden',true);
 		$('#btnupdate').attr('hidden',true);

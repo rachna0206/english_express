@@ -58,36 +58,22 @@ if(isset($_REQUEST['btnsubmit']))
   $copies=$_REQUEST['copies'];
   $dt=date('Y-m-d');
   $status="pending";
-
-  if($_REQUEST['e']=="")
-  {
-    
-    setcookie("msg", "ex_not_found",time()+3600,"/");
-    header("location:assign_printing.php");
-
-  }
-  else
-  {
    
-  foreach($_REQUEST['e'] as $exer_id){
-
   try
   {
     
-	$stmt = $obj->con1->prepare("INSERT INTO `printing`(`faculty_id`,`book_id`,`chap_id`,`exercise_id`,`copies`,`dt`,`status`) VALUES (?,?,?,?,?,?,?)");
-	$stmt->bind_param("iiiiiss", $faculty_id,$book_id,$chap_id,$exer_id,$copies,$dt,$status);
-	$Resp=$stmt->execute();
-  	if(!$Resp)
-  	{
-        throw new Exception("Problem in inserting! ". strtok($obj->con1-> error,  '('));
-      }
-      $stmt->close();
-    } 
-    catch(\Exception  $e) {
-      setcookie("sql_error", urlencode($e->getMessage()),time()+3600,"/");
+  $stmt = $obj->con1->prepare("INSERT INTO `printing`(`faculty_id`,`book_id`,`chap_id`,`copies`,`dt`,`status`) VALUES (?,?,?,?,?,?)");
+  $stmt->bind_param("iiiiss", $faculty_id,$book_id,$chap_id,$copies,$dt,$status);
+  $Resp=$stmt->execute();
+    if(!$Resp)
+    {
+      throw new Exception("Problem in inserting! ". strtok($obj->con1-> error,  '('));
     }
+    $stmt->close();
+  } 
+  catch(\Exception  $e) {
+    setcookie("sql_error", urlencode($e->getMessage()),time()+3600,"/");
   }
-
 
   if($Resp)
   {
@@ -100,7 +86,7 @@ if(isset($_REQUEST['btnsubmit']))
       header("location:assign_printing.php");
   }
 }
-}
+
 
 if(isset($_REQUEST['btnupdate']))
 {
@@ -114,12 +100,12 @@ if(isset($_REQUEST['btnupdate']))
 
   try
   {
-	$stmt = $obj->con1->prepare("update printing set faculty_id=?, book_id=?, chap_id=?, exercise_id=?, copies=?, dt=?, status=? where pid=?");
-	$stmt->bind_param("iiiiissi", $faculty_id,$book_id,$chap_id,$exer_id,$dt,$copies,$id);
+	$stmt = $obj->con1->prepare("update printing set faculty_id=?, book_id=?, chap_id=? copies=?, dt=?, status=? where pid=?");
+	$stmt->bind_param("iiiiissi", $faculty_id,$book_id,$chap_id,$dt,$copies,$id);
 	$Resp=$stmt->execute();
 	if(!$Resp)
-	{
-      throw new Exception("Problem in updating! ". strtok($obj->con1-> error,  '('));
+  	{
+        throw new Exception("Problem in updating! ". strtok($obj->con1-> error,  '('));
     }
     $stmt->close();
   } 
@@ -201,27 +187,17 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
         });
 
 	}
-	function exerList(chap_id){
+	function getChapPageList(chap_id){
 
 		$.ajax({
           async: true,
           type: "POST",
-          url: "ajaxdata.php?action=exerList",
+          url: "ajaxdata.php?action=getChapPageList",
           data: "chap_id="+chap_id,
           cache: false,
           success: function(result){
-              var res=result.split("@@@@@");
-              $('#exer_list_div').html('');
-              $('#exer_list_div').append(res[0]);
-              if(res[1]==0)
-              {
-                $('#btnsubmit').attr('disabled',true);
-              }
-              else
-              {
-                $('#btnsubmit').attr('disabled',false);
-              }
-       
+            $('#page_list_div').html('');
+            $('#page_list_div').html(result);
             }
         });
 	}
@@ -339,21 +315,13 @@ if(isset($_COOKIE["msg"]) )
                         
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Chapter Name</label>
-                          <select name="chap" id="chap" onchange="exerList(this.value)" class="form-control" required>
+                          <select name="chap" id="chap" onchange="getChapPageList(this.value)" class="form-control" required>
                           	<!-- <option value="">Select Chapter</option> -->
-                            
-					      </select>
-                          
+                          </select>
                         </div>
                         
-                        <div class="mb-3">
-                          <label class="form-label" for="basic-default-fullname">Exercise Name</label><br/>
-                         
-                          <div id="exer_list_div">
-                            <input type="tex" name="e" required class="form-control" disabled />
-                          </div>
-                        </div>
-                    
+                        <div id="page_list_div"></div>
+
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Number of Copies</label>
                           <input type="number" class="form-control" name="copies" id="copies" step="1" min="1" required />
@@ -410,17 +378,18 @@ if(isset($_COOKIE["msg"]) )
                         <th>Srno</th>
                         <th>Faculty</th>
                         <th>Book Name</th>
-						<th>Chapter Name</th>
-						<th>Exercise Name</th>
-						<th>No. Of Copies</th>
-						<th>Date</th>
-						<th>Status</th>
+            						<th>Chapter Name</th>
+            						<th>No. Of Copies</th>
+                        <th>Start Page</th>
+                        <th>End Page</th>
+            						<th>Date</th>
+            						<th>Status</th>
                         <th>Action</th>
                       </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
                       <?php 
-                        $stmt1_list = $obj->con1->prepare("select p.*,DATE_FORMAT(p.dt, '%d-%m-%Y') as a_dt,f.name,b.bookname,c.chapter_name,e.exer_name from printing p, faculty f, books b, chapter c, exercise e where p.faculty_id=f.id and p.book_id=b.bid and p.chap_id=c.cid and p.exercise_id=e.eid order by pid desc");
+                        $stmt1_list = $obj->con1->prepare("select p.*,DATE_FORMAT(p.dt, '%d-%m-%Y') as a_dt,f.name,b.bookname,c.chapter_name,c.start_pg,c.end_pg from printing p, faculty f, books b, chapter c where p.faculty_id=f.id and p.book_id=b.bid and p.chap_id=c.cid order by pid desc");
                         $stmt1_list->execute();
                         $result1 = $stmt1_list->get_result();
                         
@@ -434,12 +403,13 @@ if(isset($_COOKIE["msg"]) )
                         <td><?php echo $i?></td>
                         <td><?php echo $print["name"]?></td>
                         <td><?php echo $print["bookname"]?></td>
-						<td><?php echo $print["chapter_name"]?></td>
-						<td><?php echo $print["exer_name"]?></td>
-						<td><?php echo $print["copies"]?></td>
-						<td><?php echo $print["a_dt"]?></td>
-						<td><?php if($row["upd_func"]=="y"){ 
-										if($print["status"]=="pending"){ ?>
+            						<td><?php echo $print["chapter_name"]?></td>
+            						<td><?php echo $print["copies"]?></td>
+                        <td><?php echo $print["start_pg"]?></td>
+                        <td><?php echo $print["end_pg"]?></td>
+            						<td><?php echo $print["a_dt"]?></td>
+            						<td><?php if($row["upd_func"]=="y"){ 
+            					if($print["status"]=="pending"){ ?>
 							<a href="javascript:changeStatus('<?php echo $print["pid"]?>');"><?php echo $print["status"]?></a>
 							<?php } else{ echo $print["status"]; }
 									} ?>
@@ -448,10 +418,11 @@ if(isset($_COOKIE["msg"]) )
                    	<?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>
                         <?php if($row["upd_func"]=="y"){ ?>
-                        	<a href="javascript:editdata('<?php echo $print["pid"]?>','<?php echo $print["faculty_id"]?>','<?php echo $print["book_id"]?>','<?php echo $print["chap_id"]?>','<?php echo $print["exercise_id"]?>','<?php echo $print["copies"]?>','<?php echo $print["dt"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
+                        	<a href="javascript:editdata('<?php echo $print["pid"]?>','<?php echo $print["faculty_id"]?>','<?php echo $print["book_id"]?>','<?php echo $print["chap_id"]?>','<?php echo $print["copies"]?>','<?php echo $print["dt"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
                 		<?php } if($row["del_func"]=="y"){ ?>
 							<a  href="javascript:deletedata('<?php echo $print["pid"]?>');"><i class="bx bx-trash me-1"></i> </a>
                         <?php } ?>
+                        
                         </td>
                    <?php } ?>
                         
@@ -490,14 +461,10 @@ if(isset($_COOKIE["msg"]) )
       }
   }
 	
-	function editdata(id,fid,bid,cid,eid,copies,dt) {
+	function editdata(id,fid,bid,cid,copies,dt) {
 		$('#book').val(bid);
 		chapList(bid);
 		
-		console.log("eid="+'#exercise_'+eid);
-		exerList(cid);
-		//$('#exercise_'+eid).attr("checked",true);
-    
 		$('#copies').val(copies);
 		$('#faculty').val(fid);
 		$('#btnsubmit').attr('hidden',true);

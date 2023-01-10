@@ -145,7 +145,7 @@ $stmt_batch->close();
                         {
                           ?>
                           <li class="d-flex mb-4 pb-1">
-                            No Batch Allocated
+                            No Batch Conducted today
                           </li>
                           <?php
                         }

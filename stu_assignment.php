@@ -680,9 +680,12 @@ if(isset($_COOKIE["msg"]) )
                     <?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                     	<td>
                         <a  href="javascript:editdata('<?php echo $a["said"]?>','<?php echo $a["sname"] ?>','<?php echo $a["exercise_id"] ?>','<?php echo $a["skill"]?>');"><i class="bx bx-edit me-1"></i> </a>
+                        <a  href="javascript:print_data('<?php echo $a["said"]?>');"><i class="bx bx-printer me-1"></i> </a>
+                        
                         <?php if($row["del_func"]=="y"){ ?>
 							<a  href="javascript:deletedata('<?php echo $a["said"]?>');"><i class="bx bx-trash me-1"></i> </a>
                         <?php } ?>
+                        
                         </td>
                     <?php } ?>
                         
@@ -765,6 +768,24 @@ if(isset($_COOKIE["msg"]) )
             });
         }
     });
+  function print_data(id) {
+
+    if(confirm("Do you want to print assignment?")) {
+       $.ajax({
+          async: true,
+          type: "POST",
+          url: "ajaxdata.php?action=assign_printing",
+          data: "said="+id,
+          cache: false,
+          success: function(result){
+          //  alert(result);
+            $('#stu_assign_modal').html('');
+            $('#stu_assign_modal').html(result);
+       
+            }
+        });
+    }
+  }
 </script>
 <?php 
 include("footer.php");

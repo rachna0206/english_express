@@ -9,7 +9,7 @@ $batch_assign_qry="select * from batch_assign b1,batch b2 where b1.batch_id=b2.i
 $res_batch_assign=$obj->select($batch_assign_qry);
 while($batch_assign=mysqli_fetch_array($res_batch_assign))
 {
-	$add_attendance="insert into attendance (`student_id`, `stu_attendance`, `faculty_attendance`, `remark`, `batch_id`, `dt`) VALUES ('".$batch_assign["student_id"]."','a','a','','".$batch_assign["batch_id"]."','".date('Y-m-d')."')";
+	$add_attendance="insert into attendance (`student_id`, `stu_attendance`, `faculty_attendance`, `remark`, `batch_id`, `dt`) VALUES ('".$batch_assign["student_id"]."','a','','','".$batch_assign["batch_id"]."','".date('Y-m-d')."')";
 	$res_attendance=$obj->insert($add_attendance);
 
 }

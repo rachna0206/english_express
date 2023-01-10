@@ -483,9 +483,7 @@ if(isset($_COOKIE["msg"]) )
 
                     <thead>
                       <tr>
-                        <th>
-                            Serial No.
-                        </th>
+                        <th>Serial No.</th>
                         <th>Notification Type</th>
                         <th>Message</th>
                         <th>Image</th>
@@ -495,7 +493,7 @@ if(isset($_COOKIE["msg"]) )
                     </thead>
                     <tbody class="table-border-bottom-0">
                       <?php 
-                        $stmt_list = $obj->con1->prepare("select * from notification_center order by id desc");
+                        $stmt_list = $obj->con1->prepare("select *,DATE_FORMAT(date_time, '%d-%m-%Y %H:%i:%s') as ndt from notification_center order by id desc");
                         $stmt_list->execute();
                         $result = $stmt_list->get_result();
                         
@@ -520,7 +518,7 @@ if(isset($_COOKIE["msg"]) )
                                 }
                                 ?>
                                 <td><img src="<?php echo $image?>" width="80" height="80"></td>
-                                <td><?php echo $notification["date_time"]?></td>
+                                <td><?php echo $notification["ndt"] ?></td>
                         
                    
                         
