@@ -54,6 +54,9 @@ if(isset($_REQUEST['btnsubmit']))
   $assist_faculty_1=$_REQUEST['assist_faculty1'];
   $assist_faculty_2=$_REQUEST['assist_faculty2'];
   $capacity=$_REQUEST["capacity"];
+
+  $pic = $_FILES['logo']['name'];
+  $p_path = $_FILES['logo']['tmp_name'];
   
   $mon=$tues=$wed=$thurs=$fri=$sat=$sun="n";
   if(isset($_REQUEST["mon"])){
@@ -77,12 +80,30 @@ if(isset($_REQUEST['btnsubmit']))
   if(isset($_REQUEST["sun"])){
     $sun="y";
   }
-  
+
+  //rename file for batch logo
+  if ($_FILES["logo"]["name"] != "")
+  {
+    if(file_exists("batchLogo/" . $pic)) {
+        $i = 0;
+        $PicFileName = $_FILES["logo"]["name"];
+        $Arr1 = explode('.', $PicFileName);
+
+        $PicFileName = $Arr1[0] . $i . "." . $Arr1[1];
+        while (file_exists("batchLogo/" . $PicFileName)) {
+            $i++;
+            $PicFileName = $Arr1[0] . $i . "." . $Arr1[1];
+        }
+   } 
+   else {
+        $PicFileName = $_FILES["logo"]["name"];
+    }
+  }
   
   try
   {
-    $stmt = $obj->con1->prepare("INSERT INTO `batch`(`name`, `course_id`,`faculty_id`,`branch_id`,`stdate`,`endate`,`stime`,`monday`,`tuesday`,`wednesday`,`thursday`,`friday`,`saturday`,`sunday`,`status`,`assist_faculty_1`,`assist_faculty_2`,`capacity`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-      $stmt->bind_param("siiisssssssssssiis",$name,$course,$faculty,$branch,$stdate,$endate,$stime,$mon,$tues,$wed,$thurs,$fri,$sat,$sun,$status,$assist_faculty_1,$assist_faculty_2,$capacity);
+    $stmt = $obj->con1->prepare("INSERT INTO `batch`(`name`, `course_id`,`faculty_id`,`branch_id`,`stdate`,`endate`,`stime`,`monday`,`tuesday`,`wednesday`,`thursday`,`friday`,`saturday`,`sunday`,`status`,`assist_faculty_1`,`assist_faculty_2`,`capacity`,`batch_logo`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+      $stmt->bind_param("siiisssssssssssiiss",$name,$course,$faculty,$branch,$stdate,$endate,$stime,$mon,$tues,$wed,$thurs,$fri,$sat,$sun,$status,$assist_faculty_1,$assist_faculty_2,$capacity,$PicFileName);
       $Resp=$stmt->execute();
     
     if(!$Resp)
@@ -98,6 +119,8 @@ if(isset($_REQUEST['btnsubmit']))
 
   if($Resp)
   {
+    move_uploaded_file($p_path,"batchLogo/".$PicFileName);
+
     setcookie("msg", "data",time()+3600,"/");
       header("location:batch.php");
   }
@@ -124,6 +147,13 @@ if(isset($_REQUEST['btnupdate']))
   $assist_faculty_1=$_REQUEST['assist_faculty1'];
   $assist_faculty_2=$_REQUEST['assist_faculty2'];
   $capacity=$_REQUEST["capacity"];
+
+  $rpic = "";
+  if(isset($_REQUEST['hlogo'])){
+    $rpic= $_REQUEST['hlogo'];
+  }
+  $pic=$_FILES['logo']['name'];
+  $p_path=$_FILES['logo']['tmp_name'];
   
   $mon=$tues=$wed=$thurs=$fri=$sat=$sun="n";
   if(isset($_REQUEST["mon"])){
@@ -147,17 +177,48 @@ if(isset($_REQUEST['btnupdate']))
   if(isset($_REQUEST["sun"])){
     $sun="y";
   }
- 
+
+  if($pic!="")
+  {
+    if(file_exists("batchLogo/".$rpic)){
+      unlink("batchLogo/".$rpic);  
+    }
+
+    //rename file for batch logo
+    if ($_FILES["logo"]["name"] != "")
+    {
+      if(file_exists("batchLogo/" . $pic)) {
+        $i = 0;
+        $PicFileName = $_FILES["logo"]["name"];
+        $Arr1 = explode('.', $PicFileName);
+  
+        $PicFileName = $Arr1[0] . $i . "." . $Arr1[1];
+        while (file_exists("batchLogo/" . $PicFileName)) {
+          $i++;
+          $PicFileName = $Arr1[0] . $i . "." . $Arr1[1];
+        }
+       } 
+       else {
+        $PicFileName = $_FILES["logo"]["name"];
+      }
+    }
+    
+    move_uploaded_file($p_path,"batchLogo/".$PicFileName);
+  }
+  else
+  {
+    $PicFileName=$rpic;
+  }
 
   try
   {
-    $stmt = $obj->con1->prepare("update batch set name=?, course_id=?, faculty_id=?, branch_id=?, stdate=? , endate=?, stime=?,  monday=?, tuesday=?, wednesday=?, thursday=?, friday=? , saturday=?, sunday=?, status=?,assist_faculty_1=?,assist_faculty_2=?,capacity=? where id=?");
-      $stmt->bind_param("siiisssssssssssiisi", $name,$course,$faculty,$branch,$stdate,$endate,$stime,$mon,$tues,$wed,$thurs,$fri,$sat,$sun,$status,$assist_faculty_1,$assist_faculty_2,$capacity,$bid);
+    $stmt = $obj->con1->prepare("update batch set name=?, course_id=?, faculty_id=?, branch_id=?, stdate=? , endate=?, stime=?,  monday=?, tuesday=?, wednesday=?, thursday=?, friday=? , saturday=?, sunday=?, status=?,assist_faculty_1=?,assist_faculty_2=?,capacity=?,batch_logo=? where id=?");
+      $stmt->bind_param("siiisssssssssssiissi", $name,$course,$faculty,$branch,$stdate,$endate,$stime,$mon,$tues,$wed,$thurs,$fri,$sat,$sun,$status,$assist_faculty_1,$assist_faculty_2,$capacity,$PicFileName,$bid);
       $Resp=$stmt->execute();
     
     if(!$Resp)
     {
-      throw new Exception("Problem in deleting! ". strtok($obj->con1-> error,  '('));
+      throw new Exception("Problem in updating! ". strtok($obj->con1-> error,  '('));
     }
     $stmt->close();
   }
@@ -180,6 +241,8 @@ if(isset($_REQUEST['btnupdate']))
 // delete data
 if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
 {
+  $pic = $_REQUEST["pic"];
+
   try
   {
     $stmt_del = $obj->con1->prepare("delete from batch where id='".$_REQUEST["n_bid"]."'");
@@ -195,6 +258,9 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
   }
   if($Resp)
   {
+    if(file_exists("batchLogo/".$pic)){
+      unlink("batchLogo/".$pic);
+    }
   setcookie("msg", "data_del",time()+3600,"/");
     header("location:batch.php");
   }
@@ -287,7 +353,7 @@ if(isset($_COOKIE["msg"]) )
                       
                     </div>
                     <div class="card-body">
-                      <form method="post" >
+                      <form method="post" enctype="multipart/form-data" >
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Batch name</label>
                           <input type="text" class="form-control" name="name" id="name" required />
@@ -414,6 +480,14 @@ if(isset($_COOKIE["msg"]) )
                           
                         </div>
 
+                        <div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Batch Logo</label>
+                          <input type="file" class="form-control" onchange="readURL(this)" name="logo" id="logo" required />
+                          <img src="" name="PreviewImage" id="PreviewImage" width="100" height="100" style="display:none;">
+                          <div id="imgdiv" style="color:red"></div>
+                          <input type="hidden" name="hlogo" id="hlogo" />
+                        </div>
+
                        
                          
                     <?php if($row["write_func"]=="y"){ ?>
@@ -483,11 +557,11 @@ if(isset($_COOKIE["msg"]) )
                     <?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>
                         <?php if($row["upd_func"]=="y"){ ?>
-                          <a  href="javascript:editdata('<?php echo $batch["id"]?>','<?php echo base64_encode($batch["name"])?>','<?php echo $batch["course_id"]?>','<?php echo $batch["faculty_id"]?>','<?php echo $batch["branch_id"]?>','<?php echo $batch["stime"]?>','<?php echo $batch["monday"]?>','<?php echo $batch["tuesday"]?>','<?php echo $batch["wednesday"]?>','<?php echo $batch["thursday"]?>','<?php echo $batch["friday"]?>','<?php echo $batch["saturday"]?>','<?php echo $batch["sunday"]?>','<?php echo $batch["status"]?>','<?php echo $batch["assist_faculty_1"]?>','<?php echo $batch["assist_faculty_2"]?>','<?php echo $batch["capacity"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
+                          <a  href="javascript:editdata('<?php echo $batch["id"]?>','<?php echo base64_encode($batch["name"])?>','<?php echo $batch["course_id"]?>','<?php echo $batch["faculty_id"]?>','<?php echo $batch["branch_id"]?>','<?php echo $batch["stime"]?>','<?php echo $batch["monday"]?>','<?php echo $batch["tuesday"]?>','<?php echo $batch["wednesday"]?>','<?php echo $batch["thursday"]?>','<?php echo $batch["friday"]?>','<?php echo $batch["saturday"]?>','<?php echo $batch["sunday"]?>','<?php echo $batch["status"]?>','<?php echo $batch["assist_faculty_1"]?>','<?php echo $batch["assist_faculty_2"]?>','<?php echo $batch["capacity"]?>','<?php echo $batch["batch_logo"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
                         <?php } if($row["del_func"]=="y"){ ?>
-              <a  href="javascript:deletedata('<?php echo $batch["id"]?>');"><i class="bx bx-trash me-1"></i> </a>
+              <a  href="javascript:deletedata('<?php echo $batch["id"]?>','<?php echo $batch["batch_logo"]?>');"><i class="bx bx-trash me-1"></i> </a>
                         <?php } if($row["read_func"]=="y"){ ?>
-                          <a  href="javascript:viewdata('<?php echo $batch["id"]?>','<?php echo base64_encode($batch["name"])?>','<?php echo $batch["course_id"]?>','<?php echo $batch["faculty_id"]?>','<?php echo $batch["branch_id"]?>','<?php echo $batch["stime"]?>','<?php echo $batch["monday"]?>','<?php echo $batch["tuesday"]?>','<?php echo $batch["wednesday"]?>','<?php echo $batch["thursday"]?>','<?php echo $batch["friday"]?>','<?php echo $batch["saturday"]?>','<?php echo $batch["sunday"]?>','<?php echo $batch["status"]?>','<?php echo $batch["assist_faculty_1"]?>','<?php echo $batch["assist_faculty_2"]?>','<?php echo $batch["capacity"]?>');">View</a>
+                          <a  href="javascript:viewdata('<?php echo $batch["id"]?>','<?php echo base64_encode($batch["name"])?>','<?php echo $batch["course_id"]?>','<?php echo $batch["faculty_id"]?>','<?php echo $batch["branch_id"]?>','<?php echo $batch["stime"]?>','<?php echo $batch["monday"]?>','<?php echo $batch["tuesday"]?>','<?php echo $batch["wednesday"]?>','<?php echo $batch["thursday"]?>','<?php echo $batch["friday"]?>','<?php echo $batch["saturday"]?>','<?php echo $batch["sunday"]?>','<?php echo $batch["status"]?>','<?php echo $batch["assist_faculty_1"]?>','<?php echo $batch["assist_faculty_2"]?>','<?php echo $batch["capacity"]?>','<?php echo $batch["batch_logo"]?>');">View</a>
                         <?php } ?>
                         </td>
                     <?php } ?>
@@ -509,14 +583,40 @@ if(isset($_COOKIE["msg"]) )
 <?php } ?>
             <!-- / Content -->
 <script type="text/javascript">
-  function deletedata(bid) {
+
+  function readURL(input) {
+      if (input.files && input.files[0]) {
+          var filename=input.files.item(0).name;
+
+          var reader = new FileReader();
+          var extn=filename.split(".");
+
+           if(extn[1].toLowerCase()=="jpg" || extn[1].toLowerCase()=="jpeg" || extn[1].toLowerCase()=="png" || extn[1].toLowerCase()=="bmp") {
+            reader.onload = function (e) {
+                $('#PreviewImage').attr('src', e.target.result);
+                  document.getElementById("PreviewImage").style.display = "block";
+            };
+
+            reader.readAsDataURL(input.files[0]);
+            $('#imgdiv').html("");
+            document.getElementById('btnsubmit').disabled = false;
+      }
+        else
+        {
+            $('#imgdiv').html("Please Select Image Only");
+              document.getElementById('btnsubmit').disabled = true;
+        }
+    }
+  }
+
+  function deletedata(bid,blogo) {
 
       if(confirm("Are you sure to DELETE data?")) {
-          var loc = "batch.php?flg=del&n_bid=" + bid;
+          var loc = "batch.php?flg=del&n_bid=" + bid+"&pic="+blogo;
           window.location = loc;
       }
   }
-  function editdata(id,name,course,faculty,branch,stime,mo,tu,we,th,fr,sa,su,status,assist_faculty1,assist_faculty2,capacity) {
+  function editdata(id,name,course,faculty,branch,stime,mo,tu,we,th,fr,sa,su,status,assist_faculty1,assist_faculty2,capacity,blogo) {
         
        $('#name').focus();
        $('#name').val(atob(name));
@@ -578,6 +678,11 @@ if(isset($_COOKIE["msg"]) )
        else if(status=="canceled"){
       $('#status_canceled').attr("checked","checked");  
        }
+
+      $('#hlogo').val(blogo);
+      $('#PreviewImage').show();
+      $('#PreviewImage').attr('src','batchLogo/'+blogo);
+      $('#logo').removeAttr('required');
        
            $('#ttbatchid').val(id);
       
@@ -586,8 +691,10 @@ if(isset($_COOKIE["msg"]) )
 		   $('#btnsubmit').attr('disabled',true);
    }
    
-  function viewdata(id,name,course,faculty,branch,stime,mo,tu,we,th,fr,sa,su,status,assist_faculty1,assist_faculty2,capacity) {
-           $('#name').val(atob(name));
+  function viewdata(id,name,course,faculty,branch,stime,mo,tu,we,th,fr,sa,su,status,assist_faculty1,assist_faculty2,capacity,blogo) {
+
+       $('#name').focus();
+       $('#name').val(atob(name));
        $('#courses').val(course);
        $('#faculties').val(faculty);
        $('#branches').val(branch);
@@ -645,7 +752,11 @@ if(isset($_COOKIE["msg"]) )
        else if(status=="canceled"){
       $('#status_canceled').attr("checked","checked");  
        }
-       
+
+      $('#hlogo').val(blogo);
+      $('#PreviewImage').show();
+      $('#PreviewImage').attr('src','batchLogo/'+blogo);
+
 //           $('#ttbatchid').val(id);
       
            $('#btnsubmit').attr('hidden',true);
