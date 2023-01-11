@@ -279,7 +279,7 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<h4 class="fw-bold py-3 mb-4">Lead Generation</h4>
+<h4 class="fw-bold py-3 mb-4">Enquiries</h4>
 
 
 <?php 

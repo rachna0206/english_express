@@ -430,7 +430,7 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
 
 </script>
 
-<h4 class="fw-bold py-3 mb-4">Student Registration</h4>
+<h4 class="fw-bold py-3 mb-4">Admission</h4>
 
 
 <?php 

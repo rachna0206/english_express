@@ -373,7 +373,7 @@ if(isset($_COOKIE["msg"]) )
                         </div>
                         
                         <div class="mb-3">
-                           <input type="checkbox" name="grammer0" id="grammer0"/> Grammer
+                           <input type="checkbox" name="grammer0" id="grammer0"/> Grammar
                            <input type="checkbox" name="vocabulary0" id="vocabulary0"/> Vocabulary
                            <input type="checkbox" name="pronunciation0" id="pronunciation0"/> Pronunciation
                            <input type="checkbox" name="spelling0" id="spelling0"/> Spelling
@@ -614,7 +614,7 @@ if(isset($_COOKIE["msg"]) )
     var field_count=$('#field_cnt').val();
     
     
-    $('#fields_div').append('<div id="field_div_'+field_count+'"><div class="mb-3" ><label class="form-label" for="basic-default-fullname"> Exercise Name</label><a href="javascript:remove_field(\'field_div_'+field_count+'\')" class="text-right"><i class="bx bxs-message-square-minus bx-sm"></i></a><input type="text" class="form-control" name="exer_name'+field_count+'" id="exer_name'+field_count+'" required /></div><div class="mb-3"><input type="checkbox" name="grammer'+field_count+'" id="grammer'+field_count+'"/> Grammer <input type="checkbox" name="vocabulary'+field_count+'" id="vocabulary'+field_count+'"/> Vocabulary <input type="checkbox" name="pronunciation'+field_count+'" id="pronunciation'+field_count+'"/> Pronunciation <input type="checkbox" name="spelling'+field_count+'" id="spelling'+field_count+'"/> Spelling <input type="checkbox" name="presentation'+field_count+'" id="presentation'+field_count+'"/> Presentation <input type="checkbox" name="speaking'+field_count+'" id="speaking'+field_count+'"/> Speaking <input type="checkbox" name="listening'+field_count+'" id="listening'+field_count+'"/> Listening <input type="checkbox" name="writing'+field_count+'" id="writing'+field_count+'"/> Writing <input type="checkbox" name="reading'+field_count+'" id="reading'+field_count+'"/> Reading </div></div>');
+    $('#fields_div').append('<div id="field_div_'+field_count+'"><div class="mb-3" ><label class="form-label" for="basic-default-fullname"> Exercise Name</label><a href="javascript:remove_field(\'field_div_'+field_count+'\')" class="text-right"><i class="bx bxs-message-square-minus bx-sm"></i></a><input type="text" class="form-control" name="exer_name'+field_count+'" id="exer_name'+field_count+'" required /></div><div class="mb-3"><input type="checkbox" name="grammer'+field_count+'" id="grammer'+field_count+'"/> Grammar <input type="checkbox" name="vocabulary'+field_count+'" id="vocabulary'+field_count+'"/> Vocabulary <input type="checkbox" name="pronunciation'+field_count+'" id="pronunciation'+field_count+'"/> Pronunciation <input type="checkbox" name="spelling'+field_count+'" id="spelling'+field_count+'"/> Spelling <input type="checkbox" name="presentation'+field_count+'" id="presentation'+field_count+'"/> Presentation <input type="checkbox" name="speaking'+field_count+'" id="speaking'+field_count+'"/> Speaking <input type="checkbox" name="listening'+field_count+'" id="listening'+field_count+'"/> Listening <input type="checkbox" name="writing'+field_count+'" id="writing'+field_count+'"/> Writing <input type="checkbox" name="reading'+field_count+'" id="reading'+field_count+'"/> Reading </div></div>');
 
    
     $('#field_cnt').val(parseInt(field_count)+1);

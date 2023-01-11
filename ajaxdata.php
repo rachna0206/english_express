@@ -216,6 +216,7 @@ if(isset($_REQUEST['action']))
 		$html="";
 		$html_book="";
 		$coursename="";
+		$html_course="";
 		$batch_id=$_REQUEST["batch_id"];
 		$stmt_clist = $obj->con1->prepare("select b.student_id, s.name from batch_assign b, student s where b.student_id=s.sid and b.batch_id=?");
 		$stmt_clist->bind_param("i",$batch_id);
@@ -229,22 +230,47 @@ if(isset($_REQUEST['action']))
 
 	  }
 
+	  	  // course list
+	  $stmt_course = $obj->con1->prepare("select * from course ");
 
-	  // books list
-	  $stmt_blist = $obj->con1->prepare("SELECT b2.*,c1.coursename FROM `batch` b1,course c1,books b2 WHERE b2.courseid=b1.course_id and b1.course_id=c1.courseid and b1.id=?");
-		$stmt_blist->bind_param("i",$batch_id);
+	  $stmt_course->execute();
+	  $res_course = $stmt_course->get_result();
+	  $stmt_course->close();
+	  $html_course='<option value="">Select Course</option>';
+	  while($course=mysqli_fetch_array($res_course))
+	  {
+
+	  	$html_course.='<option value="'.$course["courseid"].'">'.$course["coursename"].'</option>';
+
+	  
+	  }
+	  echo $html."@@@@@".$html_course;
+	}
+
+	 
+	if($_REQUEST['action']=="bookList")
+	{
+		$html_book="";
+		$course_id=$_REQUEST["course_id"];
+
+
+		// books list
+	  $stmt_blist = $obj->con1->prepare("SELECT b2.*,c1.coursename FROM course c1,books b2 WHERE b2.courseid=c1.courseid and c1.courseid=?");
+		$stmt_blist->bind_param("i",$course_id);
 	  $stmt_blist->execute();
 	  $book_res = $stmt_blist->get_result();
 	  $stmt_blist->close();
 	  $html_book='<option value="">Select Book</option>';
 	  while($books=mysqli_fetch_array($book_res))
 	  {
-	  	$coursename=$books["coursename"];
+	  	
+
 	  	$html_book.='<option value="'.$books["bid"].'">'.$books["bookname"].'</option>';
 
 	  }
 
-	  echo $html."@@@@@".$html_book."@@@@@".$coursename;
+	  
+	  echo $html_book;
 	}
 	if($_REQUEST['action']=="chapList")
 	{
