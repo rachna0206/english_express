@@ -11,6 +11,8 @@ include("checkPer.php");
 // for permission
 if($row1=checkPermission($_SESSION["utype"],"notify")){ }
 
+
+
 if(!isset($_SESSION["userlogin"]) )
 {
     header("location:index.php");
@@ -19,6 +21,7 @@ $menu = array();
 if($res=checkMainMenu($_SESSION["utype"])){
 	$i=0;	
 	while($row=mysqli_fetch_array($res)){
+
 		$menu[$row[0]]=$row[0];
 	}
 }
@@ -26,7 +29,7 @@ else{ }
 
 $frontdeskmenu=array("lead_generation.php","student_reg.php","batch.php","batch_assign.php");
 $facultymenu=array("stu_assignment.php","attendance.php","assign_printing.php");
-$adminmenu=array("branch.php","course.php","skills.php","Book.php","chapter.php","city.php","exercise.php","faculty_reg.php","associate_reg.php","motivation.php","permissions.php","send_notification.php","state.php");
+$adminmenu=array("branch.php","course.php","skills.php","Book.php","chapter.php","city.php","exercise.php","faculty_reg.php","associate_reg.php","motivation.php","permissions.php","send_notification.php","state.php","transfer.php","task.php");
 $reportmenu=array("stu_report.php");
 ?>
 
@@ -258,6 +261,9 @@ function removeplaysound(ids) {
             <!-- Forms & Tables -->
             <!-- <li class="menu-header small text-uppercase"><span class="menu-header-text">Masters</span></li> -->
             <!-- Forms -->
+            <?php  if(in_array("lead_generation",$menu) || in_array("student_reg",$menu) || in_array("batch",$menu) || in_array("batch_assign",$menu))
+            {
+              ?>
             <li class="menu-item <?php echo in_array(basename($_SERVER["PHP_SELF"]),$frontdeskmenu)?"active open":"" ?> ">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-detail"></i>
@@ -303,6 +309,13 @@ function removeplaysound(ids) {
                 </li> -->
               </ul>
             </li>
+            <?php
+            }
+            ?>
+
+            <?php  if(in_array("student_assign",$menu) || in_array("attendance",$menu) || in_array("printing",$menu) )
+            {
+              ?>
 
             <li class="menu-item  <?php echo in_array(basename($_SERVER["PHP_SELF"]),$facultymenu)?"active open":"" ?> ">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -337,6 +350,13 @@ function removeplaysound(ids) {
 
               </ul>
             </li>
+            <?php
+            }
+            ?>
+
+            <?php  if(in_array("branch",$menu) || in_array("course_master",$menu) || in_array("skill_master",$menu) || in_array("book_master",$menu) || in_array("chap_master",$menu) || in_array("exercise_master",$menu) || in_array("faculty_reg",$menu) || in_array("motivation",$menu) || in_array("permission",$menu) || in_array("associate_reg",$menu) || in_array("task",$menu) || in_array("state",$menu) || in_array("city",$menu) || in_array("area",$menu) || in_array("notification",$menu) || in_array("transfer",$menu))
+            {
+              ?>
 
             <li class="menu-item <?php echo in_array(basename($_SERVER["PHP_SELF"]),$adminmenu)?"active open":"" ?> ">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -414,6 +434,14 @@ function removeplaysound(ids) {
                 </a>
               </li>
               <?php }
+              if(isset($menu["transfer"])=="transfer"){ ?>
+              <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="transfer.php"?"active":"" ?>">
+                <a href="transfer.php" class="menu-link">
+                <div data-i18n="course">Transfer Master</div>
+                </a>
+              </li>
+              <?php
+                }
                  if(isset($menu["state"])=="state"){ ?>
               <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="state.php"?"active":"" ?>">
                 <a href="state.php" class="menu-link">
@@ -445,6 +473,14 @@ function removeplaysound(ids) {
 
               </ul>
             </li>
+            <?php
+
+              }
+          ?>
+
+          <?php  if(in_array("student_report",$menu) || in_array("faculty_report",$menu) || in_array("attendance_report",$menu) )
+            {
+              ?>
 
             <li class="menu-item  <?php echo in_array(basename($_SERVER["PHP_SELF"]),$reportmenu)?"active open":"" ?> ">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -475,6 +511,9 @@ function removeplaysound(ids) {
 
               </ul>
             </li>
+            <?php
+              }
+            ?>
             
            
           </ul>

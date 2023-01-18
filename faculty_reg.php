@@ -14,7 +14,7 @@ $stmt_dlist->execute();
 $res = $stmt_dlist->get_result();
 $stmt_dlist->close();
 
-$stmt_slist = $obj->con1->prepare("select * from state where status='active'");
+$stmt_slist = $obj->con1->prepare("select * from state where status='enable'");
 $stmt_slist->execute();
 $state_res = $stmt_slist->get_result();
 $stmt_slist->close();

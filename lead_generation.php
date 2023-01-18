@@ -35,7 +35,7 @@ $stmt_associate->execute();
 $res_associate = $stmt_associate->get_result();
 $stmt_associate->close();
 
-$stmt_slist = $obj->con1->prepare("select * from state where status='active'");
+$stmt_slist = $obj->con1->prepare("select * from state where status='enable'");
 $stmt_slist->execute();
 $res = $stmt_slist->get_result();
 $stmt_slist->close();

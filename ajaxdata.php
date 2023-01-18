@@ -211,6 +211,66 @@ if(isset($_REQUEST['action']))
 	  }
 	  echo $html;
 	}
+
+	if($_REQUEST['action']=="getStudent")
+	{
+		$html="";
+		$html_batch="";
+		$search_by=$_REQUEST["search_by"];
+		$stu_detail=$_REQUEST["stu"];
+
+		if($search_by=="roll_no")
+	  {
+	    $stmt_list = $obj->con1->prepare("select sid,name,user_id from student where user_id like '%".$stu_detail."%'");
+	  }
+	  else if($search_by=="name")
+	  {
+	    $stmt_list = $obj->con1->prepare("select sid,name,user_id from student where name like '%".$stu_detail."%'");
+	  }
+	  
+	  $stmt_list->execute();
+	  $result = $stmt_list->get_result();
+	  $stmt_list->close();
+	  $f=0;
+	  $stu_id=0;
+	  if(mysqli_num_rows($result)>0){
+		  while($stu=mysqli_fetch_array($result)){
+			  $f++;
+			  if ($f==1) {
+			  	$stu_id=$stu['sid'];
+		  	}
+		  	$html.= '<option value="'.$stu['sid'].'">'.$stu['user_id']."-".$stu['name'].'</option>';
+	    }
+   	}
+	  else{
+	  	$html.='<div class="col-md-3"><span class="text-danger">No Student Found</span></div>';
+	  }
+
+	  echo $html."@@@@@".$stu_id;
+	}
+
+	if($_REQUEST['action']=="getStuBatch")
+	{
+		$html="";
+		$stu_id=$_REQUEST["stu_id"];
+
+		$stmt_list = $obj->con1->prepare("select b.id,b.name from batch_assign ba, batch b where ba.batch_id=b.id and batch_id!=37 and student_id=".$stu_id);
+	  $stmt_list->execute();
+	  $result = $stmt_list->get_result();
+	  $stmt_list->close();
+	  if(mysqli_num_rows($result)>0){
+		  while($batch=mysqli_fetch_array($result)){
+			  $html.= '<option value="'.$batch['id'].'">'.$batch['name'].'</option>';
+	     }
+	  }
+	  else{
+	  	$html.='<div class="col-md-3"><span class="text-danger">No Batch Found</span></div>';
+	  }
+
+
+	  echo $html;
+	}
+
 	if($_REQUEST['action']=="studList")
 	{
 		$html="";
@@ -793,6 +853,30 @@ END ");
 	  $stmt->close();
 
 	}
+
+	if($_REQUEST['action']=="getBatch")
+	{
+		$html="";
+		$stu_id=$_REQUEST["stu_id"];
+		$stmt_list = $obj->con1->prepare("select b1.id,b1.name from batch_assign ba1, batch b1 where ba1.batch_id=b1.id and ba1.student_status!='transfered' and student_id=?");
+		$stmt_list->bind_param("i",$stu_id);
+  	$stmt_list->execute();
+  	$batch_res = $stmt_list->get_result();
+  	$stmt_list->close();
+		
+		if(mysqli_num_rows($batch_res)>0)
+		{
+	  	while($batch=mysqli_fetch_array($batch_res))
+	  	{
+				$html.='<input type="checkbox" name="batch[]" id="" value="'.$batch["id"].'"/> '.$batch["name"];
+	  	}
+	  }
+	  else
+	  {
+	  	$html.='<div class="col-md-3"><span class="text-danger">No Batch Found</span></div>';
+	  }
+		echo $html;
+ 	}
 	
 }
 

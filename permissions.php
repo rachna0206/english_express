@@ -58,9 +58,9 @@ if(isset($_REQUEST['btnsubmit']))
 {
 	$user = $_REQUEST['user'];
 
-  	$form_name = array("student_reg","faculty_reg","course_master","book_master","chap_master","skill_master","attendance","exercise_master","batch","batch_assign","student_assign","branch","printing","motivation","permission","notification","lead_generation","associate_reg","state","city","student_report","faculty_report","attendance_report","dashboard","notify","task","area");
+  	$form_name = array("student_reg","faculty_reg","course_master","book_master","chap_master","skill_master","attendance","exercise_master","batch","batch_assign","student_assign","branch","printing","motivation","permission","notification","lead_generation","associate_reg","state","city","student_report","faculty_report","attendance_report","dashboard","notify","task","area","transfer");
 
-	for($i=0;$i<27;$i++)
+	for($i=0;$i<28;$i++)
 	{
 		$formnm = $form_name[$i];
 		  
@@ -123,9 +123,9 @@ if(isset($_REQUEST['btnupdate']))
 {
 	$user = $_REQUEST['user'];
 
-  	$form_name = array("student_reg","faculty_reg","course_master","book_master","chap_master","skill_master","attendance","exercise_master","batch","batch_assign","student_assign","branch","printing","motivation","permission","notification","lead_generation","associate_reg","state","city","student_report","faculty_report","attendance_report","dashboard","notify","task","area");
+  	$form_name = array("student_reg","faculty_reg","course_master","book_master","chap_master","skill_master","attendance","exercise_master","batch","batch_assign","student_assign","branch","printing","motivation","permission","notification","lead_generation","associate_reg","state","city","student_report","faculty_report","attendance_report","dashboard","notify","task","area","transfer");
 
-	for($i=0;$i<27;$i++)
+	for($i=0;$i<28;$i++)
 	{
 		$formnm = $form_name[$i];
 		  
@@ -575,12 +575,22 @@ if(isset($_COOKIE["msg"]) )
 												<hr>
 												<div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Area Master</label><br>
-                           <input type="checkbox" name="r24" id="r24" value="read" <?php if(($per[156])=="y"){?> checked="checked" <?php } ?>/> Read
-                           <input type="checkbox" name="w24" id="w24" value="write" <?php if(($per[157])=="y"){?> checked="checked" <?php } ?>/> Write
-                           <input type="checkbox" name="d24" id="d24" value="delete" <?php if(($per[158])=="y"){?> checked="checked" <?php } ?>/> Delete
-                           <input type="checkbox" name="u24" id="u24" value="update" <?php if(($per[159])=="y"){?> checked="checked" <?php } ?>/> Update
-                           <input type="checkbox" name="a24" id="a24" value="all" <?php if(($per[160])=="y"){?> checked="checked" <?php } ?>/> All
-                           <input type="checkbox" name="n24" id="n24" value="none" <?php if(($per[161])=="y"){?> checked="checked" <?php } ?>/> None
+                           <input type="checkbox" name="r26" id="r26" value="read" <?php if(($per[156])=="y"){?> checked="checked" <?php } ?>/> Read
+                           <input type="checkbox" name="w26" id="w26" value="write" <?php if(($per[157])=="y"){?> checked="checked" <?php } ?>/> Write
+                           <input type="checkbox" name="d26" id="d26" value="delete" <?php if(($per[158])=="y"){?> checked="checked" <?php } ?>/> Delete
+                           <input type="checkbox" name="u26" id="u26" value="update" <?php if(($per[159])=="y"){?> checked="checked" <?php } ?>/> Update
+                           <input type="checkbox" name="a26" id="a26" value="all" <?php if(($per[160])=="y"){?> checked="checked" <?php } ?>/> All
+                           <input type="checkbox" name="n26" id="n26" value="none" <?php if(($per[161])=="y"){?> checked="checked" <?php } ?>/> None
+												</div>
+												<hr>
+												<div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Transfer Master</label><br>
+                           <input type="checkbox" name="r27" id="r27" value="read" <?php if(($per[162])=="y"){?> checked="checked" <?php } ?>/> Read
+                           <input type="checkbox" name="w27" id="w27" value="write" <?php if(($per[163])=="y"){?> checked="checked" <?php } ?>/> Write
+                           <input type="checkbox" name="d27" id="d27" value="delete" <?php if(($per[164])=="y"){?> checked="checked" <?php } ?>/> Delete
+                           <input type="checkbox" name="u27" id="u27" value="update" <?php if(($per[165])=="y"){?> checked="checked" <?php } ?>/> Update
+                           <input type="checkbox" name="a27" id="a27" value="all" <?php if(($per[166])=="y"){?> checked="checked" <?php } ?>/> All
+                           <input type="checkbox" name="n27" id="n27" value="none" <?php if(($per[167])=="y"){?> checked="checked" <?php } ?>/> None
 												</div>
 
                         
@@ -1110,6 +1120,22 @@ if(isset($_COOKIE["msg"]) )
   });
   $('#n26').click(function(){
 	 if($(this).is(':checked')){ $('#r26,#w26,#d26,#u26,#a26').prop('checked',false); }
+	 else{ }
+  });
+// for Transfer Master
+  $('#a27').click(function(){
+	 if($(this).is(':checked')){
+		 $('#r27,#w27,#d27,#u27').prop('checked',true);
+		 $('#n27').prop('checked',false);
+	 }
+	 else{ $('#r27,#w27,#d27,#u27').prop('checked',false); }
+  });
+  $('#r27,#w27,#d27,#u27').click(function(){
+	 if($(this).is(':checked')){ $('#n27').prop('checked',false);}
+	 else{ $('#a27,#n27').prop('checked',false); }
+  });
+  $('#n27').click(function(){
+	 if($(this).is(':checked')){ $('#r27,#w27,#d27,#u27,#a27').prop('checked',false); }
 	 else{ }
   });  
   
