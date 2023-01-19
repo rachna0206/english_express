@@ -47,21 +47,21 @@ if(isset($_REQUEST['btnsubmit']))
           
          $exer_skill=$_REQUEST['es'.$exer_id][$i];
         
-  try
-  {
-    
-  	$stmt = $obj->con1->prepare("INSERT INTO `stu_assignment`(`batch_id`,`stu_id`,`book_id`,`chap_id`,`exercise_id`,`alloted_dt`,`expected_dt`,`faculty_id`,`status`,`work_type`,`explain_by_teacher`,`skill`,`stu_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-  	$stmt->bind_param("iiiiississsss",$batch_id,$stu_id,$book_id,$chap_id,$exer_id,$alloted_dt,$expected_dt,$faculty_id,$status,$work_type,$explain_type,$exer_skill,$stu_status);
-  	$Resp=$stmt->execute();
-    if(!$Resp)
-    {
-      throw new Exception("Problem in inserting! ". strtok($obj->con1-> error,  '('));
-    }
-    $stmt->close();
-  } 
-  catch(Exception  $e) {
-    setcookie("sql_error",urlencode($e->getMessage()),time()+3600,"/");
-  }
+          try
+          {
+            
+          	$stmt = $obj->con1->prepare("INSERT INTO `stu_assignment`(`batch_id`,`stu_id`,`book_id`,`chap_id`,`exercise_id`,`alloted_dt`,`expected_dt`,`faculty_id`,`status`,`work_type`,`explain_by_teacher`,`skill`,`stu_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+          	$stmt->bind_param("iiiiississsss",$batch_id,$stu_id,$book_id,$chap_id,$exer_id,$alloted_dt,$expected_dt,$faculty_id,$status,$work_type,$explain_type,$exer_skill,$stu_status);
+          	$Resp=$stmt->execute();
+            if(!$Resp)
+            {
+              throw new Exception("Problem in inserting! ". strtok($obj->con1-> error,  '('));
+            }
+            $stmt->close();
+          } 
+          catch(Exception  $e) {
+            setcookie("sql_error",urlencode($e->getMessage()),time()+3600,"/");
+          }
   //"Assignment not alloted to already assigned students!!"
 	  }
 
@@ -143,8 +143,13 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
 }
 
 ?>
+<link href="assets/css/select2.min.css" rel="stylesheet" />
+<script src="assets/js/select2.min.js"></script>
 
 <script type="text/javascript">
+  $(document).ready(function() {
+    $('.js-example-basic-multiple').select2();
+});
 
 	function studList(batch_id){
 
@@ -460,7 +465,7 @@ if(isset($_COOKIE["msg"]) )
                         
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Chapter Name</label>
-                          <select name="chap" id="chap" onchange="exerList(this.value)" class="form-control" required>
+                          <select name="chap" id="chap" onchange="exerList(this.value)" class="form-control js-example-basic-multiple" required multiple="multiple">
                           	<option value="">Select Chapter</option>
                             <div id="chap_list_div" >
                     <?php    

@@ -276,8 +276,8 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
   }
 
 </script>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="assets/css/select2.min.css" rel="stylesheet" />
+<script src="assets/js/select2.min.js"></script>
 
 <h4 class="fw-bold py-3 mb-4">Enquiries</h4>
 
@@ -548,7 +548,7 @@ if(isset($_COOKIE["msg"]) )
                       <?php 
                         // $stmt_list = $obj->con1->prepare("select st.*,sk.skills,GROUP_CONCAT(c.coursename)as coursename from student as st, skill as sk, course as c where st.skillid=sk.skid and st.courseid=c.courseid  and st.status='inquiry'  GROUP by st.sid order by sid desc");
 
-                        $stmt_list = $obj->con1->prepare("select st.*,GROUP_CONCAT(c.coursename)as coursename from student as st,course as c,stu_course sc where sc.course_id=c.courseid and sc.stu_id=st.sid  and st.status='inquiry'  GROUP by sc.stu_id order by sid desc");
+                        $stmt_list = $obj->con1->prepare("select st.*,GROUP_CONCAT(c.coursename)as coursename from student as st,course as c,stu_course sc where sc.course_id=c.courseid and sc.stu_id=st.sid  and  (st.status='inquiry' or st.followup_dt!='') GROUP by sc.stu_id order by sid desc");
                         $stmt_list->execute();
                         $result = $stmt_list->get_result();
                         

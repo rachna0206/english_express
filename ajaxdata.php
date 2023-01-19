@@ -30,7 +30,7 @@ if(isset($_REQUEST['action']))
 	{
 		$html="";
 		$batch=$_REQUEST['batch'];
-		$stmt_batch = $obj->con1->prepare("select f1.name as faculty_name, f2.name as assist_faculty1, f3.name assist_faculty2 , b1.* from batch b1,faculty f1, faculty f2 , faculty f3 where b1.faculty_id=f1.id and b1.assist_faculty_1=f2.id and b1.assist_faculty_2=f3.id and b1.id=?");
+		$stmt_batch = $obj->con1->prepare("select f1.name as faculty_name, f2.name as assist_faculty1, f3.name assist_faculty2 , b1.* from batch b1,faculty f1, faculty f2 , faculty f3 where b1.faculty_id=f1.id and b1.assist_faculty_1=f2.id and b1.assist_faculty_2=f3.id and b1.id=? ");
 		$stmt_batch->bind_param("i",$batch);
 		$stmt_batch->execute();
 		$batch_data = $stmt_batch->get_result()->fetch_assoc();
@@ -52,6 +52,13 @@ if(isset($_REQUEST['action']))
 		$res_Stu2 = $stmt_stu2->get_result();
 		$num_stu=mysqli_num_rows($res_Stu2);
 		$stmt_stu2->close();
+
+		// total strength
+		$stmt_list10 = $obj->con1->prepare("select s1.* from student s1,batch_assign b1 where b1.student_id=s1.sid and s1.status='registered' and b1.batch_id=? and b1.student_status='ongoing'");
+		$stmt_list10->bind_param("i",$batch);
+		$stmt_list10->execute();
+		$stu_capacity = $stmt_list10->get_result()->num_rows;  
+		$stmt_list10->close();
 
 		$html='<div class="row" >
                 <div class="mb-3 col-6">
@@ -84,7 +91,7 @@ if(isset($_REQUEST['action']))
                 </div>
                 <div class="mb-3 col-6">
                   <label class="form-label" for="basic-default-company">Strength</label>
-                  <input type="text"  class="form-control " id="strength" name="strength" value="'.$num_stu.'"  />
+                  <input type="text"  class="form-control " id="strength" name="strength" value="'.$stu_capacity.'"  />
                 </div>
             </div>
             <div class="row" id="shared-lists">
@@ -338,15 +345,15 @@ if(isset($_REQUEST['action']))
 		$book_id=$_REQUEST["book_id"];
 		$stmt_clist = $obj->con1->prepare("select * from chapter where book_id=?");
 		$stmt_clist->bind_param("i",$book_id);
-	  	$stmt_clist->execute();
-	  	$chap_res = $stmt_clist->get_result();
-	  	$stmt_clist->close();
-			$html='<option value="">Select Chapter</option>';
-	  	while($chapter=mysqli_fetch_array($chap_res))
-	  	{
-			$html.= '<option value="'.$chapter["cid"].'">'.$chapter["chapter_name"].'</option>';
-	  	}
-	  	echo $html;
+  	$stmt_clist->execute();
+  	$chap_res = $stmt_clist->get_result();
+  	$stmt_clist->close();
+		$html='<option value="">Select Chapter</option>';
+  	while($chapter=mysqli_fetch_array($chap_res))
+  	{
+		$html.= '<option value="'.$chapter["cid"].'">'.$chapter["chapter_name"].'</option>';
+  	}
+  	echo $html;
 	}
 	if($_REQUEST['action']=="getChapPageList")
 	{

@@ -46,11 +46,15 @@ if(isset($_REQUEST['submit1']))
         $res_attn = $stmt_attn->get_result()->fetch_assoc();
         $stmt_attn->close();
 
+        if($status!="")
+        {
+          //update stu status in batch assign
+          $stmt_batch = $obj->con1->prepare("update batch_assign set student_status=? where student_id=? and batch_id=?");
+          $stmt_batch->bind_param("sii", $status,$res_attn["student_id"],$res_attn["batch_id"]);
+          $Resp_batch=$stmt_batch->execute(); 
+        }
 
-        //update stu status in batch assign
-        $stmt_batch = $obj->con1->prepare("update batch_assign set student_status=? where student_id=? and batch_id=?");
-        $stmt_batch->bind_param("sii", $status,$res_attn["student_id"],$res_attn["batch_id"]);
-        $Resp_batch=$stmt_batch->execute();
+        
       }
 		if(!$Resp)
 		{

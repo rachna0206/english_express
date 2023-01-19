@@ -26,7 +26,7 @@ $capacity=$res_capacity->fetch_assoc();
 $stmt_list3->close();
 
 // total stu capacity
-$stmt_list10 = $obj->con1->prepare("select s1.* from student s1,batch_assign b1 where b1.student_id=s1.sid and s1.status='registered' and b1.batch_id!=37");
+$stmt_list10 = $obj->con1->prepare("select s1.* from student s1,batch_assign b1 where b1.student_id=s1.sid and s1.status='registered' and b1.batch_id!=37 and b1.student_status='ongoing'");
 $stmt_list10->execute();
 $stu_capacity = $stmt_list10->get_result()->num_rows;  
 $stmt_list10->close();
