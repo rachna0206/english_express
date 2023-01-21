@@ -10,12 +10,12 @@ else{
 
 $dt=date("Y-m-d");
 
-$stmt_slist1 = $obj->con1->prepare("select * from student");
+$stmt_slist1 = $obj->con1->prepare("select * from student where status='registered'");
 $stmt_slist1->execute();
 $student_res1 = $stmt_slist1->get_result();
 $stmt_slist1->close();
 
-$stmt_slist2 = $obj->con1->prepare("select * from student");
+$stmt_slist2 = $obj->con1->prepare("select * from student where status='registered'");
 $stmt_slist2->execute();
 $student_res2 = $stmt_slist2->get_result();
 $stmt_slist2->close();
@@ -26,6 +26,7 @@ if(isset($_REQUEST['btnsubmit']))
   $old_stu_id=$_REQUEST['old_stu_id'];
   $new_stu_id=$_REQUEST['new_stu_id'];
   $transfer_dt=$_REQUEST['transfer_dt'];
+  $reason=$_REQUEST['reason'];
   $status='transfered';
   $student_status="ongoing";
 
@@ -33,8 +34,8 @@ if(isset($_REQUEST['btnsubmit']))
   {
   foreach($_REQUEST['batch'] as $batch_id){
 
-    $stmt = $obj->con1->prepare("INSERT INTO `transfer`(`old_stu_id`,`new_stu_id`,`transfer_dt`,`batch_id`) VALUES (?,?,?,?)");
-    $stmt->bind_param("iisi", $old_stu_id,$new_stu_id,$transfer_dt,$batch_id);
+    $stmt = $obj->con1->prepare("INSERT INTO `transfer`(`old_stu_id`,`new_stu_id`,`transfer_dt`,`batch_id`,`reason`) VALUES (?,?,?,?,?)");
+    $stmt->bind_param("iisis", $old_stu_id,$new_stu_id,$transfer_dt,$batch_id,$reason);
     $Resp=$stmt->execute();
 
     //updating batch assign table
@@ -175,8 +176,12 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
           cache: false,
           success: function(result){
             //alert(result);
+            var res=result.split("@@@@@");
+            alert(res[1]);
             $('#batch_list_div').html('');
-            $('#batch_list_div').append(result);       
+            $('#batch_list_div').append(res[0]);
+            $('#new_stu_id').html('');
+            $('#new_stu_id').append(res[1]);       
             }
         });
   }
@@ -305,6 +310,11 @@ if(isset($_COOKIE["msg"]))
                           <label class="form-label" for="basic-default-fullname">Transfer Date</label>
                           <input type="date" class="form-control" name="transfer_dt" id="transfer_dt" value="<?php echo $dt ?>" required />
                         </div>
+
+                        <div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Reason</label>
+                          <textarea class="form-control" name="reason" id="reason" value="<?php echo $dt ?>" required></textarea>
+                        </div>
                         
                     <?php if($row["write_func"]=="y"){ ?>
                         <button type="submit" name="btnsubmit" id="btnsubmit" class="btn btn-primary">Save</button>
@@ -337,6 +347,7 @@ if(isset($_COOKIE["msg"]))
                         <th>New Student Name</th>
                         <th>Batch</th>
                         <th>Transfer Date</th>
+                        <th>Reason</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -359,6 +370,7 @@ if(isset($_COOKIE["msg"]))
                         <td><?php echo $trans["new_stu"]?></td>
                         <td><?php echo $trans["batch_name"]?></td>
                         <td><?php echo $trans["dt"]?></td>
+                        <td><?php echo $trans["reason"]?></td>
 
                    	<?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>

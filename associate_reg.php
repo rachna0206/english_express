@@ -120,7 +120,7 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
   try
   {
     
-    $stmt_del = $obj->con1->prepare("delete from associate where aid='".$_REQUEST["n_id"]."'");
+    $stmt_del = $obj->con1->prepare("delete from faculty where id='".$_REQUEST["n_id"]."'");
     $Resp=$stmt_del->execute();
     if(!$Resp)
     {

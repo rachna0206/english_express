@@ -46,6 +46,7 @@ if(isset($_REQUEST['btnsubmit']))
   $listening = "n";
   $writing = "n";
   $reading = "n";
+  $exer_no = $_REQUEST['exerno'];
 
   for($i=0;$i<$num_exercise;$i++)
   {
@@ -93,8 +94,8 @@ if(isset($_REQUEST['btnsubmit']))
     {
       if(isset($_REQUEST['exer_name'.$i]))
       {
-        $stmt = $obj->con1->prepare("INSERT INTO `exercise`(`book_id`,`chap_id`,`exer_name`,`grammer`,`vocabulary`,`pronunciation`,`spelling`,`presentation`,`speaking`,`listening`,`writing`,`reading`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-        $stmt->bind_param("iissssssssss",$book_id,$ch_id,$exer_name,$grammer,$vocabulary,$pronunciation,$spelling,$presentation,$speaking,$listening,$writing,$reading);
+        $stmt = $obj->con1->prepare("INSERT INTO `exercise`(`book_id`,`chap_id`,`exer_name`,`grammer`,`vocabulary`,`pronunciation`,`spelling`,`presentation`,`speaking`,`listening`,`writing`,`reading`,`exer_no`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        $stmt->bind_param("iissssssssssi",$book_id,$ch_id,$exer_name,$grammer,$vocabulary,$pronunciation,$spelling,$presentation,$speaking,$listening,$writing,$reading,$exer_no);
         $Resp=$stmt->execute();
           if(!$Resp)
           {
@@ -137,6 +138,7 @@ if(isset($_REQUEST['btnupdate']))
   $listening = "n";
   $writing = "n";
   $reading = "n";
+  $exer_no = $_REQUEST['exerno'];
 
   $exer_name = $_REQUEST['exer_name0'];
     if(isset($_REQUEST['grammer0'])){
@@ -169,12 +171,12 @@ if(isset($_REQUEST['btnupdate']))
 
   try
   {
-    $stmt = $obj->con1->prepare("update exercise set book_id=?, chap_id=?, exer_name=?, grammer=?, vocabulary=?, pronunciation=?, spelling=?, presentation=?, speaking=?, listening=?, writing=?, reading=? where eid=?");
-  $stmt->bind_param("iissssssssssi", $book_id,$ch_id,$exer_name,$grammer,$vocabulary,$pronunciation,$spelling,$presentation,$speaking,$listening,$writing,$reading,$eid);
+    $stmt = $obj->con1->prepare("update exercise set book_id=?, chap_id=?, exer_name=?, grammer=?, vocabulary=?, pronunciation=?, spelling=?, presentation=?, speaking=?, listening=?, writing=?, reading=?, exer_no=? where eid=?");
+  $stmt->bind_param("iissssssssssii", $book_id,$ch_id,$exer_name,$grammer,$vocabulary,$pronunciation,$spelling,$presentation,$speaking,$listening,$writing,$reading,$exer_no,$eid);
   $Resp=$stmt->execute();
     if(!$Resp)
     {
-      throw new Exception("Problem in deleting! ". strtok($obj->con1-> error,  '('));
+      throw new Exception("Problem in updating! ". strtok($obj->con1-> error,  '('));
     }
     $stmt->close();
   } 
@@ -365,6 +367,11 @@ if(isset($_COOKIE["msg"]) )
                         </div> -->
                         
                         <div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Exercise Number</label>
+                          <input type="number" class="form-control" name="exerno" id="exerno" required />
+                        </div>
+
+                        <div class="mb-3">
                           <input type="hidden" name="field_cnt" id="field_cnt" value="1"/>
                           <label class="form-label" for="basic-default-fullname">Exercise Name</label>
                           <a href="javascript:create_field(this.value)" class="text-right"><i class="bx bxs-add-to-queue bx-sm"></i></a>
@@ -414,6 +421,7 @@ if(isset($_COOKIE["msg"]) )
                     <thead>
                       <tr>
                         <th>Srno</th>
+                        <th>Exercise Number</th>
                         <th>Exercise Name</th>
                         <th>Book Name</th>
                         <th>Chapter Name</th>
@@ -443,6 +451,7 @@ if(isset($_COOKIE["msg"]) )
 
                       <tr>
                         <td><?php echo $i?></td>
+                        <td><?php echo $e["exer_no"] ?></td>
                         <td><?php echo $e["exer_name"] ?></td>
                         <td><?php echo $e["bookname"] ?></td>
                         <td><?php echo $e["chapter_name"] ?></td>
@@ -459,11 +468,11 @@ if(isset($_COOKIE["msg"]) )
                     <?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>
                         <?php if($row["upd_func"]=="y"){ ?>
-                          <a href="javascript:editdata('<?php echo $e["eid" ]?>','<?php echo $e["book_id"] ?>','<?php echo $e["chap_id"] ?>','<?php echo $e["exer_name"] ?>','<?php echo $e["grammer"] ?>','<?php echo $e["vocabulary"] ?>','<?php echo $e["pronunciation"] ?>','<?php echo $e["spelling"] ?>','<?php echo $e["presentation"] ?>','<?php echo $e["speaking"] ?>','<?php echo $e["listening"] ?>','<?php echo $e["writing"] ?>','<?php echo $e["reading"] ?>');"><i class="bx bx-edit-alt me-1"></i> </a>
+                          <a href="javascript:editdata('<?php echo $e["eid" ]?>','<?php echo $e["book_id"] ?>','<?php echo $e["chap_id"] ?>','<?php echo $e["exer_no"] ?>','<?php echo $e["exer_name"] ?>','<?php echo $e["grammer"] ?>','<?php echo $e["vocabulary"] ?>','<?php echo $e["pronunciation"] ?>','<?php echo $e["spelling"] ?>','<?php echo $e["presentation"] ?>','<?php echo $e["speaking"] ?>','<?php echo $e["listening"] ?>','<?php echo $e["writing"] ?>','<?php echo $e["reading"] ?>');"><i class="bx bx-edit-alt me-1"></i> </a>
                         <?php } if($row["del_func"]=="y"){ ?>
               <a  href="javascript:deletedata('<?php echo $e["eid"]?>');"><i class="bx bx-trash me-1"></i> </a>
                         <?php } if($row["read_func"]=="y"){ ?>
-                          <a href="javascript:viewdata('<?php echo $e["eid" ]?>','<?php echo $e["book_id"] ?>','<?php echo $e["chap_id"] ?>','<?php echo $e["exer_name"] ?>','<?php echo $e["grammer"] ?>','<?php echo $e["vocabulary"] ?>','<?php echo $e["pronunciation"] ?>','<?php echo $e["spelling"] ?>','<?php echo $e["presentation"] ?>','<?php echo $e["speaking"] ?>','<?php echo $e["listening"] ?>','<?php echo $e["writing"] ?>','<?php echo $e["reading"] ?>');">View</a>
+                          <a href="javascript:viewdata('<?php echo $e["eid" ]?>','<?php echo $e["book_id"] ?>','<?php echo $e["chap_id"] ?>','<?php echo $e["exer_no"] ?>','<?php echo $e["exer_name"] ?>','<?php echo $e["grammer"] ?>','<?php echo $e["vocabulary"] ?>','<?php echo $e["pronunciation"] ?>','<?php echo $e["spelling"] ?>','<?php echo $e["presentation"] ?>','<?php echo $e["speaking"] ?>','<?php echo $e["listening"] ?>','<?php echo $e["writing"] ?>','<?php echo $e["reading"] ?>');">View</a>
                         <?php } ?>
                         </td>
                     <?php } ?>
@@ -492,7 +501,7 @@ if(isset($_COOKIE["msg"]) )
           window.location = loc;
       }
   }
-  function editdata(id,book,chap,nm,gra,voc,pron,spell,pres,speak,list,writ,read) {
+  function editdata(id,book,chap,exerno,nm,gra,voc,pron,spell,pres,speak,list,writ,read) {
       $('#ttId').val(id);
       $('#book').val(book);
 
@@ -500,6 +509,7 @@ if(isset($_COOKIE["msg"]) )
       $('#chap').val(chap);
       $('#num_div').hide();
       $('#num').removeAttr("required");
+      $('#exerno').val(exerno);
       $('#exer_name0').val(nm);
       if(gra=="y"){
         $('#grammer0').attr("checked","checked");
@@ -550,13 +560,14 @@ if(isset($_COOKIE["msg"]) )
 		$('#btnupdate').removeAttr('hidden');
 		$('#btnsubmit').attr('disabled',true);
   }
-  function viewdata(id,book,chap,nm,gra,voc,pron,spell,pres,speak,list,writ,read) {
+  function viewdata(id,book,chap,exerno,nm,gra,voc,pron,spell,pres,speak,list,writ,read) {
       $('#ttId').val(id);
       $('#book').val(book);
 
       chapList(book);// get chapters from book
       $('#chap').val(chap);
       $('#num_div').hide();
+      $('#exerno').val(exerno);
       $('#exer_name0').val(nm);
       if(gra=="y"){
         $('#grammer0').attr("checked","checked");

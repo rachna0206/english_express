@@ -21,11 +21,12 @@ if(isset($_REQUEST['btnsubmit']))
   $ch_name = $_REQUEST['chname'];
   $start_pg = $_REQUEST['start_pg'];
   $end_pg = $_REQUEST['end_pg'];
+  $chno = $_REQUEST['chno'];
 
   try
   {
-	$stmt = $obj->con1->prepare("INSERT INTO `chapter`(`chapter_name`,`start_pg`,`end_pg`,`book_id`) VALUES (?,?,?,?)");
-	$stmt->bind_param("siii",$ch_name,$start_pg,$end_pg,$book_id);
+	$stmt = $obj->con1->prepare("INSERT INTO `chapter`(`chapter_no`,`chapter_name`,`start_pg`,`end_pg`,`book_id`) VALUES (?,?,?,?,?)");
+	$stmt->bind_param("isiii",$chno,$ch_name,$start_pg,$end_pg,$book_id);
 	$Resp=$stmt->execute();
     if(!$Resp)
     {
@@ -56,12 +57,13 @@ if(isset($_REQUEST['btnupdate']))
   $ch_name = $_REQUEST['chname'];
   $start_pg = $_REQUEST['start_pg'];
   $end_pg = $_REQUEST['end_pg'];
+  $chno = $_REQUEST['chno'];
   $id=$_REQUEST['ttId'];
 
   try
   {
-    $stmt = $obj->con1->prepare("update chapter set chapter_name=?, start_pg=?, end_pg=?, book_id=? where cid=?");
-	$stmt->bind_param("siiii", $ch_name,$start_pg,$end_pg,$book_id,$id);
+    $stmt = $obj->con1->prepare("update chapter set chapter_no=?, chapter_name=?, start_pg=?, end_pg=?, book_id=? where cid=?");
+	$stmt->bind_param("isiiii", $chno,$ch_name,$start_pg,$end_pg,$book_id,$id);
 	$Resp=$stmt->execute();
     if(!$Resp)
     {
@@ -216,6 +218,11 @@ if(isset($_COOKIE["msg"]) )
                         </div>
                         
                         <div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Chapter Number</label>
+                          <input type="number" class="form-control" name="chno" id="chno" required />
+                        </div>
+
+                        <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Chapter Name</label>
                           <input type="text" class="form-control" name="chname" id="chname" required />
                         </div>
@@ -258,6 +265,7 @@ if(isset($_COOKIE["msg"]) )
                     <thead>
                       <tr>
                         <th>Srno</th>
+                        <th>Chapter Number</th>
                         <th>Chapter Name</th>
                         <th>Starting page</th>
                         <th>Ending page</th>
@@ -279,6 +287,7 @@ if(isset($_COOKIE["msg"]) )
 
                       <tr>
                         <td><?php echo $i?></td>
+                        <td><?php echo $chap["chapter_no"]?></td>
                         <td><?php echo $chap["chapter_name"]?></td>
                         <td><?php echo $chap["start_pg"]?></td>
                         <td><?php echo $chap["end_pg"]?></td>
@@ -287,11 +296,11 @@ if(isset($_COOKIE["msg"]) )
                     <?php if($row["read_func"]=="y" || $row["upd_func"]=="y" || $row["del_func"]=="y"){ ?>
                         <td>
                         <?php if($row["upd_func"]=="y"){ ?>
-                        	<a href="javascript:editdata('<?php echo $chap["cid"]?>','<?php echo base64_encode($chap["chapter_name"])?>','<?php echo $chap["start_pg"]?>','<?php echo $chap["end_pg"]?>','<?php echo $chap["book_id"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
+                        	<a href="javascript:editdata('<?php echo $chap["cid"]?>','<?php echo $chap["chapter_no"]?>','<?php echo base64_encode($chap["chapter_name"])?>','<?php echo $chap["start_pg"]?>','<?php echo $chap["end_pg"]?>','<?php echo $chap["book_id"]?>');"><i class="bx bx-edit-alt me-1"></i> </a>
                         <?php } if($row["del_func"]=="y"){ ?>
 							<a  href="javascript:deletedata('<?php echo $chap["cid"]?>');"><i class="bx bx-trash me-1"></i> </a>
                         <?php } if($row["read_func"]=="y"){ ?>
-                        	<a href="javascript:viewdata('<?php echo $chap["cid"]?>','<?php echo base64_encode($chap["chapter_name"])?>','<?php echo $chap["start_pg"]?>','<?php echo $chap["end_pg"]?>','<?php echo $chap["book_id"]?>');">View</a>
+                        	<a href="javascript:viewdata('<?php echo $chap["cid"]?>','<?php echo $chap["chapter_no"]?>','<?php echo base64_encode($chap["chapter_name"])?>','<?php echo $chap["start_pg"]?>','<?php echo $chap["end_pg"]?>','<?php echo $chap["book_id"]?>');">View</a>
                         <?php } ?>
                         </td>
                     <?php } ?>
@@ -320,21 +329,22 @@ if(isset($_COOKIE["msg"]) )
           window.location = loc;
       }
   }
-  function editdata(id,chname,startpg,endpg,book) {
-           
-		   	$('#ttId').val(id);
-            $('#chname').val(atob(chname));
-			$('#start_pg').val(startpg);
+  function editdata(id,chno,chname,startpg,endpg,book) {
+      $('#ttId').val(id);
+      $('#chno').val(chno);
+      $('#chname').val(atob(chname));
+	  	$('#start_pg').val(startpg);
 			$('#end_pg').val(endpg);
 			$('#book').val(book);
 			$('#btnsubmit').attr('hidden',true);
-            $('#btnupdate').removeAttr('hidden');
+      $('#btnupdate').removeAttr('hidden');
 			$('#btnsubmit').attr('disabled',true);
 
         }
-  function viewdata(id,chname,startpg,endpg,book) {
+  function viewdata(id,chno,chname,startpg,endpg,book) {
            
 		   	$('#ttId').val(id);
+        $('#chno').val(chno);
             $('#chname').val(atob(chname));
 			$('#start_pg').val(startpg);
 			$('#end_pg').val(endpg);

@@ -311,9 +311,18 @@ public function roadmap_exercise_count($stu_id,$book)
 
 
 // banner
- public function banner()
+ public function banner_img()
 {
-    $stmt = $this->con->prepare("SELECT * FROM (select * from motivation where `type`='image' and status='enabled' and banner_display='on' union (select * from motivation where `type`='video' and status='enabled' and banner_display='on' order by mid desc limit 1)) as tbl1 ");
+    $stmt = $this->con->prepare("select * from motivation where `type`='image' and status='enabled' order by rand() limit 20  ");
+    
+    $stmt->execute();
+    $exercise = $stmt->get_result();
+    $stmt->close();
+    return $exercise;
+}
+public function banner_video()
+{
+    $stmt = $this->con->prepare("select * from motivation where `type`='video' and status='enabled' order by rand() limit 1 ");
     
     $stmt->execute();
     $exercise = $stmt->get_result();

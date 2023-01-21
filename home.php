@@ -255,7 +255,7 @@ $stmt_list9->close();
                     <i class="bx bx-dots-vertical-rounded"></i>
                   </button>
                   <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt4">
-                    <a class="dropdown-item" href="lead_generation.php">View More</a>
+                    <a class="dropdown-item" href="enquiry_report.php?typ=today">View More</a>
                     
                   </div>
                 </div>

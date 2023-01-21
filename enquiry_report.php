@@ -13,10 +13,16 @@ $stmt_slist->execute();
 $res = $stmt_slist->get_result();
 $stmt_slist->close();
 
-$stmt_batch = $obj->con1->prepare("select * from batch");
-$stmt_batch->execute();
-$res_batch = $stmt_batch->get_result();
-$stmt_batch->close();
+
+$stmt_state = $obj->con1->prepare("select * from state");
+$stmt_state->execute();
+$res_state = $stmt_state->get_result();
+$stmt_state->close();
+
+$stmt_city = $obj->con1->prepare("select * from city");
+$stmt_city->execute();
+$res_city = $stmt_city->get_result();
+$stmt_city->close();
 
 $stmt_course = $obj->con1->prepare("select * from course");
 $stmt_course->execute();
@@ -33,41 +39,35 @@ function password_generate($chars)
 
 
 
+
 // insert data
 if(isset($_REQUEST['btnsubmit']))
 {
-  $userid=isset($_REQUEST['userid'])?$_REQUEST['userid']:"";
+  $city=isset($_REQUEST['city'])?$_REQUEST['city']:"";
+  $village=isset($_REQUEST['village'])?$_REQUEST['village']:"";
+  $state=isset($_REQUEST['state'])?$_REQUEST['state']:"";
   $name=isset($_REQUEST['name'])?$_REQUEST['name']:"";
   $contact=isset($_REQUEST['contact'])?$_REQUEST['contact']:"";
-  $batch=isset($_REQUEST['batch'])?$_REQUEST['batch']:"";
+  
   $dt_from=isset($_REQUEST['dt_from'])?$_REQUEST['dt_from']:"";
   $dt_to=isset($_REQUEST['dt_to'])?$_REQUEST['dt_to']:"";
   $gender=isset($_REQUEST['gender'])?$_REQUEST['gender']:"";
   $course=isset($_REQUEST['course'])?$_REQUEST['course']:"";
 
-  $user_str=($userid!="")?"and s1.user_id like '%".$userid."%'":"";
+  $city_str=($city!="")?"and s1.city = '".$city."'":"";
+  $state_str=($state!="")?"and s1.state = '".$state."'":"";
   $name_str=($name!="")?"and s1.name like '%".$name."%'":"";
+  $village_str=($village!="")?"and s1.village like '%".$village."%'":"";
   $contact_str=($contact!="")?"and s1.phone like '%".$contact."%'":"";
-  $batch_str=($batch!="")?"and b1.id='".$batch."'":"";
-  $dt_fromstr=($dt_from!="")?"and s1.enrollment_dt>='".$dt_from."'":"";
-  $dt_tostr=($dt_to!="")?"and s1.enrollment_dt<='".$dt_to."'":"";
+  
+  $dt_fromstr=($dt_from!="")?"and s1.inquiry_dt>='".$dt_from."'":"";
+  $dt_tostr=($dt_to!="")?"and s1.inquiry_dt<='".$dt_to."'":"";
   $genderstr=($gender!="")?"and s1.gender='".$gender."'":"";
-  $coursestr=($course!="")?"and s1.courseid='".$course."'":"";
-  if($batch!="")
-  {
-
-
-     $stmt_list = $obj->con1->prepare("select s1.*,c1.*,b1.name as batch_name,b1.stime from student s1, course c1,batch b1,batch_assign b2,stu_course sc where sc.course_id=c1.courseid and sc.stu_id=s1.sid and b2.batch_id=b1.id and b2.student_id=s1.sid ".$user_str.$name_str.$contact_str.$batch_str.$dt_fromstr.$dt_tostr.$genderstr.$coursestr);
-  }
-  else
-  {
-
-     $stmt_list = $obj->con1->prepare("select * from student s1, course c1 ,stu_course sc where sc.course_id=c1.courseid and sc.stu_id=s1.sid ".$user_str.$name_str.$contact_str.$dt_fromstr.$dt_tostr.$genderstr.$coursestr);
-  }
-
+  $coursestr=($course!="")?"and s1.courseid='".$course."'":"";  
   
- 
   
+  $stmt_list = $obj->con1->prepare("select * from student s1, course c1 ,stu_course sc where sc.course_id=c1.courseid and sc.stu_id=s1.sid and s1.status='inquiry' ".$city_str.$name_str.$contact_str.$dt_fromstr.$dt_tostr.$genderstr.$state_str.$village_str.$coursestr);
+   
   $stmt_list->execute();
   $result = $stmt_list->get_result();
   
@@ -76,17 +76,14 @@ if(isset($_REQUEST['btnsubmit']))
 }
 else if(isset($_REQUEST["typ"]))
 {
-  if($_REQUEST['typ']=="unassigned")
-  {
-    $stmt_list = $obj->con1->prepare("SELECT s1.*,b2.name as batch_name,b2.stime as batch_time FROM  student s1,batch_assign b1,batch b2 WHERE b1.student_id=s1.sid and b1.batch_id=b2.id  and b2.id=37 ");
-  }
-  if($_REQUEST['typ']=="new_admission")
+  if($_REQUEST['typ']=="today")
   {
     $dt_from=date('Y-m-d');
     $dt_to=date('Y-m-d');
-    $stmt_list = $obj->con1->prepare("select s1.*,c1.*,b1.name as batch_name,b1.stime from student s1, course c1,batch b1,batch_assign b2,stu_course sc where sc.course_id=c1.courseid and sc.stu_id=s1.sid and b2.batch_id=b1.id and b2.student_id=s1.sid and s1.enrollment_dt='".date("Y-m-d")."' ");
-
+    
+    $stmt_list = $obj->con1->prepare("select * from student s1, course c1 ,stu_course sc where sc.course_id=c1.courseid and sc.stu_id=s1.sid and s1.status='inquiry' and s1.inquiry_dt='".date("Y-m-d")."' ");
   }
+  
   $stmt_list->execute();
   $result = $stmt_list->get_result(); 
   $stmt_list->close();
@@ -94,7 +91,7 @@ else if(isset($_REQUEST["typ"]))
 }
 ?>
 
-<h4 class="fw-bold py-3 mb-4">Student Report</h4>
+<h4 class="fw-bold py-3 mb-4">Enquiry Report</h4>
 
 <?php if($row["read_func"]=="y"){ ?>
 
@@ -108,11 +105,7 @@ else if(isset($_REQUEST["typ"]))
       <div class="card-body">
         <form method="post" enctype="multipart/form-data">
           <div class="row">
-            <div class="mb-3 col-md-3">
-              <label class="form-label" for="basic-default-fullname">UserId (Roll No.)</label>
-              <input type="text" class="form-control" name="userid" id="userid"  value="<?php echo isset($_REQUEST['userid'])?$_REQUEST['userid']:""?>"/>
-              <input type="hidden" name="ttId" id="ttId">
-            </div>
+            
             <div class="mb-3 col-md-3">
               <label class="form-label" for="basic-default-fullname">Name</label>
               <input type="text" class="form-control" name="name" id="name" value="<?php echo isset($_REQUEST['name'])?$_REQUEST['name']:""?>"  />
@@ -124,29 +117,51 @@ else if(isset($_REQUEST["typ"]))
               
             </div>
             <div class="mb-3 col-md-3">
-              <label class="form-label" for="basic-default-fullname">Batch</label>
-              <select name="batch" id="batch" class="form-control"  >
-                <option value="">Select</option>
-                <?php
-                while($batch=mysqli_fetch_array($res_batch))
+              <label class="form-label" for="basic-default-fullname">State</label>
+              <select class="form-control" name="state" id="state">
+                <option value="">Select State</option>
+                <?php 
+                while($state=mysqli_fetch_array($res_state))
                 {
                   ?>
-                  <option value="<?php echo $batch["id"]?>" <?php echo (isset($_REQUEST['batch']) && $_REQUEST['batch']==$batch["id"])?"selected":""?>><?php echo $batch["stime"]."-".$batch["name"]?></option>
+                  <option value="<?php echo $state["state_id"]?>" <?php echo (isset($_REQUEST['state']) && $_REQUEST['state']==$state["state_id"])?"selected":""?>><?php echo $state["state_name"]?></option>
+
                   <?php
+
                 }
                 ?>
-                
-                
+              </select>
+              
+            </div>
+            <div class="mb-3 col-md-3">
+              <label class="form-label" for="basic-default-fullname">Village</label>
+              <input type="text" class="form-control" name="village" id="village"  value="<?php echo isset($_REQUEST['village'])?$_REQUEST['village']:""?>"/>
+              
+            </div>
+            <div class="mb-3 col-md-3">
+              <label class="form-label" for="basic-default-fullname">City</label>
+              <select class="form-control" name="city" id="city">
+                <option value="">Select City</option>
+                <?php 
+                while($city=mysqli_fetch_array($res_city))
+                {
+                  ?>
+                  <option value="<?php echo $city["city_id"]?>" <?php echo (isset($_REQUEST['city']) && $_REQUEST['city']==$city["city_id"])?"selected":""?>><?php echo $city["city_name"]?></option>
+
+                  <?php
+
+                }
+                ?>
               </select>
               
             </div>
              <div class="mb-3 col-md-3">
-              <label class="form-label" for="basic-default-fullname">Registration Date From</label>
+              <label class="form-label" for="basic-default-fullname">Enquiry Date From</label>
               <input type="date" class="form-control" name="dt_from" id="dt_from"  value="<?php echo $dt_from?>"/>
               
             </div>
              <div class="mb-3 col-md-3">
-              <label class="form-label" for="basic-default-fullname">Registration Date To</label>
+              <label class="form-label" for="basic-default-fullname">Enquiry Date To</label>
               <input type="date" class="form-control" name="dt_to" id="dt_to" value="<?php echo $dt_to?>" />
               
             </div>
@@ -180,6 +195,7 @@ else if(isset($_REQUEST["typ"]))
               </select>
               
             </div>
+            
            
           </div>
 
@@ -202,12 +218,12 @@ else if(isset($_REQUEST["typ"]))
                     <thead>
                       <tr>
                         <th>Srno</th>
-                        <th>Roll No.</th>
+                        
                         <th>Name</th>
                         
                         <th>Contact No.</th>
                         <th>Enrollment Date</th>
-                        <th>Batch Time</th>
+                        
                         
                         <th>Course</th>
                         <th>Action</th>
@@ -223,22 +239,17 @@ else if(isset($_REQUEST["typ"]))
                         while($s=mysqli_fetch_array($result))
                         {
                           
-                          $stmt_batch = $obj->con1->prepare("select GROUP_CONCAT(b1.name,',') as batch_name,GROUP_CONCAT(b1.stime,',') as batch_time,b1.status,f1.name  from batch b1,batch_assign b2,faculty f1 where b2.batch_id=b1.id and b1.faculty_id=f1.id and b2.student_id=?");
-                          $stmt_batch->bind_param("i",$s["sid"]); 
-                          $stmt_batch->execute();
-                          $result_batch = $stmt_batch->get_result();
-                          $batch_data=mysqli_fetch_array($result_batch);
-                          $stmt_batch->close();
+                         
                           ?>
 
                       <tr>
                         <td><?php echo $i?></td>
-                        <td><?php echo $s["user_id"]?></td>
+                        
                         <td><?php echo $s["name"]?></td>
                         
                         <td><?php echo $s["phone"]?></td>
-                        <td><?php echo ($s["enrollment_dt"]!="0000-00-00")?date("d-m-Y", strtotime($s["enrollment_dt"])):"-"?></td>
-                        <td><?php echo $batch_data["batch_name"]." - ".$batch_data["batch_time"]?></td>
+                        <td><?php echo ($s["inquiry_dt"]!="0000-00-00")?date("d-m-Y", strtotime($s["inquiry_dt"])):"-"?></td>
+                        
                         
                         <td><?php echo $s["coursename"]?></td>
                         <td ><a href="javascript:view_stu_data('<?php echo $s["sid"]?>')">View</a></td>
@@ -266,8 +277,8 @@ else if(isset($_REQUEST["typ"]))
 <script type="text/javascript">
   function view_stu_data(stu)
   {
-    createCookie("stu_report_id",stu,1);
-    window.open('stu_report_detail.php', '_blank');
+    createCookie("enquiry_report_id",stu,1);
+    //window.open('enquiry_report_detail.php', '_blank');
     
 
   }

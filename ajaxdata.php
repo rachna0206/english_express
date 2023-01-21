@@ -381,9 +381,13 @@ if(isset($_REQUEST['action']))
 	if($_REQUEST['action']=="exerList")
 	{
 		$html="";
-		$chap_id=$_REQUEST["chap_id"];
+		$chap_id=explode(",",$_REQUEST["chap_id"]);
+		for($j=0;$j<count($chap_id);$j++)
+		{
+
+		
 		$stmt_elist = $obj->con1->prepare("select eid,exer_name from exercise where chap_id=?");
-		$stmt_elist->bind_param("i",$chap_id);
+		$stmt_elist->bind_param("i",$chap_id[$j]);
 	  	$stmt_elist->execute();
 	  	$exer_res = $stmt_elist->get_result();
 	  	$stmt_elist->close();
@@ -394,8 +398,8 @@ if(isset($_REQUEST['action']))
 			$i=0;
 		  	while($exercise=mysqli_fetch_array($exer_res))
 		  	{
-					$html.='<div class="col-md-4"><input type="checkbox" name="e[]" id="exercise_'.$exercise["eid"].'" value="'.$exercise["eid"].'" onclick="getSkill(this.value,'.$i.')"/> '.$exercise["exer_name"].'
-						<div id="skill_list_div_'.$i.'"></div>
+					$html.='<div class="col-md-4"><input type="checkbox" name="e[]" id="exercise_'.$exercise["eid"].'" value="'.$exercise["eid"].'" onclick="getSkill(this.value,'.$j.','.$i.')"/> '.$exercise["exer_name"].'
+						<div id="skill_list_div_'.$j.'_'.$i.'"></div>
 					</div>';
 					$i++;
 
@@ -406,6 +410,7 @@ if(isset($_REQUEST['action']))
 		  	$html.='<div class="col-md-3"><span class="text-danger">No exercise found</span></div>';
 
 		  }
+		}
 
 	  	echo $html."@@@@@".mysqli_num_rows($exer_res);
 	  
@@ -465,7 +470,7 @@ if(isset($_REQUEST['action']))
 	{
 		$html="";
 		$exercise_id=$_REQUEST["exercise_id"];
-		$cnt=$_REQUEST["count"];
+		
 		$stmt_slist = $obj->con1->prepare("select * from exercise where eid=?");
 		$stmt_slist->bind_param("i",$exercise_id);
   	$stmt_slist->execute();
@@ -863,26 +868,41 @@ END ");
 
 	if($_REQUEST['action']=="getBatch")
 	{
-		$html="";
+		$batch_list="";
+		$stu_list="";
 		$stu_id=$_REQUEST["stu_id"];
+
 		$stmt_list = $obj->con1->prepare("select b1.id,b1.name from batch_assign ba1, batch b1 where ba1.batch_id=b1.id and ba1.student_status!='transfered' and student_id=?");
 		$stmt_list->bind_param("i",$stu_id);
   	$stmt_list->execute();
   	$batch_res = $stmt_list->get_result();
   	$stmt_list->close();
+
+  	$stmt_slist = $obj->con1->prepare("select * from student where sid!=? and status='registered'");
+		$stmt_slist->bind_param("i",$stu_id);
+		$stmt_slist->execute();
+		$student_res = $stmt_slist->get_result();
+		$stmt_slist->close();
 		
 		if(mysqli_num_rows($batch_res)>0)
 		{
 	  	while($batch=mysqli_fetch_array($batch_res))
 	  	{
-				$html.='<input type="checkbox" name="batch[]" id="" value="'.$batch["id"].'"/> '.$batch["name"];
+				$batch_list.='<input type="checkbox" name="batch[]" id="" value="'.$batch["id"].'"/> '.$batch["name"];
 	  	}
 	  }
 	  else
 	  {
-	  	$html.='<div class="col-md-3"><span class="text-danger">No Batch Found</span></div>';
+	  	$batch_list.='<div class="col-md-3"><span class="text-danger">No Batch Found</span></div>';
 	  }
-		echo $html;
+
+	  $stu_list.='<option value="">Select Student</option>';
+	  while($stu=mysqli_fetch_array($student_res))
+  	{
+			$stu_list.='<option value="'.$stu['sid'].'">'.$stu['user_id']."-".$stu['name']."-".$stu['phone'].'</option>';
+  	}
+
+		echo $batch_list."@@@@@".$stu_list;
  	}
 	
 }

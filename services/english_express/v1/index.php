@@ -648,19 +648,19 @@ $app->post('/stu_chapter_list', function () use ($app) {
 
 
 /* *
- * banner
+ * banner image
  * Parameters:
  * Method: POST
  * 
  */
 
-$app->post('/banner', function () use ($app) {
+$app->post('/banner_img', function () use ($app) {
 
     
     $db = new DbOperation();
     $data = array();
     $data["data"] = array();  
-    $result=$db->banner();
+    $result=$db->banner_img();
     
      
     $response = array();
@@ -670,6 +670,41 @@ $app->post('/banner', function () use ($app) {
             $temp[$key] = $value;
            
             $temp["image_path"]="http://englishexpress.co.in/roots555/banner/";
+            
+        }
+        $temp = array_map('utf8_encode', $temp);
+        array_push($data['data'], $temp);
+    }
+
+    $data['message'] = "";
+    $data['success'] = true;
+    
+    echoResponse(200, $data);
+});
+
+/* *
+ * banner video
+ * Parameters:
+ * Method: POST
+ * 
+ */
+
+$app->post('/banner_video', function () use ($app) {
+
+    
+    $db = new DbOperation();
+    $data = array();
+    $data["data"] = array();  
+    $result=$db->banner_video();
+    
+     
+    $response = array();
+    while ($row = $result->fetch_assoc()) {
+        $temp = array();
+        foreach ($row as $key => $value) {
+            $temp[$key] = $value;
+           
+            
             
         }
         $temp = array_map('utf8_encode', $temp);

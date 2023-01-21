@@ -2,80 +2,72 @@
 include("header.php");
 error_reporting(0);
 // for permission
-if($row=checkPermission($_SESSION["utype"],"exercise_master")){ }
+if($row=checkPermission($_SESSION["utype"],"student_assign")){ }
 else{
 	header("location:home.php");
 }
 
-$stmt_balist = $obj->con1->prepare("select * from batch where id!=37");
-$stmt_balist->execute();
-$r1 = $stmt_balist->get_result();
-$stmt_balist->close();
+$stmt_clist = $obj->con1->prepare("select * from course");
+$stmt_clist->execute();
+$course_res = $stmt_clist->get_result();
+$stmt_clist->close();
 
 $stmt_blist = $obj->con1->prepare("select * from books");
 $stmt_blist->execute();
 $res = $stmt_blist->get_result();
 $stmt_blist->close();
 
+$stmt_flist = $obj->con1->prepare("select * from faculty");
+$stmt_flist->execute();
+$faculty_res = $stmt_flist->get_result();
+$stmt_flist->close();
+
+
 // insert data
 if(isset($_REQUEST['btnsubmit']))
 {
-  
+  $stu_id = $_REQUEST['stu'];
   $batch_id = $_REQUEST['batch'];
   $book_id = $_REQUEST['book'];
   //$chap_id = $_REQUEST['chap'];
   $alloted_dt = $_REQUEST['dt'];
   $expected_dt = $_REQUEST['expec_dt'];
-  if($_REQUEST['oof']=="oof"){
-    $faculty_id = $_REQUEST['other_faculty'];
-  } else{
-    $faculty_id = $_REQUEST['faculty'];
-  }
+  $faculty_id = $_REQUEST['faculty'];
   $status = "pending";
   $work_type = $_REQUEST['type'];
   $explain_type = $_REQUEST['explain_type'];
   $stu_status='Incomplete';
-  foreach($_REQUEST['s'] as $stu_id){
-    $j=0;
-    
-    foreach($_REQUEST['chap'] as $chap_id){
-    
-   
+  $j=0;
+  foreach($_REQUEST['chap'] as $chap_id){
     foreach($_REQUEST['e'.$j] as $exer_id){
-       
-       
-
-        for($i=0;$i<sizeof($_REQUEST['es'.$exer_id]);$i++)
+       $i=0;
+       for($i=0;$i<sizeof($_REQUEST['es'.$exer_id]);$i++)
         {
-          
-         $exer_skill=$_REQUEST['es'.$exer_id][$i];
+          $exer_skill=$_REQUEST['es'.$exer_id][$i];
         
-          try
-          {
-           
-            
-          	$stmt = $obj->con1->prepare("INSERT INTO `stu_assignment`(`batch_id`,`stu_id`,`book_id`,`chap_id`,`exercise_id`,`alloted_dt`,`expected_dt`,`faculty_id`,`status`,`work_type`,`explain_by_teacher`,`skill`,`stu_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-          	$stmt->bind_param("iiiiississsss",$batch_id,$stu_id,$book_id,$chap_id,$exer_id,$alloted_dt,$expected_dt,$faculty_id,$status,$work_type,$explain_type,$exer_skill,$stu_status);
-          	$Resp=$stmt->execute();
-            if(!$Resp)
-            {
-              throw new Exception("Problem in inserting! ". strtok($obj->con1-> error,  '('));
-            }
-            $stmt->close();
-          } 
-          catch(Exception  $e) {
-            setcookie("sql_error",urlencode($e->getMessage()),time()+3600,"/");
-          }
+  try
+  {
+    
+  	$stmt = $obj->con1->prepare("INSERT INTO `stu_assignment`(`stu_id`,`batch_id`,`book_id`,`chap_id`,`exercise_id`,`alloted_dt`,`expected_dt`,`faculty_id`,`status`,`work_type`,`explain_by_teacher`,`skill`,`stu_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+  	$stmt->bind_param("iiiiississsss",$stu_id,$batch_id,$book_id,$chap_id,$exer_id,$alloted_dt,$expected_dt,$faculty_id,$status,$work_type,$explain_type,$exer_skill,$stu_status);
+  	$Resp=$stmt->execute();
+    if(!$Resp)
+    {
+      throw new Exception("Problem in inserting! ". strtok($obj->con1-> error,  '('));
+    }
+    $stmt->close();
+  } 
+  catch(Exception  $e) {
+    setcookie("sql_error",urlencode($e->getMessage()),time()+3600,"/");
+  }
   //"Assignment not alloted to already assigned students!!"
-	  }
-
+       }
     }
     $j++;
   }
-  }
 
     setcookie("msg", "data",time()+3600,"/");
-    header("location:stu_assignment.php");
+    header("location:single_stu_assignment.php");
 }
 
 
@@ -109,13 +101,9 @@ if(isset($_REQUEST["btn_modal_update"]))
     setcookie("sql_error",urlencode($e->getMessage()),time()+3600,"/");
   }
   //"Assignment not alloted to already assigned students!!"
-   
-
-    
-  
 
     setcookie("msg", "update",time()+3600,"/");
-    header("location:stu_assignment.php");
+    header("location:single_stu_assignment.php");
 }
 
 
@@ -139,16 +127,17 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
   if($Resp)
   {
 	setcookie("msg", "data_del",time()+3600,"/");
-    header("location:stu_assignment.php");
+    header("location:single_stu_assignment.php");
   }
   else
   {
 	setcookie("msg", "fail",time()+3600,"/");
-    header("location:stu_assignment.php");
+    header("location:single_stu_assignment.php");
   }
 }
 
 ?>
+
 <link href="assets/css/select2.min.css" rel="stylesheet" />
 <script src="assets/js/select2.min.js"></script>
 
@@ -157,58 +146,40 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
     $('.js-example-basic-multiple').select2();
 });
 
-	function studList(batch_id){
 
-    	$.ajax({
+  function getStudent(search_by,stu){
+    $.ajax({
           async: true,
           type: "POST",
-          url: "ajaxdata.php?action=studList",
-          data: "batch_id="+batch_id,
+          url: "ajaxdata.php?action=getStudent",
+          data: "search_by="+search_by+"&stu="+stu,
           cache: false,
           success: function(result){
             //alert(result);
             var res=result.split("@@@@@");
-            $('#stu_list_div').html('');
-            $('#stu_list_div').append(res[0]);
-            
-            
-            $('#course').html(res[1]);
-            $('#chap').html('');
-            $('#check_all_stu').prop('checked',false);
-
-       
+            $('#stu').html('');
+            $('#stu').append(res[0]);
+            getStuBatch(res[1]);            
             }
         });
-		
-		$.ajax({
-          async: true,
-          type: "POST",
-          url: "ajaxdata.php?action=facultyList",
-          data: "batch_id="+batch_id,
-          cache: false,
-          success: function(result){
-          //  alert(result);
-            $('#faculty').html('');
-            $('#faculty').append(result);
-       
-            }
-        });
+  }
 
+  function getStuBatch(stu_id){
     $.ajax({
           async: true,
           type: "POST",
-          url: "ajaxdata.php?action=otherFacultyList",
-          data: "batch_id="+batch_id,
+          url: "ajaxdata.php?action=getStuBatch",
+          data: "stu_id="+stu_id,
           cache: false,
           success: function(result){
             //alert(result);
-            $('#other_faculty').html('');
-            $('#other_faculty').append(result);
+            $('#batch').html('');
+            $('#batch').append(result);
+
        
             }
         });
-
-	}
+  }
 
   function bookList(course_id){
 
@@ -227,6 +198,7 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
         });
 
   }
+
 	function chapList(book_id){
 
 		$.ajax({
@@ -245,23 +217,8 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
         });
 
 	}
-
-
-  $('.js-example-basic-multiple').on('unselect', function (e) {
-    console.log("called unselect");
-    var data = e.params.data;
-    console.log(data);
-});
-
-
 	function exerList(chap_id){
-
-    
     var chap=$('#chap').val();
-    /*var chapters=$("#chap").val();
-    var chap_id=chapters.pop();
-      console.log("chap id="+chap_id);*/
-    //console.log("array="+chap.slice(-1)+" main array="+chap);
 		$.ajax({
           async: true,
           type: "POST",
@@ -306,21 +263,6 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
       $('#skill_list_div_'+count1+'_'+count2).html('');
     }
   }
-
-  function getOtherFaculty(){
-    if($('#oof').is(':checked')){
-      $('#other_faculty_list_div').removeAttr("hidden");
-      $('#faculty_list_div').attr("hidden",true);
-      $('#other_faculty').attr("required",true);
-      $('#faculty').removeAttr("required");
-    }
-    else{
-      $('#other_faculty_list_div').attr("hidden",true);
-      $('#faculty_list_div').removeAttr("hidden"); 
-      $('#faculty').attr("required",true);
-      $('#other_faculty').removeAttr("required");
-    }
-  } 
 
   function get_expected_date(day,dt)
   {
@@ -423,45 +365,56 @@ if(isset($_COOKIE["msg"]) )
                     <div class="card-body">
                       <form method="post" >
                         <input type="hidden" name="ttId" id="ttId">
+                        
+                        
+                        <div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Enter Roll No./Name</label>
+                          <input type="text" class="form-control" name="search_value" id="search_value"/>
+                        </div>
+
+                        <div class="mb-3">
+                        <label class="form-label d-block" for="basic-default-fullname">Search By :</label>
+                          <div class="form-check form-check-inline mt-3">
+                            <input class="form-check-input" type="radio" name="search_by" id="roll_no" value="roll_no" onchange="getStudent(this.value,search_value.value)" required >
+                            <label class="form-check-label" for="inlineRadio1">Roll Number</label>
+                          </div>
+                          <div class="form-check form-check-inline mt-3">
+                            <input class="form-check-input" type="radio" name="search_by" id="name" value="name" onchange="getStudent(this.value,search_value.value)" required>
+                            <label class="form-check-label" for="inlineRadio1">Name</label>
+                          </div>
+                        </div>
+
+                        <div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Student</label>
+                          <select name="stu" id="stu" class="form-control" onchange="getStuBatch(this.value)" required>
+                            <option value="">Select Student</option>
+                          </select>
+                        </div>
+
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Batch Name</label>
-                          <select name="batch" id="batch" onChange="studList(this.value)" class="form-control" required>
-                          	<option value="">Select Batch</option>
-                            <?php    
-                              while($batch=mysqli_fetch_array($r1)){
-                                if($baid==$batch["id"]){
-                            ?>
-                            		      <option value="<?php echo $batch["id"] ?>" selected="selected"><?php echo $batch["name"] ?></option>
-                            <?php
-        							       }else{
-        					         ?>
-                                      <option value="<?php echo $batch["id"] ?>"><?php echo $batch["name"] ?></option>
-                            <?php
-        							          }
-        						          }
-        					          ?>
-					                </select>
-                          
+                          <select name="batch" id="batch" class="form-control" required>
+                            <option value="">Select Batch</option>
+                          </select>
                         </div>
-                        
+
+                        <div class="mb-3">
+                          <label class="form-label" for="basic-default-fullname">Date</label>
+                          <input type="date" class="form-control" name="dt" id="dt" value="<?php echo date('Y-m-d') ?>" required />
+                        </div>                        
                         
                        
-                        <div class="mb-3" >
-                          <label class="form-label" for="basic-default-fullname">Students</label><br> <input type="checkbox" name="check_stu" id="check_all_stu" > Select ALL
-                          <div  id="stu_list_div" class="row">
-                    <?php    
-                      while($stu=mysqli_fetch_array($r2)){
-					          ?>      
-                            <input type="checkbox" id="stu_list" name="s[]" value="<?php echo $stu["student_id"] ?>" checked="checked"/> <?php echo $stu["name"] ?>
-                    <?php
-						          }
-					          ?>
-                    	    </div>
-                        </div>
                         <div class="mb-3" >
                           <label class="form-label" for="basic-default-fullname">Course Name</label>
                           <select name="course" id="course" onChange="bookList(this.value)" class="form-control" required>
                             <option value="">Select Course</option>
+                        <?php 
+                          while($course = mysqli_fetch_array($course_res)){
+                        ?>
+                            <option value="<?php echo $course['courseid'] ?>"><?php echo $course['coursename'] ?></option>
+                        <?php
+                          }
+                        ?>
                           </select>
                         </div>
                         
@@ -613,33 +566,14 @@ if(isset($_COOKIE["msg"]) )
                           <select name="faculty" id="faculty" class="form-control" required>
                           	<option value="">Select Faculty Name</option>   
 		    		        <?php    
-                      while($f=mysqli_fetch_array($r4)){	
+                      while($faculty=mysqli_fetch_array($faculty_res)){	
                     ?>
-                    		<option value="<?php echo $f["id"] ?>"><?php echo $f["name"] ?></option>
+                    		<option value="<?php echo $faculty["id"] ?>"><?php echo $faculty["name"] ?></option>
                     <?php
                     	}
 					          ?>
      					            </select>
                         	</div>
-                        </div>
-
-                        <div>
-                          <input type="checkbox" name="oof" id="oof" value="oof" onclick="getOtherFaculty()" /> Other Faculty
-                        </div>
-
-                        <div class="mb-3">
-                          <div id="other_faculty_list_div" hidden>
-                          <select name="other_faculty" id="other_faculty" class="form-control" >
-                            <option value="">Select Other Faculty Name</option>   
-                    <?php    
-                      while($f1=mysqli_fetch_array($r5)){  
-                    ?>
-                        <option value="<?php echo $f1["id"] ?>"><?php echo $f1["name"] ?></option>
-                    <?php
-                      }
-                    ?>
-                          </select>
-                          </div>
                         </div>
                         
                     <?php if($row["write_func"]=="y"){ ?>

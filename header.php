@@ -30,7 +30,7 @@ else{ }
 $frontdeskmenu=array("lead_generation.php","student_reg.php","batch.php","batch_assign.php");
 $facultymenu=array("stu_assignment.php","attendance.php","assign_printing.php");
 $adminmenu=array("branch.php","course.php","skills.php","Book.php","chapter.php","city.php","exercise.php","faculty_reg.php","associate_reg.php","motivation.php","permissions.php","send_notification.php","state.php","transfer.php","task.php");
-$reportmenu=array("stu_report.php");
+$reportmenu=array("stu_report.php","enquiry_report.php");
 ?>
 
 <!DOCTYPE html>
@@ -330,6 +330,11 @@ function removeplaysound(ids) {
                           <div data-i18n="course">Assignment Section</div>
                         </a>
                       </li>
+              <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="single_stu_assignment.php"?"active":"" ?>">
+                <a href="single_stu_assignment.php" class="menu-link">
+                  <div data-i18n="course">Single Student Assignment Section</div>
+                </a>
+              </li>
               <?php }
               if(isset($menu["attendance"])=="attendance"){ ?>
               <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="attendance.php"?"active":"" ?>">
@@ -478,7 +483,7 @@ function removeplaysound(ids) {
               }
           ?>
 
-          <?php  if(in_array("student_report",$menu) || in_array("faculty_report",$menu) || in_array("attendance_report",$menu) )
+          <?php  if(in_array("student_report",$menu) || in_array("faculty_report",$menu) || in_array("attendance_report",$menu) || in_array("enquiry_report",$menu) )
             {
               ?>
 
@@ -508,6 +513,11 @@ function removeplaysound(ids) {
                   </a>
                 </li>
                 <?php } ?>
+                <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="enquiry_report.php"?"active":"" ?>">
+                  <a href="enquiry_report.php" class="menu-link">
+                  <div data-i18n="course">Enquiry Report</div>
+                  </a>
+                </li>
 
               </ul>
             </li>
