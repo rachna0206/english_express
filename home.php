@@ -260,7 +260,7 @@ $stmt_list9->close();
                   </div>
                 </div>
               </div>
-              <span class="d-block mb-1">Today's Inquiry</span>
+              <span class="d-block mb-1">Today's Enquiry</span>
               <h3 class="card-title text-nowrap mb-2"><?php echo $lead?></h3>
               
             </div>

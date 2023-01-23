@@ -278,7 +278,7 @@ else if(isset($_REQUEST["typ"]))
   function view_stu_data(stu)
   {
     createCookie("enquiry_report_id",stu,1);
-    //window.open('enquiry_report_detail.php', '_blank');
+    window.open('enquiry_report_detail.php', '_blank');
     
 
   }

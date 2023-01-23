@@ -177,7 +177,7 @@ if(isset($_REQUEST["flg"]) && $_REQUEST["flg"]=="del")
           success: function(result){
             //alert(result);
             var res=result.split("@@@@@");
-            alert(res[1]);
+            //alert(res[1]);
             $('#batch_list_div').html('');
             $('#batch_list_div').append(res[0]);
             $('#new_stu_id').html('');
