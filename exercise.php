@@ -615,8 +615,9 @@ if(isset($_COOKIE["msg"]) )
         $('#reading0').removeAttr("checked");
       }
       $('#btnsubmit').attr('hidden',true);
-            $('#btnupdate').attr('hidden',true);
+      $('#btnupdate').attr('hidden',true);
       $('#btnsubmit').attr('disabled',true);
+      $('#btnupdate').attr('disabled',true);
 
     }
 
