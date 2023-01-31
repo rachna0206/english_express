@@ -476,7 +476,7 @@ if(isset($_COOKIE["msg"]) )
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Course Enrolled</label>
                           <select name="course[]" id="course" class="form-control js-example-basic-multiple" required multiple="multiple">
-                            <option value="">Select</option>
+                            <option value="">Select All</option>
                             <?php while($c=mysqli_fetch_array($res2)){ ?>
                                 <option value="<?php echo $c["courseid"] ?>"><?php echo $c["coursename"] ?></option>
                             <?php } ?>
@@ -487,7 +487,7 @@ if(isset($_COOKIE["msg"]) )
 						            <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Skills</label>
                           <select name="skills[]" id="skills" class="form-control js-example-basic-multiple" required multiple="multiple">
-                          	<option value="">Select</option>
+                          	<option value="">Select All</option>
           					         <?php while($s=mysqli_fetch_array($res1)){ ?>
                               		<option value="<?php echo $s["skid"] ?>"><?php echo $s["skills"] ?></option>
                               <?php }	?>
@@ -601,6 +601,7 @@ if(isset($_COOKIE["msg"]) )
   $(document).ready(function() {
     $('.js-example-basic-multiple').select2();
 });
+
 
 	function readURL_p(input) {
 	    if (input.files && input.files[0]) {
@@ -788,6 +789,39 @@ if(isset($_COOKIE["msg"]) )
             }
         });
   }
+
+   $('#skills').on("select2:select", function (e) { 
+    
+           var data = e.params.data.text;
+           if(data=='Select All'){
+            $("#skills > option").prop("selected","selected");
+            var sel_all = $('#skills option[value=""]');
+            sel_all.prop('selected', false);
+ 
+            $("#skills").trigger("change");
+           }
+      });
+
+    $('#course').on("select2:select", function (e) { 
+    
+           var data = e.params.data.text;
+           if(data=='Select All'){
+            $("#course > option").prop("selected","selected");
+            var sel_all = $('#course option[value=""]');
+            sel_all.prop('selected', false);
+            $("#course").trigger("change");
+           }
+      });
+
+  /* $('.js-example-basic-multiple').on("select2:unselect", function (e) { 
+    
+           var data = e.params.data.text;
+           console.log(data);
+           if(data=='Select All'){
+            $('.js-example-basic-multiple').val(null).trigger("change");
+            
+           }
+      });*/
 </script>
 
 <?php 

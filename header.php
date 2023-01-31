@@ -3,7 +3,7 @@ ob_start();
 //include ("db_connect.php");
 //$obj=new DB_connect();
 date_default_timezone_set("Asia/Kolkata");
-error_reporting(E_ALL);
+error_reporting(0);
 
 session_start();
 include("checkPer.php");
@@ -28,7 +28,7 @@ if($res=checkMainMenu($_SESSION["utype"])){
 else{ }
 
 $frontdeskmenu=array("lead_generation.php","student_reg.php","batch.php","batch_assign.php");
-$facultymenu=array("stu_assignment.php","attendance.php","assign_printing.php");
+$facultymenu=array("stu_assignment.php","attendance.php","assign_printing.php","printing_inventory.php");
 $adminmenu=array("branch.php","course.php","skills.php","Book.php","chapter.php","city.php","exercise.php","faculty_reg.php","associate_reg.php","motivation.php","permissions.php","send_notification.php","state.php","transfer.php","task.php");
 $reportmenu=array("stu_report.php","enquiry_report.php");
 ?>
@@ -347,6 +347,11 @@ function removeplaysound(ids) {
               <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="assign_printing.php"?"active":"" ?>">
                         <a href="assign_printing.php" class="menu-link">
                           <div data-i18n="course">Printing Section</div>
+                        </a>
+                      </li>
+                      <li class="menu-item <?php echo basename($_SERVER["PHP_SELF"])=="printing_inventory.php"?"active":"" ?>">
+                        <a href="printing_inventory.php" class="menu-link">
+                          <div data-i18n="course">Printing Inventory</div>
                         </a>
                       </li>
               <?php }

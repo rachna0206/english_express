@@ -671,103 +671,129 @@ END ");
 		
 		$html="";
 		// get stu assignment data
+
+		//select sa.*, DATE_FORMAT(sa.alloted_dt, '%d-%m-%Y') as alloted, DATE_FORMAT(sa.expected_dt, '%d-%m-%Y') as expected, ba.name bname, s.name sname, b.bookname, c.chapter_name, e.exer_name, f.name fname,GROUP_CONCAT(sa.skill) as skill from stu_assignment sa, batch ba, books b, chapter c, student s, exercise e, faculty f where sa.batch_id= ba.id and sa.stu_id=s.sid and sa.book_id=b.bid and sa.chap_id=c.cid and sa.exercise_id=e.eid and sa.faculty_id=f.id 
+
 		$stmt_assign = $obj->con1->prepare("select s1.*,s2.name,c1.chapter_name,b2.bookname,b1.name as batch_name from stu_assignment s1,student s2,batch b1,books b2,chapter c1 where s1.stu_id=s2.sid and s1.batch_id=b1.id and s1.book_id=b2.bid and s1.chap_id=c1.cid and s1.said=?");
 		$stmt_assign->bind_param("i",$said);
 		$stmt_assign->execute();
 		$assign_data = $stmt_assign->get_result()->fetch_assoc();
 		$stmt_assign->close();
-		$stmt_faculty= $obj->con1->prepare("select * from faculty");
-		$stmt_faculty->execute();
-		$res_faculty= $stmt_faculty->get_result();
-		$stmt_faculty->close();
+
+		// exercise list
+
+		
+		$stmt_exe=$obj->con1->prepare("select * from stu_assignment where exercise_id=? and stu_id=?");
+		$stmt_exe->bind_param("ii",$assign_data["exercise_id"],$assign_data["stu_id"]);
+		$stmt_exe->execute();
+		$res_exe=$stmt_exe->get_result();
+		$stmt_exe->close();
+		
 	
 		$html='<form  method="post"><div class="modal-body" ><div class="row">
+		<input type="hidden" name="exe_id" value="'.$assign_data["exercise_id"].'">
+		<input type="hidden" name="stu_id" value="'.$assign_data["stu_id"].'"/>
           <div class="col mb-3">
             <label for="nameWithTitle" class="form-label">Student Name</label>
             <input type="text" id="sname" name="sname" class="form-control" readonly value="'.$assign_data['name'].'"/>
           </div>
-          <input type="hidden" name="said" value="'.$said.'"/>
+          
           <div class="col mb-3">
             <label for="nameWithTitle" class="form-label">Batch Name</label>
             <input type="text" id="batch" name="batch" class="form-control" readonly value="'.$assign_data['batch_name'].'"/>
           </div>
-        </div>
-        <div class="row g-2">
           <div class="col mb-0">
             <label for="emailWithTitle" class="form-label">Book Name</label>
             <input type="text" id="book" name="book" class="form-control" readonly value="'.$assign_data['bookname'].'"/>
           </div>
+        </div>
+        <div class="row g-2">
+          
           <div class="col mb-0">
             <label for="dobWithTitle" class="form-label">Chapter Name</label>
             <input type="text" id="chapter" name="chapter" class="form-control" readonly value="'.$assign_data['chapter_name'].'"/>
           </div>
-        </div>
-        <div class="row g-2">
-          <div class="col mb-0">
-            <label for="emailWithTitle" class="form-label">Skill Name</label>
-            <input type="text" id="skill" name="skill" class="form-control" readonly value="'.$assign_data['skill'].'"/>
-          </div>
           <div class="col mb-0">
             <label for="dobWithTitle" class="form-label">Alloted Date</label>
             <input type="date" id="alloted_dt" name="alloted_dt" class="form-control" readonly value="'.$assign_data['alloted_dt'].'"/>
-          </div>
-        </div>
-        <div class="row g-2">
-          <div class="col mb-0">
-            <label for="emailWithTitle" class="form-label">Student Status</label>
-            <input type="text" id="stu_status" name="stu_status" class="form-control" readonly value="'.$assign_data['stu_status'].'"/>
           </div>
           <div class="col mb-0">
             <label for="dobWithTitle" class="form-label">Expected Completion Date</label>
             <input type="date" id="completion_date" name="completion_date" class="form-control" readonly value="'.$assign_data['expected_dt'].'" />
           </div>
         </div>
+        
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="emailWithTitle" class="form-label">Student Status</label>
+            <input type="text" id="stu_status" name="stu_status" class="form-control" readonly value="'.$assign_data['stu_status'].'"/>
+          </div>
+          
+        </div>';
+        $i=0;
+        while($skills=mysqli_fetch_array($res_exe))
+        {
+
+        
+		    //faculty list
+				$stmt_faculty= $obj->con1->prepare("select * from faculty");
+				$stmt_faculty->execute();
+				$res_faculty= $stmt_faculty->get_result();
+				$stmt_faculty->close();
+        $html.='<div class="card-body">
+  			<legend>Skill Name: '.$skills['skill'].'</legend>
         <div class="row g-2">
           <div class="col mb-0">
             <label for="emailWithTitle" class="form-label">Faculty Remark</label>
-            <select name="faculty_status" id="faculty_status" class="form-control">
+            <select name="faculty_status'.$i.'" id="faculty_status'.$i.'" class="form-control">
               <option value="">Select Status</option>
-              <option value="Completed with Good Understanding" '.($assign_data["status"]=="Completed with Good Understanding"?"selected":"").'>Completed with Good Understanding</option>
-              <option value="Completed with Average Understanding" '.($assign_data["status"]=="Completed with Average Understanding"?"selected":"").'>Completed with Average Understanding</option>
-              <option value="Completed with No Understanding" '.($assign_data["status"]=="Completed with No Understanding"?"selected":"").'>Completed with No Understanding</option>
+              <option value="Completed with Good Understanding" '.($skills["status"]=="Completed with Good Understanding"?"selected":"").'>Completed with Good Understanding</option>
+              <option value="Completed with Average Understanding" '.($skills["status"]=="Completed with Average Understanding"?"selected":"").'>Completed with Average Understanding</option>
+              <option value="Completed with No Understanding" '.($skills["status"]=="Completed with No Understanding"?"selected":"").'>Completed with No Understanding</option>
             </select>
           </div>
           <div class="col mb-0">
             <label for="dobWithTitle" class="form-label">Faculty Name</label>
-            <select name="faculty_id" id="faculty_id" class="form-control" required>
+            <select name="faculty_id'.$i.'" id="faculty_id'.$i.'" class="form-control" required>
               <option value="">Select Faculty Name</option>';   
               while($faculty=mysqli_fetch_array($res_faculty))
               {
-              	$html.='<option value="'.$faculty["id"].'" '.($assign_data["faculty_id"]==$faculty["id"]?"selected":"").'>'.$faculty["name"].'</option>';
+              	$html.='<option value="'.$faculty["id"].'" '.($skills["faculty_id"]==$faculty["id"]?"selected='selected'":"").'>'.$faculty["name"].'</option>';
               }
      
             $html.='</select>
           </div>
         </div>
+
         <div class="row g-2">
           <div class="col mb-0">
             <label for="emailWithTitle" class="form-label">Completion Date</label>
-            <input type="date" id="completion_date" name="completion_date" class="form-control" value="'.$assign_data['completion_dt'].'"/>
+            <input type="date" id="completion_date'.$i.'" name="completion_date'.$i.'" class="form-control" value="'.$skills['completion_dt'].'"/>
           </div>
           <div class="col mb-0">
             <label for="dobWithTitle" class="form-label">Work Type</label><br>
-            <input type="radio" id="work_hw" name="work_type" value="hw" '.($assign_data["work_type"]=="hw"?"checked":"").'/> Home Work
-            <input type="radio" id="work_cw" name="work_type" value="cw" '.($assign_data["work_type"]=="cw"?"checked":"").'/> Class Work
+            <input type="radio" id="work_hw'.$i.'" name="work_type'.$i.'" value="hw" '.($skills["work_type"]=="hw"?"checked":"").'/> Home Work
+            <input type="radio" id="work_cw'.$i.'" name="work_type'.$i.'" value="cw" '.($skills["work_type"]=="cw"?"checked":"").'/> Class Work
           </div>
         </div>
         <div class="row g-2">
           <div class="col mb-0">
             <label for="emailWithTitle" class="form-label">Explaination Status</label><br>
-            <input type="radio" id="not_explained" name="explain_status" value="Not Explained" '.($assign_data["explain_by_teacher"]=="Not Explained"?"checked":"").'/> Not Explained
-            <input type="radio" id="half_explained" name="explain_status" value="Half Explained" '.($assign_data["explain_by_teacher"]=="Half Explained"?"checked":"").'/> Half Explained
-            <input type="radio" id="explained" name="explain_status" value="Explained" '.($assign_data["explain_by_teacher"]=="Explained"?"checked":"").'/> Explained
+            <input type="radio" id="not_explained'.$i.'" name="explain_status'.$i.'" value="Not Explained" '.($skills["explain_by_teacher"]=="Not Explained"?"checked":"").'/> Not Explained
+            <input type="radio" id="half_explained'.$i.'" name="explain_status'.$i.'" value="Half Explained" '.($skills["explain_by_teacher"]=="Half Explained"?"checked":"").'/> Half Explained
+            <input type="radio" id="explained'.$i.'" name="explain_status'.$i.'" value="Explained" '.($skills["explain_by_teacher"]=="Explained"?"checked":"").'/> Explained
           </div>
+          
          
       </div>
+      </div>
+        <hr class="m-0">';
+        $i++;
+        }	
 
       
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary" name="btn_modal_update">Save changes</button>
+      $html.='<div class="modal-footer">
+        <button type="submit" class="btn btn-primary" name="btn_modal_update">Save Changes</button>
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
           Close
         </button>
@@ -776,7 +802,7 @@ END ");
       echo $html;
 	}
 	if($_REQUEST['action']=="get_stu_skills")
-	{
+	{ 	
 		$stu_id=$_REQUEST['stu_id'];
 		$html="";
 		$stmt_slist = $obj->con1->prepare("select * from skill");

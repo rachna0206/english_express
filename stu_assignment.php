@@ -83,30 +83,42 @@ if(isset($_REQUEST["btn_modal_update"]))
 {
 
   
-  $faculty_status = $_REQUEST['faculty_status'];
   
-  $faculty_id = $_REQUEST['faculty_id'];
   
-  $comp_dt=$_REQUEST['completion_date'];
-  $work_type = $_REQUEST['work_type'];
-  $explain_type = $_REQUEST['explain_status'];
-  $said=$_REQUEST["said"];
-    
-        
-  try
+  $exer_id=$_REQUEST['exe_id'];
+  $stu_id=$_REQUEST['stu_id'];
+
+  $stmt_exe=$obj->con1->prepare("select * from stu_assignment where exercise_id=? and stu_id=?");
+  $stmt_exe->bind_param("ii",$exer_id,$stu_id);
+  $stmt_exe->execute();
+  $res_exe=$stmt_exe->get_result();
+  $stmt_exe->close();
+  $i=0;
+  while($exer=mysqli_fetch_array($res_exe))
   {
+    $faculty_status = $_REQUEST['faculty_status'.$i];
+  
+    $faculty_id = $_REQUEST['faculty_id'.$i];
     
-    $stmt = $obj->con1->prepare("update stu_assignment set status=?,faculty_id=?,completion_dt=?,work_type=?,explain_by_teacher=? where said=?");
-    $stmt->bind_param("sisssi",$faculty_status,$faculty_id,$comp_dt,$work_type,$explain_type,$said);
-    $Resp=$stmt->execute();
-    if(!$Resp)
+    $comp_dt=$_REQUEST['completion_date'.$i];
+    $work_type = $_REQUEST['work_type'.$i];
+    $explain_type = $_REQUEST['explain_status'.$i];       
+    try
     {
-      throw new Exception("Problem in updating! ". strtok($obj->con1-> error,  '('));
+      
+      $stmt = $obj->con1->prepare("update stu_assignment set status=?,faculty_id=?,completion_dt=?,work_type=?,explain_by_teacher=? where said=?");
+      $stmt->bind_param("sisssi",$faculty_status,$faculty_id,$comp_dt,$work_type,$explain_type,$exer["said"]);
+      $Resp=$stmt->execute();
+      if(!$Resp)
+      {
+        throw new Exception("Problem in updating! ". strtok($obj->con1-> error,  '('));
+      }
+      $stmt->close();
+    } 
+    catch(Exception  $e) {
+      setcookie("sql_error",urlencode($e->getMessage()),time()+3600,"/");
     }
-    $stmt->close();
-  } 
-  catch(Exception  $e) {
-    setcookie("sql_error",urlencode($e->getMessage()),time()+3600,"/");
+    $i++;
   }
   //"Assignment not alloted to already assigned students!!"
    
@@ -682,7 +694,8 @@ if(isset($_COOKIE["msg"]) )
                     </thead>
                     <tbody class="table-border-bottom-0">
                       <?php 
-                        $stmt_list = $obj->con1->prepare("select sa.*, DATE_FORMAT(sa.alloted_dt, '%d-%m-%Y') as alloted, DATE_FORMAT(sa.expected_dt, '%d-%m-%Y') as expected, ba.name bname, s.name sname, b.bookname, c.chapter_name, e.exer_name, f.name fname  from stu_assignment sa, batch ba, books b, chapter c, student s, exercise e, faculty f where sa.batch_id= ba.id and sa.stu_id=s.sid and sa.book_id=b.bid and sa.chap_id=c.cid and sa.exercise_id=e.eid and sa.faculty_id=f.id order by said desc");
+
+                        $stmt_list = $obj->con1->prepare("select sa.*, DATE_FORMAT(sa.alloted_dt, '%d-%m-%Y') as alloted, DATE_FORMAT(sa.expected_dt, '%d-%m-%Y') as expected, ba.name bname, s.name sname, b.bookname, c.chapter_name, e.exer_name, f.name fname,GROUP_CONCAT(sa.skill) as skill from stu_assignment sa, batch ba, books b, chapter c, student s, exercise e, faculty f where sa.batch_id= ba.id and sa.stu_id=s.sid and sa.book_id=b.bid and sa.chap_id=c.cid and sa.exercise_id=e.eid and sa.faculty_id=f.id group by sa.exercise_id,sa.stu_id order by said desc");
                         $stmt_list->execute();
                         $result = $stmt_list->get_result();
                         
@@ -735,7 +748,7 @@ if(isset($_COOKIE["msg"]) )
 
 <!-- Modal -->
 <div class="modal fade" id="modalCenter" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalCenterTitle">Assignment Update Page</h5>

@@ -657,7 +657,7 @@ if(isset($_COOKIE["msg"]) )
                         <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Course Enrolled</label>
                           <select name="course[]" id="course" class="form-control js-example-basic-multiple" required multiple="multiple">
-                            <option value="">Select</option>
+                            <option value="">Select All</option>
                             <?php while($c=mysqli_fetch_array($res2)){ ?>
                                 <option value="<?php echo $c["courseid"] ?>"><?php echo $c["coursename"] ?></option>
                             <?php } ?>
@@ -667,7 +667,7 @@ if(isset($_COOKIE["msg"]) )
 						            <div class="mb-3">
                           <label class="form-label" for="basic-default-fullname">Skills</label>
                           <select name="skills[]" id="skills" class="form-control js-example-basic-multiple" required multiple="multiple">
-                          	<option value="">Select</option>
+                          	<option value="">Select All</option>
 					<?php while($s=mysqli_fetch_array($res1)){ ?>
                     		<option value="<?php echo $s["skid"] ?>"><?php echo $s["skills"] ?></option>
                     <?php }	?>
@@ -1095,6 +1095,27 @@ select st.*,GROUP_CONCAT(c.coursename)as coursename,'-' as batch_time,'-' as bat
     }
     return retVal;
 }
+
+$('#skills').on("select2:select", function (e) { 
+    
+           var data = e.params.data.text;
+           if(data=='Select All'){
+            $("#skills > option").prop("selected","selected");
+            var sel_all = $('#skills option[value=""]');
+            sel_all.prop('selected', false);
+            $("#skills").trigger("change");
+           }
+      });
+$('#course').on("select2:select", function (e) { 
+    
+           var data = e.params.data.text;
+           if(data=='Select All'){
+            $("#course > option").prop("selected","selected");
+            var sel_all = $('#course option[value=""]');
+            sel_all.prop('selected', false);
+            $("#course").trigger("change");
+           }
+      });
 </script>
 
 <?php 
