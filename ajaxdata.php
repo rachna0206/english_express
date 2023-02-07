@@ -930,7 +930,511 @@ END ");
 
 		echo $batch_list."@@@@@".$stu_list;
  	}
+ 	
+ 	if($_REQUEST['action']=="printing_modal")
+	{
+		$id=$_REQUEST["id"];
+		
+		$html="";
+		// get stu assignment data
+		$stmt = $obj->con1->prepare("select p.*,f.name,b.bookname,c.chapter_name,c.start_pg,c.end_pg from printing p, faculty f, books b, chapter c where p.faculty_id=f.id and p.book_id=b.bid and p.chap_id=c.cid and pid=?");
+		$stmt->bind_param("i",$id);
+		$stmt->execute();
+		$print_data = $stmt->get_result()->fetch_assoc();
+		$stmt->close();
 	
+		$stmt_inventory= $obj->con1->prepare("select * from printing_inventory where chap_id=?");
+		$stmt_inventory->bind_param("i",$print_data['chap_id']);
+		$stmt_inventory->execute();
+		$inventory_data = $stmt_inventory->get_result()->fetch_assoc();
+		$stmt_inventory->close();
+
+		$copies_left_to_print = $print_data['copies']-($print_data['actual_printing']+$print_data['from_inventory']);
+
+		if($inventory_data['no_copies']!=""){
+			$inventory_copies = $inventory_data['no_copies'];
+		} else{
+			$inventory_copies = '0';
+		}
+	
+		$html='<form  method="post"><div class="modal-body" ><div class="row g-2">
+          <div class="col mb-3">
+            <label for="nameWithTitle" class="form-label">Book Name</label>
+            <input type="text" id="book" name="book" class="form-control" readonly value="'.$print_data['bookname'].'"/>
+          	<input type="hidden" name="pid" value="'.$id.'"/>
+          </div>
+          <div class="col mb-3">
+            <label for="nameWithTitle" class="form-label">Chapter Name</label>
+            <input type="text" id="chap" name="chap" class="form-control" readonly value="'.$print_data['chapter_name'].'"/>
+            <input type="hidden" name="chap_id" value="'.$print_data['chap_id'].'"/>
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Start Page</label>
+            <input type="text" id="start_pg" name="start_pg" class="form-control" readonly value="'.$print_data['start_pg'].'"/>
+          </div>
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">End Page</label>
+            <input type="text" id="end_pg" name="end_pg" class="form-control" readonly value="'.$print_data['end_pg'].'"/>
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">No. of Copies</label>
+            <input type="text" id="copies" name="copies" class="form-control" readonly value="'.$copies_left_to_print.'"/>
+          </div>
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Copies in Inventory</label>
+            <input type="text" id="inventory_copies" name="inventory_copies" class="form-control" readonly value="'.$inventory_copies.'"/>
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">No. of Copies Printed</label>
+            <input type="text" id="copies_to_be_printed" name="copies_to_be_printed" onkeyup ="checkCopies(copies.value,inventory_copies.value,this.value,copies_from_inventory.value)" required class="form-control"/>
+          </div>
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Copies Used from Inventory</label>
+            <input type="text" id="copies_from_inventory" name="copies_from_inventory" onkeyup ="checkCopies(copies.value,inventory_copies.value,copies_to_be_printed.value,this.value)" required class="form-control"/>
+          </div>
+          <div id="alert_div" class="text-danger"></div>  
+          <div id="alert_div1" class="text-danger"></div>  
+        </div>
+      
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" name="btn_modal_update" id="btn_modal_update">Save changes</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        </form>
+      </div>';
+      echo $html;
+	}
+
+	if($_REQUEST['action']=="more_info_modal")
+	{
+		$html="";
+   	$html='<form  method="post"><div class="modal-body" ><div class="row g-2">
+          <div class="col mb-3">
+            <label for="nameWithTitle" class="form-label">Nationality</label>
+            <input type="text" class="form-control" name="nation" id="nation" required />
+          	<input type="hidden" name="ttId" id="ttId">
+          </div>
+          <div class="col mb-3">
+            <label for="nameWithTitle" class="form-label">Religion</label>
+            <input type="text" class="form-control" name="religion" id="religion" required />
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Caste</label>
+            <input type="text" class="form-control" name="caste" id="caste" required />
+          </div>
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Sub-Caste</label>
+            <input type="text" class="form-control" name="s-caste" id="s-caste" required />
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Category</label>
+            <input type="text" class="form-control" name="category" id="category" required />
+          </div>
+          <div class="col mb-0">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Language Spoken</label>
+            <div>
+              <input class="form-check-input" type="radio" name="language" id="english" value="english" required >
+              <label class="form-check-label" for="inlineRadio1">English</label>
+            </div>
+            <div class="form-check form-check-inline mt-3">
+              <input class="form-check-input" type="radio" name="language" id="hindi" value="hindi" required >
+              <label class="form-check-label" for="inlineRadio1">Hindi</label>
+            </div>
+            <div class="form-check form-check-inline mt-3">
+              <input class="form-check-input" type="radio" name="language" id="gujarati" value="gujarati" required >
+              <label class="form-check-label" for="inlineRadio1">Gujarati</label>
+            </div>
+            <div class="form-check form-check-inline mt-3">
+              <input class="form-check-input" type="radio" name="language" id="marathi" value="marathi" required >
+              <label class="form-check-label" for="inlineRadio1">Marathi</label>
+            </div>
+            <div class="form-check form-check-inline mt-3">
+              <input class="form-check-input" type="radio" name="language" id="other" value="other" required >
+              <label class="form-check-label" for="inlineRadio1">Other</label>
+            </div>
+          </div>
+        </div>
+        </div>
+      
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" name="btnsubmit_moreinfo" id="btnsubmit_moreinfo">Submit</button>
+        <button type="submit" class="btn btn-primary" name="btnupdate_moreinfo" id="btnupdate_moreinfo" hidden>Update</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </form>
+      </div>';
+      echo $html;
+	}
+	if($_REQUEST['action']=="address_modal")
+	{
+		$html="";
+
+		$stmt_slist = $obj->con1->prepare("select * from state where status='enable'");
+   	$stmt_slist->execute();
+   	$res = $stmt_slist->get_result();
+   	$stmt_slist->close();
+
+   	$html='<form  method="post"><div class="modal-body" ><div class="row g-2">
+          <div class="col mb-3">
+            <label for="nameWithTitle" class="form-label">Select State</label>
+              <select name="state" id="state" class="form-control" onchange="cityList(this.value)" required>
+              <option value="">Select State</option>';
+              
+              while($state=mysqli_fetch_array($res)){
+                $html.='<option value="'.$state["state_id"].'">'.$state["state_name"].'</option>';
+              }
+      $html.='</select>
+          	<input type="hidden" name="ttId" id="ttId">
+          </div>
+          <div class="col mb-3">
+            <label for="nameWithTitle" class="form-label">Select City</label>
+              <select name="city" id="city" class="form-control" required>
+              <option value="">Select City</option>
+              </select>
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">District</label>
+            <input type="text" class="form-control" name="dist" id="dist" required />
+          </div>
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Sub-District</label>
+            <input type="text" class="form-control" name="s_dist" id="s_dist" />
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Village</label>
+            <input type="text" class="form-control" name="vil" id="vil" required />
+          </div>
+          <div class="col mb-0">
+          	<label for="nameWithTitle" class="form-label">Post Office</label>
+            <input type="text" class="form-control" name="post" id="post" required />
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Pin Code</label>
+            <input type="text" class="form-control" name="p_code" id="p_code" required />
+          </div>
+          <div class="col mb-0">
+          	<label for="nameWithTitle" class="form-label">Society/Apartment</label>
+            <input type="text" class="form-control" name="aptmnt" id="aptmnt" required />
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Street/Faliyu</label>
+            <input type="text" class="form-control" name="street" id="street" required />
+          </div>
+          <div class="col mb-0">
+          	<label for="nameWithTitle" class="form-label">House/Flat Number</label>
+            <input type="text" class="form-control" name="flt_no" id="flt_no" required />
+          </div>
+        </div>
+        </div>
+      
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" name="btnsubmit_address" id="btnsubmit_address">Submit</button>
+        <button type="submit" class="btn btn-primary" name="btnupdate_address" id="btnupdate_address" hidden>Update</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </form>
+      </div>';
+      echo $html;
+	}	
+	if($_REQUEST['action']=="contact_modal")
+	{
+		$html="";
+   	$html='<form  method="post"><div class="modal-body" ><div class="row g-2">
+          <div class="col mb-3">
+            <label for="nameWithTitle" class="form-label">Student Mobile Number</label>
+            <input type="tel" pattern="[0-9]{10}" class="form-control phone-mask" id="stu_no" name="stu_no"  />
+          	<input type="hidden" name="ttId" id="ttId">
+          </div>
+          <div class="col mb-3">
+            <label for="nameWithTitle" class="form-label">Student Alternate Number</label>
+            <input type="tel" pattern="[0-9]{10}" class="form-control phone-mask" id="alt_no" name="alt_no"  />
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Student Whatsapp Number</label>
+            <input type="tel" pattern="[0-9]{10}" class="form-control phone-mask" id="stu_wha" name="stu_wha"  />
+          </div>
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Father Contact Number</label>
+            <input type="tel" pattern="[0-9]{10}" class="form-control phone-mask" id="father_no" name="father_no"  />
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Mother Contact Number</label>
+            <input type="tel" pattern="[0-9]{10}" class="form-control phone-mask" id="mother_no" name="mother_no"  />
+          </div>
+          <div class="col mb-0">
+	          <label for="nameWithTitle" class="form-label">Guardian Contact Number</label>
+	          <input type="tel" pattern="[0-9]{10}" class="form-control phone-mask" id="guardian_no" name="guardian_no"  />
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Relation With Guardian</label>
+            <input type="text" class="form-control" name="relation" id="relation"  />
+          </div>
+          <div class="col mb-0">
+          </div>
+        </div>
+        </div>
+      
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" name="btnsubmit_contact" id="btnsubmit_contact">Submit</button>
+        <button type="submit" class="btn btn-primary" name="btnupdate_contact" id="btnupdate_contact" hidden>Update</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </form>
+      </div>';
+      echo $html;
+	}
+	if($_REQUEST['action']=="addmission_modal")
+	{
+		$html="";
+
+   	$html='<form  method="post"><div class="modal-body" ><div class="row g-2">
+          <input type="hidden" name="ttId" id="ttId">
+          <div class="col mb-3">
+            <label for="nameWithTitle" class="form-label">Admission Type</label><div>
+	          <div class="form-check form-check-inline mt-3">
+	            <input class="form-check-input" type="radio" name="type" id="non_organic" value="Non Organic" required >
+	            <label class="form-check-label" for="inlineRadio1">Non-Organic</label>
+	          </div>
+	          <div class="form-check form-check-inline mt-3">
+	            <input class="form-check-input" type="radio" name="type" id="organic" value="Organic" required>
+	            <label class="form-check-label" for="inlineRadio1">Organic</label>
+	          </div>
+	          <div class="form-check form-check-inline mt-3">
+	            <input class="form-check-input" type="radio" name="type" id="refrence" value="Reference" required >
+	            <label class="form-check-label" for="inlineRadio1">Refrence</label>
+	          </div>
+	           <div class="form-check form-check-inline mt-3">
+	            <input class="form-check-input" type="radio" name="type" id="student" value="Old Student" required >
+	            <label class="form-check-label" for="inlineRadio1">Old Student</label>
+	          </div>
+	          <div class="form-check form-check-inline mt-3">
+	            <input class="form-check-input" type="radio" name="type" id="next_course" value="Next Course" required >
+	            <label class="form-check-label" for="inlineRadio1">Next Course</label>
+	          </div>
+	        </div>
+	        <div class="row g-2">
+	          <div class="col mb-0">
+	            <label for="nameWithTitle" class="form-label">Source</label><div>
+              <div class="form-check form-check-inline mt-3">
+                <input class="form-check-input" type="radio" name="source" id="google" value="Google" required >
+                <label class="form-check-label" for="inlineRadio1">Google</label>
+              </div>
+              <div class="form-check form-check-inline mt-3">
+                <input class="form-check-input" type="radio" name="source" id="facebook" value="Facebook" required>
+                <label class="form-check-label" for="inlineRadio1">Facebook</label>
+              </div>
+              <div class="form-check form-check-inline mt-3">
+                <input class="form-check-input" type="radio" name="source" id="youtube" value="Youtube" required >
+                <label class="form-check-label" for="inlineRadio1">Youtube</label>
+              </div>
+							<div class="form-check form-check-inline mt-3">
+                <input class="form-check-input" type="radio" name="source" id="instagram" value="Instagram" required >
+                <label class="form-check-label" for="inlineRadio1">Instagram</label>
+              </div>
+              <div class="form-check form-check-inline mt-3">
+                <input class="form-check-input" type="radio" name="source" id="justdial" value="Justdial" required >
+                <label class="form-check-label" for="inlineRadio1">Justdial</label>
+              </div>
+              <div class="form-check form-check-inline mt-3">
+                <input class="form-check-input" type="radio" name="source" id="banner" value="Road Hoardings" required>
+                <label class="form-check-label" for="inlineRadio1">Road Hoardings</label>
+              </div>
+              <div class="form-check form-check-inline mt-3">
+                <input class="form-check-input" type="radio" name="source" id="poster" value="Poster" required >
+                <label class="form-check-label" for="inlineRadio1">Posters</label>
+              </div>
+              <div class="form-check form-check-inline mt-3">
+                <input class="form-check-input" type="radio" name="source" id="brochure" value="Brochure" required >
+                <label class="form-check-label" for="inlineRadio1">Brochures</label>
+              </div>
+              <div class="form-check form-check-inline mt-3">
+                <input class="form-check-input" type="radio" name="source" id="newspaper" value="Newspaper" required >
+                <label class="form-check-label" for="inlineRadio1">Newspaper Ad</label>
+              </div>
+              <div class="form-check form-check-inline mt-3">
+                <input class="form-check-input" type="radio" name="source" id="rickshaw" value="Rickshaw" required >
+                <label class="form-check-label" for="inlineRadio1">Rickshaw</label>
+              </div>
+	        </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" name="btnsubmit_addmi" id="btnsubmit_addmi">Submit</button>
+        <button type="submit" class="btn btn-primary" name="btnupdate_addmi" id="btnupdate_addmi" hidden>Update</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </form>
+      </div>';
+      echo $html;
+	}
+	if($_REQUEST['action']=="swot_modal")
+	{
+		$html="";
+   	$html='<form  method="post"><div class="modal-body" ><div class="row g-2">
+          <div class="col mb-3">
+            <label for="nameWithTitle" class="form-label">Hobbies</label>
+            <input type="text" class="form-control" name="Hobbies" id="Hobbies" required />
+          	<input type="hidden"name="ttsrno" id="ttsrno" hidden="hidden">
+          </div>
+          <div class="col mb-3">
+            <label for="nameWithTitle" class="form-label">Weakness</label>
+            <input type="text" class="form-control duration-mask" id="Weakness" name="Weakness" required="required"/>
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Goal</label>
+            <input type="text" class="form-control duration-mask" id="Goal" name="Goal" required="required"/>
+          </div>
+          <div class="col mb-0">
+          </div>
+        </div>
+        </div>
+      
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" name="btnsubmit_swot" id="btnsubmit_swot">Submit</button>
+        <button type="submit" class="btn btn-primary" name="btnupdate_swot" id="btnupdate_swot" hidden>Update</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </form>
+      </div>';
+      echo $html;
+	}
+	if($_REQUEST['action']=="family_modal")
+	{
+		$html="";
+    $html='<form  method="post"><div class="modal-body" ><div class="row g-2">
+          <div class="col mb-3">
+            <label for="nameWithTitle" class="form-label">Relation with Student</label>
+              <select name="rel" id="rel" class="form-control" required>
+                <option value="">Select</option>
+                <option value="Father" >Father</option>
+                <option value="Mother" >Mother</option>
+                <option value="Brother" >Brother</option>
+                <option value="Sister" >Sister</option>
+                <option value="Myself" >Myself</option>
+              </select>
+          	<input type="hidden" name="ttId" id="ttId">
+          </div>
+          <div class="col mb-3">
+          </div>
+        </div>
+        <label for="nameWithTitle" class="form-label">Education:</label>';
+        $std = array("Playgroup","Nursery","Junior KG","Senior KG","1st Std","2nd Std");
+            	$std_ids = array("playgroup","nursery","junior_kg","senior_kg","std1","std2");
+            	for($i=0;$i<6;$i+=2){
+$html.='<div class="row g-2">
+          <div class="col mb-0">
+            <label class="form-label" for="basic-default-fullname">'.$std[$i].'</label>
+            <select name="'.$std_ids[$i].'" id="'.$std_ids[$i].'" class="form-control">
+              <option value="">Select Medium of Education</option>
+              <option value="Gujarati" >Gujarati</option>
+              <option value="English" >English</option>
+              <option value="Hindi" >Hindi</option>
+              <option value="Other" >Other</option>
+            </select>
+          </div>';
+$html.='  <div class="col mb-0">
+            <label class="form-label" for="basic-default-fullname">'.$std[$i+1].'</label>
+            <select name="'.$std_ids[$i+1].'" id="'.$std_ids[$i+1].'" class="form-control">
+              <option value="">Select Medium of Education</option>
+              <option value="Gujarati" >Gujarati</option>
+              <option value="English" >English</option>
+              <option value="Hindi" >Hindi</option>
+              <option value="Other" >Other</option>
+            </select>
+          </div>
+          </div>';
+            	}
+$html.='<div class="row g-2">
+          <div class="col mb-0">
+            <label class="form-label" for="basic-default-fullname">Till 10th</label>
+            <select name="till10" id="till10" class="form-control">
+              <option value="">Select Medium of Education</option>
+              <option value="Gujarati" >Gujarati</option>
+              <option value="English" >English</option>
+              <option value="Hindi" >Hindi</option>
+              <option value="Other" >Other</option>
+            </select>
+          </div>
+          <div class="col mb-0">
+          </div>
+        </div>
+				<div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">11th Std</label>
+              <select name="11_std" id="11_std" class="form-control">
+                <option value="">Select Stream</option>
+                <option value="Commerce" >Commerce</option>
+                <option value="Science" >Science</option>
+                <option value="Arts" >Arts</option>
+              </select>
+          </div>
+          <div class="col mb-0">
+	          <label for="nameWithTitle" class="form-label">Diploma (Stream)</label>
+            <input type="text" class="form-control" name="diploma" id="diploma" />
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Graduation (Stream)</label>
+            <input type="text" class="form-control" name="graduation" id="graduation" />
+          </div>
+          <div class="col mb-0">
+          	<label for="nameWithTitle" class="form-label">Post Graduation (Stream)</label>
+            <input type="text" class="form-control" name="post_grad" id="post_grad" />
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col mb-0">
+            <label for="nameWithTitle" class="form-label">Occupation:</label>
+           	<div>
+           	<label for="nameWithTitle" class="form-label">Occupation</label>
+              <select name="occupation" id="occupation" class="form-control" required>
+                <option value="">Select</option>
+                <option value="Profession" >Profession</option>
+                <option value="Businessman" >Businessman</option>
+                <option value="Job" >Job</option>
+                <option value="Not working" >Not Working</option>
+                <option value="Retired" >Retired</option>
+              </select>
+            </div>
+          </div>
+          <div class="col mb-0">
+	        </div>
+        </div>
+        </div>
+      
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" name="btnsubmit_family" id="btnsubmit_family">Submit</button>
+        <button type="submit" class="btn btn-primary" name="btnupdate_family" id="btnupdate_family" hidden>Update</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </form>
+      </div>';
+      echo $html;
+	}
 }
 
 

@@ -719,6 +719,56 @@ $app->post('/banner_video', function () use ($app) {
 
 
 /* *
+ * user_detail
+ * Parameters: stu_id,book_id
+ * Method: POST
+ * 
+ */
+
+$app->post('/user_detail', function () use ($app) {
+
+    verifyRequiredParams(array('data'));
+    $data = json_decode($app->request->post('data'));
+    $stu_id = $data->stu_id;
+    
+    
+        
+    $db = new DbOperation();
+    $data = array();
+    $data["data"] = array();  
+    $result=$db->user_detail($stu_id);
+    $data["batches"]=array();
+     
+    
+    while ($row = $result->fetch_assoc()) {
+        
+        $temp = array();
+        foreach ($row as $key => $value) {
+            $temp[$key] = $value;
+        }
+        $temp = array_map('utf8_encode', $temp);
+        array_push($data['data'], $temp);
+        
+    }
+    $result_batch=$db->user_batch($stu_id);
+    while($batch_row=$result_batch->fetch_assoc())
+        {
+            $response = array();
+            foreach ($batch_row as $key => $value) {
+            $response[$key] = $value;
+            }
+            $response["logo_url"]="https://englishexpress.co.in/roots555/batchLogo/";
+            $response = array_map('utf8_encode', $response);
+            array_push($data['batches'], $response);
+        }
+    $data['message'] = "";
+    $data['success'] = true;
+    
+    echoResponse(200, $data);
+});
+
+
+/* *
  * edit_profile
  * Parameters:uid,type
  * Method: POST

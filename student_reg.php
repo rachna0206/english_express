@@ -751,6 +751,7 @@ if(isset($_COOKIE["msg"]) )
                         <th>Course</th>
                         <th>Status</th>
                         <th>Actions</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody class="table-border-bottom-0" id="grid">
@@ -813,6 +814,11 @@ select st.*,GROUP_CONCAT(c.coursename)as coursename,'-' as batch_time,'-' as bat
                         <?php } ?>
                         </td>
                     <?php } ?>
+                        <td>  
+                    <?php if($s["status"]=='registered'){ ?>
+                          <a href="javascript:addMoreInfo('<?php echo $s["sid"]?>')">Add More Info</a>
+                    <?php } ?>
+                        </td>
                       </tr>
                       <?php
                           $i++;
@@ -830,6 +836,13 @@ select st.*,GROUP_CONCAT(c.coursename)as coursename,'-' as batch_time,'-' as bat
 <?php } ?>
             <!-- / Content -->
 <script type="text/javascript">
+
+  function addMoreInfo(id) {
+      document.cookie = "sid="+id;
+      var loc = "student_extra_info.php";
+      window.location = loc;
+  }
+
   $(document).ready(function() {
     $('.js-example-basic-multiple').select2();
 });

@@ -330,6 +330,26 @@ public function banner_video()
     return $exercise;
 }
 
+// user detail
+ public function user_detail($stu_id)
+{
+    $stmt = $this->con->prepare("SELECT * from student where sid=?");
+    $stmt->bind_param("i", $stu_id);
+    $stmt->execute();
+    $stu = $stmt->get_result();
+    $stmt->close();
+    return $stu;
+}
+public function user_batch($stu_id)
+{
+    $stmt = $this->con->prepare("SELECT b1.*,b2.student_status from batch b1,batch_assign b2  where b2.batch_id=b1.id and  b2.student_id=?");
+    $stmt->bind_param("i", $stu_id);
+    $stmt->execute();
+    $stu_batch = $stmt->get_result();
+    $stmt->close();
+    return $stu_batch;
+}
+
 // edit stu profile
 public function edit_stu_profile($uid,$email,$pic)
 {
