@@ -525,7 +525,7 @@ if(isset($_REQUEST['action']))
 		$html='';
 	  	while($noti=mysqli_fetch_array($lead_notification))
 	  	{
-				$html.= '<li><div class="d-flex flex-column"><a class="dropdown-item" href="javascript:removeNotification('.$noti["id"].')"><span class="align-middle">You have student follow up today <br/><small class="text-success fw-semibold">'.$noti["name"].' - '.$noti["phone"].'</small></span></a></div>	</li>';
+				$html.= '<li><div class="d-flex flex-column"><a class="dropdown-item" href="javascript:removeNotification('.$noti["id"].','.$noti["stu_id"].')"><span class="align-middle">You have student follow up today <br/><small class="text-success fw-semibold">'.$noti["name"].' - '.$noti["phone"].'</small></span></a></div>	</li>';
 	  	}
 	  	echo $html."@@@@".$count."@@@@";
 	}

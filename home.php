@@ -52,19 +52,28 @@ $stmt_list6->execute();
 $registered = $stmt_list6->get_result()->num_rows;  
 $stmt_list6->close();
 
-
+/*
 //today's present stu
-$stmt_list7 = $obj->con1->prepare("select * from attendance where dt='".$date."' and faculty_attendance='p' ");
+$stmt_list7 = $obj->con1->prepare("select * from attendance a1, batch_assign ba1 where dt='".$date."' and faculty_attendance='p' and a1.student_id=ba1.student_id and a1.batch_id=ba1.batch_id and ba1.student_status not in ('on_hold','dismiss','course_completed_with_exam','course_completed_without_exam','course_completed','batch_change')");
 $stmt_list7->execute();
 $present = $stmt_list7->get_result()->num_rows;  
 $stmt_list7->close();
 
 //today's absent stu
 
-$stmt_list8 = $obj->con1->prepare("select * from attendance where dt='".$date."' and faculty_attendance='a'  ");
+$stmt_list8 = $obj->con1->prepare("select * from attendance a1, batch_assign ba1 where dt='".$date."' and faculty_attendance='a' and a1.student_id=ba1.student_id and a1.batch_id=ba1.batch_id and ba1.student_status not in ('on_hold','dismiss','course_completed_with_exam','course_completed_without_exam','course_completed','batch_change')");
 $stmt_list8->execute();
 $absent = $stmt_list8->get_result()->num_rows;  
 $stmt_list8->close();
+*/
+
+//today's present and absent
+$stmt_list7 = $obj->con1->prepare("select sum(present) as total_present, sum(absent) as total_absent from (select count(if(faculty_attendance='p',1,null)) as present, count(if(faculty_attendance='a',1,null)) as absent from attendance a1, batch_assign ba1 where a1.student_id=ba1.student_id and a1.batch_id=ba1.batch_id and ba1.student_status not in ('on_hold','dismiss','course_completed_with_exam','course_completed_without_exam','course_completed','batch_change') and a1.dt='".$date."' group by a1.batch_id having present!=0) as t1");
+$stmt_list7->execute();
+$result = $stmt_list7->get_result();
+$stmt_list7->close();
+$res_attendance = mysqli_fetch_array($result);
+
 
 
 //total unassigned stu
@@ -323,7 +332,7 @@ $stmt_list9->close();
                 </div>
               </div>
               <span class="fw-semibold d-block mb-1">Total Present</span>
-              <h3 class="card-title mb-2"><?php echo $present?></h3>
+              <h3 class="card-title mb-2"><?php if($res_attendance[total_present]==""){ echo 0; } else{ echo $res_attendance[total_present]; }?></h3>
               
             </div>
           </div>
@@ -355,7 +364,7 @@ $stmt_list9->close();
                 </div>
               </div>
               <span class="fw-semibold d-block mb-1">Total Absent</span>
-              <h3 class="card-title mb-2"><?php echo $absent?></h3>
+              <h3 class="card-title mb-2"><?php if($res_attendance[total_present]==""){ echo 0; } else{ echo $res_attendance[total_absent]; }?></h3>
               
             </div>
           </div>
@@ -368,6 +377,7 @@ $stmt_list9->close();
 <?php } ?>   
 
 <script type="text/javascript">
+  
   // Use datepicker on the date inputs
 /*$("#dash_date").datepicker({
   dateFormat: 'dd-mm-yyyy',

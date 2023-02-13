@@ -66,7 +66,7 @@ $stmt_batch->close();
                         {
                           while($batch_data=mysqli_fetch_array($result_batch))
                           {
-                            $stmt_attendence = $obj->con1->prepare("select count(if(faculty_attendance='p',1,null)) as faculty_attendance,count(faculty_attendance) as total_attendance from attendance where batch_id=? and dt=?");
+                            $stmt_attendence = $obj->con1->prepare("select count(if(faculty_attendance='p',1,null)) as present,count(if(faculty_attendance='a',1,null)) as absent,count(faculty_attendance) as total_attendance from attendance a1, batch_assign ba1 where ba1.student_id=a1.student_id and a1.batch_id=ba1.batch_id and a1.batch_id=? and a1.dt=? and ba1.student_status not in ('on_hold','dismiss','course_completed_with_exam','course_completed_without_exam','course_completed','batch_change')");
                             $stmt_attendence->bind_param("is",$batch_data["batch_id"],$dt); 
                             $stmt_attendence->execute();
                             $result_attendance = $stmt_attendence->get_result();
@@ -75,7 +75,7 @@ $stmt_batch->close();
 
                             $bid = $batch_data["batch_id"];
 
-                            $stmt_attend = $obj->con1->prepare("select a1.*,DATE_FORMAT(a1.dt, '%d-%m-%Y') as a_dt,s1.name from attendance a1, student s1 where a1.student_id=s1.sid and batch_id=? and dt=?");
+                            $stmt_attend = $obj->con1->prepare("select a1.*,DATE_FORMAT(a1.dt, '%d-%m-%Y') as a_dt,s1.name,ba1.student_status from attendance a1, student s1,batch_assign ba1 where a1.student_id=s1.sid and ba1.student_id=a1.student_id and a1.batch_id=ba1.batch_id and a1.batch_id=? and a1.dt=? and ba1.student_status not in ('on_hold','dismiss','course_completed_with_exam','course_completed_without_exam','course_completed','batch_change')");
                             $stmt_attend->bind_param("is",$batch_data["batch_id"],$dt); 
                             $stmt_attend->execute();
                             $result_attend = $stmt_attend->get_result();
@@ -88,9 +88,9 @@ $stmt_batch->close();
                                 <h2 class="accordion-header" id="headingOne">
                                   <button type="button" class="accordion-button" data-bs-toggle="collapse" data-bs-target="#accordionOne" aria-expanded="true" aria-controls="accordionOne">
                                   <?php echo $batch_data["name"]." - ".$batch_data["stime"]?>
-                                  <span class="text-muted " style="margin-left:20%">Attendance-<?php echo $attendence["faculty_attendance"]?>
-                                    /<?php echo $attendence["total_attendance"]?></span>
-                                  <span class="text-muted " style="margin-left:10%">Capacity-<?php echo $attendence["total_attendance"]?>
+                                  <span class="text-muted " style="margin-left:15%">Present-<?php echo $attendence["present"]?></span>
+                                  <span class="text-muted " style="margin-left:10%">Absent-<?php echo $attendence["absent"]?></span>
+                                  <span class="text-muted " style="margin-left:5%">Capacity-<?php echo $attendence["total_attendance"]?>
                                     /<?php echo $batch_data["capacity"]?></span>
                                   </button>
                                 </h2>

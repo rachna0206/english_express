@@ -167,7 +167,7 @@ function get_notification() {
 
     });
 }
-function removeNotification(id){
+function removeNotification(id,stu){
 
     $.ajax({
         async: true,
@@ -179,8 +179,9 @@ function removeNotification(id){
         timeout:50000,
 
         success: function(data){
+            createCookie("enquiry_report_id",stu,1);
+            window.open('enquiry_report_detail.php', '_blank');
             
-            window.location = "lead_generation.php";
           
 
         }
